@@ -1,0 +1,25 @@
+{
+  "name": "typescriptfiles",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/msal-node": "^1.5.0",
+    "buffer": "^6.0.3",
+    "form-data": "^4.0.0",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7",
+    "tslog": "^3.3.1",
+    "url-parse": "^1.5.4"
+  },
+  "devDependencies": {
+    "@types/url-parse": "^1.4.7",
+    "axios": "^0.25.0",
+    "dotenv": "^14.2.0"
+  }
+}
