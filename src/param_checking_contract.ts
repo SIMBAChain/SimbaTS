@@ -53,7 +53,7 @@ class ParamCheckingContract {
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${this.contractUri}/?format=json`);
         const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
         try {
-            const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+            const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
             if (!res.data) {
                 const message = "unable to retrieve metadata"
                 SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);

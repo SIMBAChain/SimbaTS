@@ -9,6 +9,7 @@
     "strict": true,
     "rootDirs": ["./src", "./test"],
     "esModuleInterop": true,
+    "moduleResolution": "node",
     "strictPropertyInitialization": false,
     "typeRoots": ["node_modules/@types"],
     "allowJs": true,

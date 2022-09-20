@@ -6,6 +6,8 @@ import utf8 from "utf8";
 import {
     SimbaConfig,
     AUTHKEY,
+    SimbaEnvFiles,
+    SimbaEnvVariableKeys,
 } from "./config";
 
 export enum RequestMethods {
@@ -13,12 +15,6 @@ export enum RequestMethods {
     PUT = "PUT",
     DELETE = "DELETE",
     GET = "GET",
-}
-
-export enum EnvVariableKeys {
-    ID = "ID",
-    SECRET = "SECRET",
-    AUTHENDPOINT = "ENDPOINT"
 }
 
 export class RequestHandler {
@@ -80,7 +76,7 @@ export class RequestHandler {
         method: string,
         options: Record<any, any>,
         data?: Record<any, any>,
-    ): Promise<AxiosResponse<any> | void> {
+    ): Promise<AxiosResponse<any>> {
         const params = {
             url,
             method,
@@ -110,8 +106,9 @@ export class RequestHandler {
                 break;
             }
             default: {
-                SimbaConfig.log.error(`:: SIMBA : EXIT : unrecognized request method: ${method}`);
-                return;
+                const message = `unrecognized request method: ${method}`;
+                SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
+                throw(message)
             }
         }
         SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${JSON.stringify(res)}`);
@@ -127,34 +124,11 @@ export class RequestHandler {
         }
     }
 
-    /**
-     * In this method, we should allow users to search both true env vars,
-     * and env vars set in a .env file
-     * @param envVarKey key of environment variable we want to retrieve value
-     */
-    public retrieveEnvVar(envVarKey: EnvVariableKeys): string | void {
-        const params = {
-            envVarKey,
-        }
-        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-        let val = process.env[`SIMBA_AUTH_CLIENT_${envVarKey}`]
-        
-        if (!val && envVarKey === EnvVariableKeys.AUTHENDPOINT) {
-            val = "/o/";
-        }
-        if (!val) {
-            SimbaConfig.log.error(`:: SIMBA : EXIT : unable to find value for key ${envVarKey}`);
-            return;
-        }
-        SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
-        return val;
-    }
-
     public async getAuthTokenFromClientCreds(): Promise<Record<any, any>> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
-        const clientID = this.retrieveEnvVar(EnvVariableKeys.ID);
-        const clientSecret = this.retrieveEnvVar(EnvVariableKeys.SECRET);
-        const authEndpoint = this.retrieveEnvVar(EnvVariableKeys.AUTHENDPOINT);
+        const clientID = SimbaConfig.retrieveEnvVar(SimbaEnvVariableKeys.SIMBA_AUTH_CLIENT_ID);
+        const clientSecret = SimbaConfig.retrieveEnvVar(SimbaEnvVariableKeys.SIMBA_AUTH_CLIENT_SECRET);
+        const authEndpoint = SimbaConfig.retrieveEnvVar(SimbaEnvVariableKeys.SIMBA_AUTH_ENDPOINT);
         const credential = `${clientID}:${clientSecret}`;
         const utf8EncodedCred = utf8.encode(credential);
         const base64EncodedCred = Buffer.from(utf8EncodedCred).toString('base64');

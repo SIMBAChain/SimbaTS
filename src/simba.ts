@@ -30,7 +30,7 @@ export class Simba {
     	const url = this.requestHandler.buildURL(this.baseApiUrl, "/user/whoami/");
     	const options = await this.requestHandler.getAuthAndOptions();
     	try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
       		SimbaConfig.log.debug(`:: SIMBA : EXIT : ${res.data}`);
       		return res;
 		} catch (error) {
@@ -62,7 +62,7 @@ export class Simba {
 		const url = this.baseApiUrl;
     	let options = await this.requestHandler.getAuthAndOptions()
     	try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
 			return res;
 		} catch (error) {
@@ -83,7 +83,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/`);
     	const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -103,7 +103,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/transactions/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -125,7 +125,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -147,7 +147,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/transactions/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -168,7 +168,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contracts/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -191,7 +191,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/validate/${contractName}/${bundleHash}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -214,7 +214,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/bundle/${bundleHash}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -246,7 +246,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/bundle/${bundleHash}/filename/${fileName}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`bundleFile info: ${res.data}`);
 			return res;
 		} catch (error) {
@@ -269,7 +269,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/bundle/${bundleHash}/manifest/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -291,7 +291,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/info/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -314,7 +314,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/contracts/${contractId}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -336,7 +336,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/contracts/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -359,7 +359,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/events/${eventName}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -382,7 +382,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/receipt/${receiptHash}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryMethod);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -405,7 +405,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/transaction/${transactionHash}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -431,7 +431,7 @@ export class Simba {
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		const data = inputs;
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -454,7 +454,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/address/${identifier}/${methodName}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -480,7 +480,7 @@ export class Simba {
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		const data = inputs;
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -502,7 +502,7 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/${methodName}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
 			return res;
 		} catch (error) {
@@ -527,7 +527,7 @@ export class Simba {
 		const data = inputs;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -552,7 +552,7 @@ export class Simba {
 		const data = inputs;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -577,7 +577,7 @@ export class Simba {
 		const data = inputs;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -601,7 +601,7 @@ export class Simba {
 		const data = inputs;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -624,7 +624,7 @@ export class Simba {
 		const data = inputs;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -647,7 +647,7 @@ export class Simba {
 		const data = txn;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
-			const res: any = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.POST, options, data);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {

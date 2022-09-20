@@ -4,7 +4,35 @@ import {cwd} from 'process';
 import {
     Logger,
 } from "tslog";
-const log: Logger = new Logger();
+import * as dotenv from "dotenv";
+
+const SIMBA_HOME = process.env.SIMBA_HOME;
+const DEFAULT_AUTH_ENDPOINT = "/o/";
+
+export enum SimbaEnvVariableKeys {
+    SIMBA_AUTH_CLIENT_ID = "SIMBA_AUTH_CLIENT_ID",
+    SIMBA_AUTH_CLIENT_SECRET = "SIMBA_AUTH_CLIENT_SECRET",
+    SIMBA_API_BASE_URL = "SIMBA_API_BASE_URL",
+    SIMBA_AUTH_BASE_URL = "SIMBA_AUTH_BASE_URL",
+    SIMBA_AUTH_SCOPE = "SIMBA_AUTH_SCOPE",
+    SIMBA_AUTH_REALM = "SIMBA_AUTH_REALM",
+    SIMBA_AUTH_ENDPOINT = "SIMBA_AUTH_ENDPOINT",
+    SIMBA_LOGGING_HOME = "SIMBA_LOGGING_HOME",
+    SIMBA_HOME = "SIMBA_HOME",
+}
+
+export enum SimbaEnvFiles {
+    DOT_SIMBACHAIN_DOT_ENV = ".simbachain.env",
+    SIMBACHAIN_DOT_ENV = "simbachain.env",
+    DOT_ENV = ".env",
+}
+
+// for ordered iteration purposes
+export const simbaEnvFilesArray = [
+    SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV,
+    SimbaEnvFiles.SIMBACHAIN_DOT_ENV,
+    SimbaEnvFiles.DOT_ENV,
+]
 
 export const AUTHKEY = "SIMBAAUTH";
 
@@ -49,7 +77,6 @@ export class SimbaConfig {
      * this is what we use for logging throughout our plugins
      */
     public static get log(): Logger {
-        SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         const logLevel = SimbaConfig.logLevel;
         const logger: Logger = new Logger({minLevel:logLevel});
         return logger;
@@ -57,22 +84,82 @@ export class SimbaConfig {
 
     public static get baseURL(): string {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
-        const baseURL = SimbaConfig.ProjectConfigStore.get("baseURL");
-        SimbaConfig.log.debug(`:: SIMBA : EXIT : baseURL : ${baseURL}`);
+        const baseURL = SimbaConfig.retrieveEnvVar(SimbaEnvVariableKeys.SIMBA_API_BASE_URL);
+        SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
         return baseURL;
+    }
+
+    /**
+     * for env vars, we search, in this order:
+     * local project directory for:
+     *  - .simbachain.env
+     *  - simbachain.env
+     *  - .env
+     * 
+     * then we look for a SIMBA_HOME env var at the system level,
+     * and within that directory, we search for:
+     *  - .simbachain.env
+     *  - simbachain.env
+     *  - .env
+     * 
+     * @param envVarKey key of environment variable we want to retrieve value
+     */
+     public static retrieveEnvVar(envVarKey: SimbaEnvVariableKeys): string {
+        const params = {
+            envVarKey,
+        }
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        if (envVarKey === SimbaEnvVariableKeys.SIMBA_AUTH_ENDPOINT) {
+            SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+            return DEFAULT_AUTH_ENDPOINT;
+        }
+        
+        // first check local project:
+        for (let i = 0; i < simbaEnvFilesArray.length; i++) {
+            const fileName = simbaEnvFilesArray[i];
+            dotenv.config({ path: path.resolve(cwd(), fileName) });
+            const val = process.env[envVarKey];
+            if (val) {
+                console.log(`:: SIMBA : EXIT : retrieved ${envVarKey} from your local project directory.`);
+                return val;
+            }
+        }
+
+        // we're now going to check SIMBA_HOME. so if it wasn't successfully defined at the beginning of this file,
+        // we have a problem
+        if (!SIMBA_HOME) {
+            const message = `unable to find ${envVarKey} in local project, and your SIMBA_HOME environment variable is not set in your system environment variables. To solve, please do one of the following. First, you can create a ${SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV}, ${SimbaEnvFiles.SIMBACHAIN_DOT_ENV}, or ${SimbaEnvFiles.DOT_ENV} file in the root of this project. Secondly/alternatively, you can, in the directory of your choice, create a ${SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV}, ${SimbaEnvFiles.SIMBACHAIN_DOT_ENV}, or ${SimbaEnvFiles.DOT_ENV} file; then you can, as a system environment variable (eg in your .bash_profile) set a SIMBA_HOME environment variable that is defined as the path to that directory. Whichever solution you choose, then set the value for ${envVarKey} inside of your ${SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV}, ${SimbaEnvFiles.SIMBACHAIN_DOT_ENV}, or ${SimbaEnvFiles.DOT_ENV} file.`;
+            SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
+            throw(message);
+        }
+
+        // now we check SIMBA_HOME directory
+        for (let i = 0; i < simbaEnvFilesArray.length; i++) {
+            const fileName = simbaEnvFilesArray[i];
+            dotenv.config({ path: path.resolve(SIMBA_HOME, fileName) });
+            const val = process.env[envVarKey];
+            if (val) {
+                console.log(`:: SIMBA : EXIT : retrieved ${envVarKey} from your SIMBA_HOME directory`);
+                return val;
+            }
+        }
+        
+        const message = `unable to find ${envVarKey} in local project or in your SIMBA_HOME directory. To solve, please make sure ${envVarKey} is set as an environment variable in ${SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV}, ${SimbaEnvFiles.SIMBACHAIN_DOT_ENV}, or ${SimbaEnvFiles.DOT_ENV}. You can do this in either the top level of this project's directory, or in the directory that your system level SIMBA_HOME points to.`;
+
+        SimbaConfig.log.debug(`:: SIMBA : EXIT : ${message}`);
+        throw(message);
     }
 
     /**
      * how we get loglevel throughout our plugins
      */
     public static get logLevel(): LogLevel {
-        SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         let logLevel = this.ProjectConfigStore.get('log_level') ? 
         this.ProjectConfigStore.get('log_level').toLowerCase() :
         LogLevel.INFO;
         if (!Object.values(LogLevel).includes(logLevel)) {
             logLevel = LogLevel.INFO;
-        }SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+        }
         return logLevel;
     }
 
