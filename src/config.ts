@@ -120,7 +120,7 @@ export class SimbaConfig {
             dotenv.config({ path: path.resolve(cwd(), fileName) });
             const val = process.env[envVarKey];
             if (val) {
-                console.log(`:: SIMBA : EXIT : retrieved ${envVarKey} from your local project directory.`);
+                SimbaConfig.log.debug(`:: SIMBA : EXIT : retrieved ${envVarKey} from your local project directory.`);
                 return val;
             }
         }
@@ -139,7 +139,7 @@ export class SimbaConfig {
             dotenv.config({ path: path.resolve(SIMBA_HOME, fileName) });
             const val = process.env[envVarKey];
             if (val) {
-                console.log(`:: SIMBA : EXIT : retrieved ${envVarKey} from your SIMBA_HOME directory`);
+                SimbaConfig.log.debug(`:: SIMBA : EXIT : retrieved ${envVarKey} from your SIMBA_HOME directory`);
                 return val;
             }
         }
