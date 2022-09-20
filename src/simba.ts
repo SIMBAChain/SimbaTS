@@ -1,142 +1,100 @@
 import axios from "axios";
 import {
+  SimbaConfig,
+} from "./config";
+
+import {
   AxiosResponse,
 } from "axios";
+import {
+  RequestHandler,
+  RequestMethods,
+} from "./request_handler"
 import {
   SimbaContract,
 } from "./simba_contract";
 import {
   buildUrl,
 } from "./utils";
-import {
-  BASE_API_URL,
-  getAuthOptions,
-  QueryParams,
-} from "./settings";
+// import {
+//   BASE_API_URL,
+//   getAuthOptions,
+//   QueryParams,
+// } from "./settings";
 import {
   Logger,
 } from "tslog";
 const log: Logger = new Logger();
 
-enum RequestMethods {
-  POST = "POST",
-  PUT = "PUT",
-  DELETE = "DELETE",
-  GET = "GET",
-}
+const BASE_API_URL = SimbaConfig.baseURL;
 
 class Simba {
-  baseApiUrl: string;
-  constructor(
-    baseApiUrl: string = BASE_API_URL
-  ) {
-    this.baseApiUrl = baseApiUrl;
-  }
-
-  async doHTTPRequest(
-    url: string,
-    method: string,
-    options: Record<any, any>,
-    data: Record<any, any>
-  ): Promise<AxiosResponse<any> | void> {
-    const params = {
-      url,
-      method,
-      options,
-      data,
-    }
-    log.info(`:: ENTER : params : ${JSON.stringify(params)}`);
-    let res;
-    try {
-      switch (method) {
-        case RequestMethods.POST: {
-          res = await axios.post(url, data, options);
-          break;
-        }
-        case RequestMethods.POST: {
-          res = await axios.post(url, data, options);
-          break;
-        }
-        case RequestMethods.DELETE: {
-          res = await axios.delete(url, options);
-          break;
-        }
-        case RequestMethods.GET: {
-          res = await axios.get(url, options);
-          break;
-        }
-        default: {
-          log.error(`SIMBA: unrecognized request method: ${method}`);
-          return;
-        }
-      }
-      log.debug(`:: EXIT : res : ${JSON.stringify(res)}`);
-      return res;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-          log.debug(`${JSON.stringify(error.response.data)}`);
-      } else {
-          log.debug(`${JSON.stringify(error)}`);
-      }
-    }
-  }
-
-  async whoAmI(): Promise<AxiosResponse<any> | Error> {
-    const funcName = "whoAmI";
-    log.info(`[${funcName}] :: ENTER :`);
-    const url = buildUrl(this.baseApiUrl, "/user/whoami/");
-    const options = await getAuthOptions();
-    try {
-      const res = await axios.get(url, options);
-      log.info(`[${funcName}] :: EXIT : ${res.data}`);
-      return res;
-    } catch (error) {
-      if (error instanceof Error) {
-        log.error(`[${funcName}] :: EXIT : ${error.message}`);
-        return error;
-      }
-      const message = "Unknown error encountered";
-      log.error(`[${funcName}] :: EXIT : ${message}`);
-      throw new Error(message);
-    }
-  }
-
-  getContract(
-    appName: string,
-    contractName: string
-  ): SimbaContract | Error {
-    const funcName = "getContract";
-    const par = {
-      appName,
-      contractName,
-    };
-    log.info(`[${funcName}] :: ENTER : ${JSON.stringify(par)}`);
-    try {
-      const simbaContract = new SimbaContract(this.baseApiUrl, appName, contractName);
-      log.info(`[${funcName}] :: EXIT :`);
-      return simbaContract;
-    } catch (error) {
-      if (error instanceof Error) {
-        log.error(`[${funcName}] :: EXIT : ${error.message}`);
-        return error;
-      }
-      const message = "Unknown error encountered";
-      log.error(`[${funcName}] :: EXIT : ${message}`);
-      throw new Error(message);
-    }
-  }
-
-  async listApplications() {
-    const url = this.baseApiUrl;
-    let options = await getAuthOptions();
-    const res = await axios.get(url, options);
-    return res;
-  }
-
-  async retrieveApplication(
-    appId: string,
-    queryParams: QueryParams = undefined
-  ) {
+	baseApiUrl: string;
+	requestHandler: RequestHandler;
+	
+	constructor(
+		baseApiUrl: string = SimbaConfig.baseURL,
+		requestHandler: RequestHandler = new RequestHandler()
+	) {
+		this.baseApiUrl = baseApiUrl;
+		this.requestHandler = requestHandler;
+	}
+	
+	public async whoAmI(): Promise<AxiosResponse<any> | void> {
+		SimbaConfig.log.info(`:: SIMBA : ENTER :`);
+    	const url = this.requestHandler.buildURL(this.baseApiUrl, "/user/whoami/");
+    	const options = await this.requestHandler.getAuthAndOptions();
+    	try {
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+      		SimbaConfig.log.info(`:: SIMBA : EXIT : ${res!.data}`);
+      		return res;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
+			} else {
+				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+			}
+			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+			throw(error);
+		}
+	}
+	
+	public getContract(
+		appName: string,
+    	contractName: string
+	): SimbaContract | Error {
+		const params = {
+			appName,
+			contractName,
+		};
+		SimbaConfig.log.info(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const simbaContract = new SimbaContract(this.baseApiUrl, appName, contractName);
+		SimbaConfig.log.info(`:: SIMBA : EXIT :`);
+		return simbaContract;
+	}
+	
+	async listApplications() {
+		const url = this.baseApiUrl;
+    	let options = await this.requestHandler.getAuthAndOptions()
+    	try {
+			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+			return res;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
+			} else {
+				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+			}
+			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+			throw(error);
+		}
+  	}
+	
+	async retrieveApplication(
+		appId: string,
+    	queryParams: QueryParams = undefined
+  	) {
     const url = buildUrl(this.baseApiUrl, `v2/apps/${appId}/`);
     let authOptions = await getAuthOptions(queryParams);
     const res = await axios.get(url, authOptions);
@@ -224,20 +182,20 @@ class Simba {
       fileName,
       queryParams,
     };
-    log.info(`[${funcName}] :: ENTER : ${JSON.stringify(par)}`);
+    SimbaConfig.log.info(`:: SIMBA : ENTER : ${JSON.stringify(par)}`);
     const url = buildUrl(this.baseApiUrl, `v2/apps/${appId}/contract/${contractName}/bundle/${bundleHash}/filename/${fileName}/`);
     const options = await getAuthOptions(queryParams);
     try {
       const res = await axios.get(url, options);
-      log.info(`bundleFile info: ${res.data}`);
+      SimbaConfig.log.info(`bundleFile info: ${res.data}`);
       return res;
     } catch (error) {
       if (error instanceof Error) {
-        log.error(`[${funcName}] :: ENTER : ${error.message}`);
+        SimbaConfig.log.error(`:: SIMBA : ENTER : ${error.message}`);
         return error;
       }
       const message = "Unknown error encountered";
-      log.error(`[${funcName}] :: EXIT : ${message}`);
+      SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
       throw new Error(message);
     }
   }
