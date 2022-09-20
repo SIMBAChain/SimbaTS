@@ -7,10 +7,6 @@ import {
     SimbaConfig,
     AUTHKEY,
 } from "./config";
-import {
-    Logger,
-} from "tslog";
-const log: Logger = new Logger();
 
 export enum RequestMethods {
     POST = "POST",
@@ -226,7 +222,8 @@ export class RequestHandler {
 
     public async getAuthAndOptions(
         contentType?: string,
-        queryParams?: Record<any, any>
+        queryParams?: Record<any, any>,
+        addContentType: boolean = true,
     ): Promise<Record<any, any>> {
         const params = {
             queryParams,
@@ -234,10 +231,12 @@ export class RequestHandler {
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
         const config: Record<any, any> = {};
         const headers: Record<any, any> = this.accessTokenHeader();
-        if (contentType) {
-            headers["Content-Type"] = contentType;
-        } else {
-            headers["Content-Type"] = "application/json";
+        if (addContentType) {
+            if (contentType) {
+                headers["Content-Type"] = contentType;
+            } else {
+                headers["Content-Type"] = "application/json";
+            }
         }
         config.headers = headers;
         if (queryParams) {
