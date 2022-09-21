@@ -59,7 +59,7 @@ export class Simba {
 	}
 	
 	public async listApplications(): Promise<AxiosResponse<any> | void> {
-		const url = this.baseApiUrl;
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/`)
     	let options = await this.requestHandler.getAuthAndOptions()
     	try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -77,10 +77,15 @@ export class Simba {
   	}
 	
 	public async retrieveApplication(
-		appId: string,
+		appName: string,
     	queryParams?: Record<any, any>
   	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/`);
+		const params = {
+			appName,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/`);
     	const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -97,10 +102,15 @@ export class Simba {
 		}
   	}
 	public async listApplicationTransactions(
-    	appId: string,
+    	appName: string,
     	queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/transactions/`);
+		const params = {
+			appName,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/transactions/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -118,11 +128,17 @@ export class Simba {
   	}
 
   	public async getApplicationContract(
-    	appId: string,
+    	appName: string,
     	contractName: string,
-    	queryParams: Record<any, any>
+    	queryParams?: Record<any, any>
   	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/`);
+		const params = {
+			appName,
+			contractName,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -140,11 +156,16 @@ export class Simba {
   	}
 
 	public async listContractTranssactions(
-    	appId: string,
+    	appName: string,
     	contractName: string,
-    	queryParams: Record<any, any>
+    	queryParams?: Record<any, any>
   	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/transactions/`);
+		const params = {
+			appName,
+			contractName,
+			queryParams,
+		}
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/transactions/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -162,10 +183,15 @@ export class Simba {
 	}
 
 	public async listContracts(
-		appId: string,
-		queryParams: Record<any, any>
+		appName: string,
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contracts/`);
+		const params = {
+			appName,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contracts/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -183,12 +209,19 @@ export class Simba {
 	}
 
   	public async validateBundle(
-		appId: string,
+		appName: string,
 		contractName: string,
 		bundleHash: string,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/validate/${contractName}/${bundleHash}/`);
+		const params = {
+			appName,
+			contractName,
+			bundleHash,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/validate/${contractName}/${bundleHash}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -206,12 +239,19 @@ export class Simba {
 	}
 
 	public async getBundle(
-		appId: string,
+		appName: string,
 		contractName: string,
 		bundleHash: string,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/bundle/${bundleHash}/`);
+		const params = {
+			appName,
+			contractName,
+			bundleHash,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/bundle/${bundleHash}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -229,21 +269,21 @@ export class Simba {
 	}
 
 	public async getBundleFile(
-		appId: string,
+		appName: string,
 		contractName: string,
 		bundleHash: string,
 		fileName: string,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const par = {
-			appId,
+		const params = {
+			appName,
 			contractName,
 			bundleHash,
 			fileName,
 			queryParams,
 		};
-		SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(par)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/bundle/${bundleHash}/filename/${fileName}/`);
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/bundle/${bundleHash}/filename/${fileName}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -261,12 +301,19 @@ export class Simba {
 	}
 
 	public async getManifestForBundleFromBundleHash(
-		appId: string,
+		appName: string,
 		contractName: string,
 		bundleHash: string,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/bundle/${bundleHash}/manifest/`);
+		const params = {
+			appName,
+			contractName,
+			bundleHash,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/bundle/${bundleHash}/manifest/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -284,11 +331,17 @@ export class Simba {
 	}
 
 	public async listContractInfo(
-		appId: string,
+		appName: string,
 		contractName: string,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/info/`);
+		const params = {
+			appName,
+			contractName,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/info/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -306,12 +359,19 @@ export class Simba {
 	}
 
 	public async getInstanceAddresses(
-		appId: string,
+		appName: string,
 		contractName: string,
 		contractId: string,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/contracts/${contractId}/`);
+		const params = {
+			appName,
+			contractName,
+			contractId,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/contracts/${contractId}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -329,11 +389,17 @@ export class Simba {
 	}
 
 	public async listContractInstances(
-		appId: string,
+		appName: string,
 		contractName: string,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/contracts/`);
+		const params = {
+			appName,
+			contractName,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/contracts/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -351,12 +417,19 @@ export class Simba {
 	}
 
 	public async listEvents(
-		appId: string,
+		appName: string,
 		contractName: string,
 		eventName: string,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/events/${eventName}/`);
+		const params = {
+			appName,
+			contractName,
+			eventName,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/events/${eventName}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -374,13 +447,20 @@ export class Simba {
 	}
 
 	public async getReceipt(
-		appId: string,
+		appName: string,
 		contractName: string,
 		receiptHash: string,
-		queryMethod?: Record<any, any>,
+		queryParams?: Record<any, any>,
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/receipt/${receiptHash}/`);
-		const options = await this.requestHandler.getAuthAndOptions(undefined, queryMethod);
+		const params = {
+			appName,
+			contractName,
+			receiptHash,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/receipt/${receiptHash}/`);
+		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
@@ -397,12 +477,19 @@ export class Simba {
 	}
 
 	public async getTransaction(
-		appId: string,
+		appName: string,
 		contractName: string,
 		transactionHash: string,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/transaction/${transactionHash}/`);
+		const params = {
+			appName,
+			contractName,
+			transactionHash,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/transaction/${transactionHash}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -420,14 +507,23 @@ export class Simba {
 	}
 
 	public async callSetterByAddress(
-		appId: string,
+		appName: string,
 		contractName: string,
 		identifier: string,
 		methodName: string,
 		inputs: Record<any, any>,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/address/${identifier}/${methodName}/`);
+		const params = {
+			appName,
+			contractName,
+			identifier,
+			methodName,
+			inputs,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/address/${identifier}/${methodName}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		const data = inputs;
 		try {
@@ -445,13 +541,21 @@ export class Simba {
 	}
 
 	public async callGetterByAddress(
-		appId: string,
+		appName: string,
 		contractName: string,
 		identifier: string,
 		methodName: string,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/address/${identifier}/${methodName}/`);
+		const params = {
+			appName,
+			contractName,
+			identifier,
+			methodName,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/address/${identifier}/${methodName}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -469,14 +573,23 @@ export class Simba {
 	}
 
 	public async createInstanceAsset(
-		appId: string,
+		appName: string,
 		contractName: string,
 		identifier: string,
 		methodName: string,
 		inputs: Record<any, any>,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/asset/${identifier}/${methodName}`);
+		const params = {
+			appName,
+			contractName,
+			identifier,
+			methodName,
+			inputs,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/asset/${identifier}/${methodName}`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		const data = inputs;
 		try {
@@ -494,12 +607,19 @@ export class Simba {
 	}
 
 	public async listContractMethods(
-		appId: string,
+		appName: string,
 		contractName: string,
 		methodName: string,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/${methodName}/`);
+		const params = {
+			appName,
+			contractName,
+			methodName,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/${methodName}/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
@@ -517,13 +637,21 @@ export class Simba {
 	}
 
 	public async callContractMethod(
-		appId: string,
+		appName: string,
 		contractName: string,
 		methodName: string,
 		inputs: Record<any, any>,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/contract/${contractName}/${methodName}/`);
+		const params = {
+			appName,
+			contractName,
+			methodName,
+			inputs,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/contract/${contractName}/${methodName}/`);
 		const data = inputs;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
@@ -541,14 +669,23 @@ export class Simba {
 	}
 
 	public async callSetterByAddressAsync(
-		appId: string,
+		appName: string,
 		contractName: string,
 		identifier: string,
 		methodName: string,
 		inputs: Record<any, any>,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/async/contract/${contractName}/address/${identifier}/${methodName}/`);
+		const params = {
+			appName,
+			contractName,
+			identifier,
+			methodName,
+			inputs,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/async/contract/${contractName}/address/${identifier}/${methodName}/`);
 		const data = inputs;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
@@ -566,14 +703,23 @@ export class Simba {
 	}
 
 	public async createInstanceAssetAsync(
-		appId: string,
+		appName: string,
 		contractName: string,
 		identifier: string,
 		methodName: string,
 		inputs: Record<any, any>,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/async/contract/${contractName}/asset/${identifier}/${methodName}`);
+		const params = {
+			appName,
+			contractName,
+			identifier,
+			methodName,
+			inputs,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/async/contract/${contractName}/asset/${identifier}/${methodName}`);
 		const data = inputs;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
@@ -591,13 +737,21 @@ export class Simba {
 	}
 
 	public async callContractMethodAsync(
-		appId: string,
+		appName: string,
 		contractName: string,
 		methodName: string,
 		inputs: Record<any, any>,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/async/contract/${contractName}/${methodName}`);
+		const params = {
+			appName,
+			contractName,
+			methodName,
+			inputs,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/async/contract/${contractName}/${methodName}`);
 		const data = inputs;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
@@ -615,12 +769,19 @@ export class Simba {
 	}
 
 	public async createContractInstance(
-		appId: string,
+		appName: string,
 		contractName: string,
 		inputs: Record<any, any>,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/new/${contractName}/`);
+		const params = {
+			appName,
+			contractName,
+			inputs,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/new/${contractName}/`);
 		const data = inputs;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
@@ -638,12 +799,19 @@ export class Simba {
 	}
 
 	public async submitSignedTransaction(
-		appId: string,
+		appName: string,
 		txnId: string,
 		txn: Record<any, any>,
-		queryParams: Record<any, any>
+		queryParams?: Record<any, any>
 	): Promise<AxiosResponse<any> | void> {
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appId}/transactions/${txnId}/`);
+		const params = {
+			appName,
+			txnId,
+			txn,
+			queryParams,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${appName}/transactions/${txnId}/`);
 		const data = txn;
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {

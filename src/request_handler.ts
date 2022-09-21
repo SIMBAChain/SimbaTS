@@ -6,8 +6,7 @@ import utf8 from "utf8";
 import {
     SimbaConfig,
     AUTHKEY,
-    SimbaEnvFiles,
-    SimbaEnvVariableKeys,
+    SimbaEnvVarKeys,
 } from "./config";
 
 export enum RequestMethods {
@@ -66,7 +65,8 @@ export class RequestHandler {
             SimbaConfig.log.debug(`:: SIMBA : EXIT : fullURL : ${fullURL}`);
             return fullURL;
         }
-        const fullURL = useVersion ? `${baseURL}/${version}/` : baseURL;
+        baseURL = baseURL.endsWith("/") ? baseURL : `${baseURL}/`;
+        const fullURL = useVersion ? `${baseURL}${version}/` : baseURL;
         SimbaConfig.log.debug(`:: SIMBA : EXIT : fullURL : ${fullURL}`);
         return fullURL;
     }
@@ -76,6 +76,7 @@ export class RequestHandler {
         method: string,
         options: Record<any, any>,
         data?: Record<any, any>,
+        parseDataFromResponse: boolean = true,
     ): Promise<AxiosResponse<any>> {
         const params = {
             url,
@@ -111,13 +112,17 @@ export class RequestHandler {
                 throw(message)
             }
         }
-        SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${JSON.stringify(res)}`);
+        if (res.data && parseDataFromResponse) {
+            SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${JSON.stringify(res.data)}`);
+            return res.data;
+        }
+        SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
         return res;
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
             } else {
-                SimbaConfig.log.error(`${JSON.stringify(error)}`);
+                SimbaConfig.log.error(`${error}`);
             }
             SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
             throw(error);
@@ -126,9 +131,9 @@ export class RequestHandler {
 
     public async getAuthTokenFromClientCreds(): Promise<Record<any, any>> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
-        const clientID = SimbaConfig.retrieveEnvVar(SimbaEnvVariableKeys.SIMBA_AUTH_CLIENT_ID);
-        const clientSecret = SimbaConfig.retrieveEnvVar(SimbaEnvVariableKeys.SIMBA_AUTH_CLIENT_SECRET);
-        const authEndpoint = SimbaConfig.retrieveEnvVar(SimbaEnvVariableKeys.SIMBA_AUTH_ENDPOINT);
+        const clientID = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_ID);
+        const clientSecret = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_SECRET);
+        const authEndpoint = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT);
         const credential = `${clientID}:${clientSecret}`;
         const utf8EncodedCred = utf8.encode(credential);
         const base64EncodedCred = Buffer.from(utf8EncodedCred).toString('base64');
@@ -144,7 +149,9 @@ export class RequestHandler {
         };
         try {
             const baseURL = this.handleVersion(this.baseURL, undefined, false);
-            const url = `${baseURL}${authEndpoint}token/`;
+            const url = (baseURL.endsWith("/") && authEndpoint.startsWith("/")) ?
+                `${baseURL.slice(0, -1)}${authEndpoint}token/` :
+                `${baseURL}${authEndpoint}token/`;
             SimbaConfig.log.debug(`:: url : ${url}`);
             const res = await axios.post(url, params, config);
             let authToken = res.data;
@@ -172,7 +179,7 @@ export class RequestHandler {
      * returns headers with access token
      * @returns 
      */
-    public async accessTokenHeader(): Promise<Record<any, any> | void> {
+    public async accessTokenHeader(): Promise<Record<any, any>> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         let authToken;
         if (SimbaConfig.tokenExpired()) {
@@ -189,8 +196,9 @@ export class RequestHandler {
             SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
             return headers;
         } else {
-            SimbaConfig.log.error(`:: SIMBA : unable to obtain auth token`);
-            return;
+            const message = `unable to obtain auth token`;
+            SimbaConfig.log.error(`:: SIMBA : ${message}`);
+            throw(message);
         }
     }
 
@@ -204,7 +212,7 @@ export class RequestHandler {
         }
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
         const config: Record<any, any> = {};
-        const headers: Record<any, any> = this.accessTokenHeader();
+        const headers: Record<any, any> = await this.accessTokenHeader();
         if (addContentType) {
             if (contentType) {
                 headers["Content-Type"] = contentType;

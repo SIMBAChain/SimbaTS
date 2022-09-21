@@ -9,7 +9,7 @@ import * as dotenv from "dotenv";
 const SIMBA_HOME = process.env.SIMBA_HOME;
 const DEFAULT_AUTH_ENDPOINT = "/o/";
 
-export enum SimbaEnvVariableKeys {
+export enum SimbaEnvVarKeys {
     SIMBA_AUTH_CLIENT_ID = "SIMBA_AUTH_CLIENT_ID",
     SIMBA_AUTH_CLIENT_SECRET = "SIMBA_AUTH_CLIENT_SECRET",
     SIMBA_API_BASE_URL = "SIMBA_API_BASE_URL",
@@ -21,7 +21,7 @@ export enum SimbaEnvVariableKeys {
     SIMBA_HOME = "SIMBA_HOME",
 }
 
-export enum SimbaEnvFiles {
+enum SimbaEnvFiles {
     DOT_SIMBACHAIN_DOT_ENV = ".simbachain.env",
     SIMBACHAIN_DOT_ENV = "simbachain.env",
     DOT_ENV = ".env",
@@ -84,7 +84,7 @@ export class SimbaConfig {
 
     public static get baseURL(): string {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
-        const baseURL = SimbaConfig.retrieveEnvVar(SimbaEnvVariableKeys.SIMBA_API_BASE_URL);
+        const baseURL = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_API_BASE_URL);
         SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
         return baseURL;
     }
@@ -104,12 +104,12 @@ export class SimbaConfig {
      * 
      * @param envVarKey key of environment variable we want to retrieve value
      */
-     public static retrieveEnvVar(envVarKey: SimbaEnvVariableKeys): string {
+     public static retrieveEnvVar(envVarKey: SimbaEnvVarKeys): string {
         const params = {
             envVarKey,
         }
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-        if (envVarKey === SimbaEnvVariableKeys.SIMBA_AUTH_ENDPOINT) {
+        if (envVarKey === SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT) {
             SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
             return DEFAULT_AUTH_ENDPOINT;
         }
