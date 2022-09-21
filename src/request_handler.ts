@@ -26,52 +26,25 @@ export class RequestHandler {
     public buildURL(
         baseURL: string,
         endpoint: string,
-        version: string = "v2",
-        useVersion: boolean = true
     ): string {
         const params = {
             baseURL,
             endpoint,
-            version,
-            useVersion,
         }
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-        const fullBaseURL = this.handleVersion(baseURL, version, useVersion);
         let fullURL;
-        if (fullBaseURL.endsWith("/") && endpoint.startsWith("/")) {
-            fullURL = `${fullBaseURL.slice(0, -1)}${endpoint}`;
-        } else if (!fullBaseURL.endsWith("/") && !endpoint.startsWith("/")) {
-            fullURL = `${fullBaseURL}/${endpoint}`
+        if (baseURL.endsWith("/") && endpoint.startsWith("/")) {
+            fullURL = `${baseURL.slice(0, -1)}${endpoint}`;
+        } else if (!baseURL.endsWith("/") && !endpoint.startsWith("/")) {
+            fullURL = `${baseURL}/${endpoint}`
         } else {
-            fullURL = `${fullBaseURL}${endpoint}`;
+            fullURL = `${baseURL}${endpoint}`;
         }
         SimbaConfig.log.debug(`:: SIMBA : EXIT : fullURL : ${fullURL}`);
         return fullURL;
     }
 
-    public handleVersion(
-        baseURL: string,
-        version: string = "v2",
-        useVersion: boolean = true
-    ): string {
-        const params = {
-            baseURL,
-        }
-        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-        if (baseURL.endsWith(`/${version}/`) || baseURL.endsWith(`/${version}`)) {
-            const extension = baseURL.endsWith(`/${version}`) ? `/${version}` : `/${version}/`;
-            const shortenedBaseURL = baseURL.slice(0,-(extension.length));
-            const fullURL =  useVersion ? `${shortenedBaseURL}/${version}/` : shortenedBaseURL;
-            SimbaConfig.log.debug(`:: SIMBA : EXIT : fullURL : ${fullURL}`);
-            return fullURL;
-        }
-        baseURL = baseURL.endsWith("/") ? baseURL : `${baseURL}/`;
-        const fullURL = useVersion ? `${baseURL}${version}/` : baseURL;
-        SimbaConfig.log.debug(`:: SIMBA : EXIT : fullURL : ${fullURL}`);
-        return fullURL;
-    }
-
-    public async doHTTPRequest(
+    private async doHTTPRequest(
         url: string,
         method: string,
         options: Record<any, any>,
@@ -84,7 +57,7 @@ export class RequestHandler {
             options,
             data,
         }
-        SimbaConfig.log.info(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
         let res;
         try {
             switch (method) {
@@ -93,9 +66,9 @@ export class RequestHandler {
                     res = await axios.post(url, data, options);
                 break;
             }
-            case RequestMethods.POST: {
+            case RequestMethods.PUT: {
                 data = data ? data : {};
-                res = await axios.post(url, data, options);
+                res = await axios.put(url, data, options);
                 break;
             }
             case RequestMethods.DELETE: {
@@ -129,11 +102,83 @@ export class RequestHandler {
         }
     }
 
+    public async doPostRequest(
+        url: string,
+        options: Record<any, any>,
+        data?: Record<any, any>,
+        parseDataFromResponse: boolean = true,
+    ): Promise<AxiosResponse<any>> {
+        const params = {
+            url,
+            options,
+            data,
+            parseDataFromResponse,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        const res = await this.doHTTPRequest(url, RequestMethods.POST, options, undefined, parseDataFromResponse);
+        SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+        return res;
+    }
+
+    public async doGetRequest(
+        url: string,
+        options: Record<any, any>,
+        data?: Record<any, any>,
+        parseDataFromResponse: boolean = true,
+    ): Promise<AxiosResponse<any>> {
+        const params = {
+            url,
+            options,
+            data,
+            parseDataFromResponse,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        const res = await this.doHTTPRequest(url, RequestMethods.GET, options, undefined, parseDataFromResponse);
+        SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+        return res;
+    }
+
+    public async doPutRequest(
+        url: string,
+        options: Record<any, any>,
+        data?: Record<any, any>,
+        parseDataFromResponse: boolean = true,
+    ): Promise<AxiosResponse<any>> {
+        const params = {
+            url,
+            options,
+            data,
+            parseDataFromResponse,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        const res = await this.doHTTPRequest(url, RequestMethods.PUT, options, data, parseDataFromResponse);
+        SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+        return res;
+    }
+
+    public async doDeleteRequest(
+        url: string,
+        options: Record<any, any>,
+        data?: Record<any, any>,
+        parseDataFromResponse: boolean = true,
+    ): Promise<AxiosResponse<any>> {
+        const params = {
+            url,
+            options,
+            data,
+            parseDataFromResponse,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        const res = await this.doHTTPRequest(url, RequestMethods.DELETE, options, data, parseDataFromResponse);
+        SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+        return res;
+    }
+
     public async getAuthTokenFromClientCreds(): Promise<Record<any, any>> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         const clientID = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_ID);
         const clientSecret = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_SECRET);
-        const authEndpoint = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT);
+        const authEndpoint = `${SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT)}token/`;
         const credential = `${clientID}:${clientSecret}`;
         const utf8EncodedCred = utf8.encode(credential);
         const base64EncodedCred = Buffer.from(utf8EncodedCred).toString('base64');
@@ -148,10 +193,7 @@ export class RequestHandler {
             headers,
         };
         try {
-            const baseURL = this.handleVersion(this.baseURL, undefined, false);
-            const url = (baseURL.endsWith("/") && authEndpoint.startsWith("/")) ?
-                `${baseURL.slice(0, -1)}${authEndpoint}token/` :
-                `${baseURL}${authEndpoint}token/`;
+            const url = this.buildURL(this.baseURL, authEndpoint);
             SimbaConfig.log.debug(`:: url : ${url}`);
             const res = await axios.post(url, params, config);
             let authToken = res.data;

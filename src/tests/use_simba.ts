@@ -4,7 +4,7 @@ import {
 
 async function main() {
     const simba = new Simba();
-    const apps = await simba.listApplications();
+    const apps = await simba.getApplications();
     console.log(`apps : ${JSON.stringify(apps)}\n\n`);
 
     const app = await simba.getApplicationContract("BrendanTestApp", "test_contract_vds5");

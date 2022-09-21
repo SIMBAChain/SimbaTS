@@ -67,7 +67,7 @@ export class SimbaContract extends ParamCheckingContract {
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${this.contractUri}/?format=json`);
         const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
         try {
-            const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+            const res = await this.requestHandler.doGetRequest(url, options);
             if (!res.data) {
                 const message = "unable to retrieve metadata"
                 SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
@@ -100,7 +100,7 @@ export class SimbaContract extends ParamCheckingContract {
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${this.contractUri}/${methodName}/`);
         const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
         try {
-            const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+            const res = await this.requestHandler.doGetRequest(url, options);
             SimbaConfig.log.debug(`:: EXIT : res.data: ${JSON.stringify(res.data)}`);
             return res;
         } catch (error) {
@@ -260,7 +260,7 @@ export class SimbaContract extends ParamCheckingContract {
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${this.contractUri}/transactions/`);
         const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
         try {
-            const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+            const res = await this.requestHandler.doGetRequest(url, options);
             SimbaConfig.log.debug(`:: EXIT : res.data: ${JSON.stringify(res.data)}`);
             return res;
         } catch (error) {
@@ -286,7 +286,7 @@ export class SimbaContract extends ParamCheckingContract {
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps${this.appName}/validate/${this.contractName}/${bundleHash}/`);
         const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
         try {
-            const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+            const res = await this.requestHandler.doGetRequest(url, options);
             SimbaConfig.log.debug(`:: EXIT : res.data: ${JSON.stringify(res.data)}`);
             return res;
         } catch (error) {
@@ -320,7 +320,7 @@ export class SimbaContract extends ParamCheckingContract {
             }
         }
         try {
-            const res = await this.requestHandler.doHTTPRequest(url, RequestMethods.GET, options);
+            const res = await this.requestHandler.doGetRequest(url, options);
             SimbaConfig.log.debug(`:: EXIT : res.data: ${JSON.stringify(res.data)}`);
             return res;
         } catch (error) {

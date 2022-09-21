@@ -1,130 +1,46 @@
-// import * as dotenv from "dotenv";
-// dotenv.config();
-// import * as fs from "fs";
-// import * as path from "path";
-// import {
-//   Logger,
-// } from "tslog";
-// const log: Logger = new Logger();
-
-// // NOTE: we are handling tokens with msal, so
-// // even though tokenExpired, saveToken, getSavedToken are
-// // implemented, they are not used
-
-// /**
-//  *  Checks to see if a token has expired, by checking the 'expires' key
-//     Adds an offset to allow for delays when performing auth processes
-//  * @param {Record<any, any>} tokenData
-//     the object to check for expiry. Should contain an 'expires' key
-//  * @param {number} offset
-//     To allow for delays in auth processes,
-//     this number of seconds is added to the expiry time
-//  * @returns {boolean} offset
-//  */
-// function tokenExpired(
-//   tokenData: Record<any, any>,
-//   offset?: number
-// ): boolean {
-//   const funcName = "tokenExpired";
-//   offset = offset === undefined ?
-//     60 :
-//     offset;
-//   if ("expires" in tokenData) {
-//     const expires = tokenData["expires"];
-//     let nowWOffset = new Date();
-//     nowWOffset.setSeconds(nowWOffset.getSeconds() + offset);
-//     log.info(`expires: ${expires}`)
-//     log.info(`nowWOffset: ${nowWOffset}`);
-//     if (nowWOffset >= expires) {
-//       log.debug(`[${funcName}] :: Saved token expires within 60 seconds`);
-//       return true;
-//     }
-//     log.debug(
-//         `[${funcName}] :: Saved token valid for at least 60 seconds`
-//     );
-//     return false;
-//   } else {
-//     log.info(
-//       `[${funcName}] :: No expiry date stored for token, assume expired`
-//     );
-//     return true;
-//   }
+// export enum Path {
+//   WHOAMI = "/user/whoami/"
+//   APPS = "/v2/apps/"
+//   APP = "/v2/apps/{}/"
+//   APP_TXNS = "/v2/apps/{}/transactions/"
+//   APP_TXN = "/v2/apps/{}/transactions/{}/"
+//   APP_CONTRACT = "/v2/apps/{}/contract/{}/"
+//   APP_CONTRACTS = "/v2/apps/{}/contracts/"
+//   CONTRACT_TXNS = "/v2/apps/{}/contract/{}/transactions/"
+//   CONTRACT_TXN = "/v2/apps/{}/contract/{}/transaction/{}/"
+//   CONTRACTS = "/v2/apps/{}/contracts/"
+//   VALIDATE_BUNDLE = "/v2/apps/{}/validate/{}/{}/"
+//   BUNDLE = "/v2/apps/{}/contract/{}/bundle/{}/"
+//   BUNDLE_FILE = "/v2/apps/{}/contract/{}/bundle/{}/filename/{}/"
+//   BUNDLE_MANIFEST = "/v2/apps/{}/contract/{}/bundle/{}/manifest/"
+//   CONTRACT_INFO = "/v2/apps/{}/contract/{}/info"
+//   CONTRACT_EVENTS = "/v2/apps/{}/contract/{}/events/{}/"
+//   CONTRACT_RECEIPT = "/v2/apps/{}/contract/{}/receipt/{}/"
+//   CONTRACT_METHOD = "/v2/apps/{}/contract/{}/{}/"
+//   SYNC_CONTRACT_METHOD = "/v2/apps/{}/sync/contract/{}/{}/"
+//   USER_FUND_ADDRESS = "/user/account/{}/fund/"
+//   USER_ADDRESS_BALANCE = "/user/account/{}/balance/{}/"
+//   ADMIN_WALLET_SET = "/admin/users/{}/wallet/set/"
+//   USER_WALLET_SET = "/user/wallet/set/"
+//   USER_WALLET = "/user/wallet/"
+//   ORGANISATION = "/v2/organisations/{}/"
+//   ORGANISATIONS = "/v2/organisations/"
+//   ORG_APP = "/v2/organisations/{}/applications/{}/"
+//   ORG_APPS = "/v2/organisations/{}/applications/"
+//   ORG_TXN = "/v2/organisations/{}/transactions/{}/"
+//   ORG_TXNS = "/v2/organisations/{}/transactions/"
+//   DESIGNS = "/v2/organisations/{}/contract_designs/"
+//   DESIGN = "/v2/organisations/{}/contract_designs/{}/"
+//   CONTRACT_ARTIFACTS = "/v2/organisations/{}/contract_artifacts/"
+//   CONTRACT_ARTIFACT = "/v2/organisations/{}/contract_artifacts/{}/"
+//   DEPLOYED_CONTRACTS = "/v2/organisations/{}/deployed_contracts/"
+//   DEPLOYED_CONTRACT = "/v2/organisations/{}/deployed_contracts/{}/"
+//   DESIGN_DEPLOY = "/v2/organisations/{}/contract_designs/{}/deploy/"
+//   DEPLOYMENT = "/v2/organisations/{}/deployments/{}/"
+//   DEPLOYMENTS = "/v2/organisations/{}/deployments/"
+//   STORAGES = "/v2/organisations/{}/storage/"
+//   BLOCKCHAINS = "/v2/organisations/{}/blockchains/"
+//   SUBSCRIPTIONS = "/v2/organisations/{}/subscriptions/"
+//   SUBSCRIPTION = "/v2/organisations/{}/subscriptions/{}/"
+//   NOTIFICATION_CONFIGS = "/v2/organisations/{}/notification_config/"
 // }
-
-// function getSavedToken(clientId: string): any {
-//   const tokenDir = process.env.TOKEN_DIR || "./";
-//   const isDir = fs.statSync(tokenDir).isDirectory();
-//   if (isDir) {
-//     const tokenFile = path.join(tokenDir, `${clientId}_token.json`);
-//     log.info(`tokenFile: ${tokenFile}`);
-//     const isFile = fs.statSync(tokenFile).isFile();
-//     if (isFile) {
-//       const tokenData = JSON.parse(fs.readFileSync(tokenFile, 'utf8'));
-//       // const tokenData = JSON.parse(data);
-//       log.info(`Found saved token: ${tokenFile}`);
-//       if (tokenExpired(tokenData)) {
-//         log.error(`Token Expiry date elapsed`);
-//         throw new Error("Token Expiry date elapsed");
-//       }
-//       return tokenData;
-//     }
-//     log.error("Token file not found");
-//     throw new Error("Token file not found");
-//   }
-//   log.error("Token file not found");
-//   throw new Error("Token directory not found");
-// }
-
-// /**
-//  *  Saves the token data to a file.
-//     Checks the TOKEN_DIR environment variable for alternative token storage locations,
-//     otherwise uses the current working path
-//     Creates the token directory if it doesn't already exist.
-//     Adds an "expires" key to the auth token data, set to time "now" added to the expires_in time
-//     This is used later to discover if the token has expired
-//     Token files are named <client_id>_token.json
-//  * @param {string|number} clientId 
-//  * @param {Record<any, any>} tokenData 
-//  */
-// function saveToken(
-//   clientId: string | number,
-//   tokenData: any
-// ): void {
-//   const tokenDir = process.env.TOKEN_DIR || "./";
-//   fs.mkdir(
-//     tokenDir,
-//     {recursive: true}, 
-//     (err) => {
-//     if (err) {
-//       return console.error(err);
-//     }
-//     log.info('Directory created successfully!');
-//   });
-//   const tokenFile = path.join(tokenDir, `${clientId}_token.json`);
-//   const expiryDate = new Date();
-//   const expiry = expiryDate.setSeconds(expiryDate.getSeconds() + tokenData["expires_in"]);
-//   tokenData["expires"] = expiry;
-//   fs.writeFileSync(tokenFile, JSON.stringify(tokenData), "utf8");
-// }
-
-// function buildUrl(
-//   baseUrl: string,
-//   path: string
-// ): string {
-//   const fullUrl = baseUrl + path;
-//   return fullUrl;
-// }
-
-// // const tokenData = {
-// //   expires_in: 3599,
-// // };
-// // const clientId = "ababababab";
-// // saveToken(clientId, tokenData);
-// // const newSavedToken = getSavedToken("ababababab");
-// // console.log("newSavedToken:", newSavedToken);
-
-// export {
-//   buildUrl,
-//   saveToken,
-//   getSavedToken,
-// };

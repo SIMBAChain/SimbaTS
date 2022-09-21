@@ -1,10 +1,10 @@
 {
 	"SIMBAAUTH": {
-		"access_token": "nl4tIGK6TDrATV84HOEgOFnfkmKH1s",
+		"access_token": "vDjMqnLqtCJgnqnNYBm6Ro25jQUG8u",
 		"expires_in": 36000,
 		"token_type": "Bearer",
 		"scope": "openid read write groups",
-		"retrieved_at": "2022-09-21T00:13:49.946Z",
-		"expires_at": "2022-09-21T10:13:49.946Z"
+		"retrieved_at": "2022-09-21T14:50:23.970Z",
+		"expires_at": "2022-09-22T00:50:23.970Z"
 	}
 }
