@@ -1,6 +1,6 @@
 import {
     RequestHandler,
-} from "./request_handler"
+} from "../request_handler"
 
 async function main() {
     const rh = new RequestHandler();

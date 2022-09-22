@@ -3,6 +3,8 @@ import {
     AxiosResponse,
 } from "axios";
 import utf8 from "utf8";
+import FormData from "form-data";
+import * as fs from "fs";
 import {
     SimbaConfig,
     AUTHKEY,
@@ -50,7 +52,7 @@ export class RequestHandler {
         options: Record<any, any>,
         data?: Record<any, any>,
         parseDataFromResponse: boolean = true,
-    ): Promise<AxiosResponse<any>> {
+    ): Promise<AxiosResponse<any> | Record<any, any> | Array<any>> {
         const params = {
             url,
             method,
@@ -58,7 +60,7 @@ export class RequestHandler {
             data,
         }
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-        let res;
+        let res: AxiosResponse<any>;
         try {
             switch (method) {
                 case RequestMethods.POST: {
@@ -87,7 +89,8 @@ export class RequestHandler {
         }
         if (res.data && parseDataFromResponse) {
             SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${JSON.stringify(res.data)}`);
-            return res.data;
+            const resData: Record<any, any> = res.data;
+            return resData;
         }
         SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
         return res;
@@ -107,7 +110,7 @@ export class RequestHandler {
         options: Record<any, any>,
         data?: Record<any, any>,
         parseDataFromResponse: boolean = true,
-    ): Promise<AxiosResponse<any>> {
+    ): Promise<AxiosResponse<any> | Record<any, any> | Array<any>> {
         const params = {
             url,
             options,
@@ -123,13 +126,11 @@ export class RequestHandler {
     public async doGetRequest(
         url: string,
         options: Record<any, any>,
-        data?: Record<any, any>,
         parseDataFromResponse: boolean = true,
-    ): Promise<AxiosResponse<any>> {
+    ): Promise<AxiosResponse<any> | Record<any, any> | Array<any>> {
         const params = {
             url,
             options,
-            data,
             parseDataFromResponse,
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
@@ -143,7 +144,7 @@ export class RequestHandler {
         options: Record<any, any>,
         data?: Record<any, any>,
         parseDataFromResponse: boolean = true,
-    ): Promise<AxiosResponse<any>> {
+    ): Promise<AxiosResponse<any> | Record<any, any> | Array<any>> {
         const params = {
             url,
             options,
@@ -161,7 +162,7 @@ export class RequestHandler {
         options: Record<any, any>,
         data?: Record<any, any>,
         parseDataFromResponse: boolean = true,
-    ): Promise<AxiosResponse<any>> {
+    ): Promise<AxiosResponse<any> | Record<any, any> | Array<any>> {
         const params = {
             url,
             options,
@@ -171,6 +172,130 @@ export class RequestHandler {
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
         const res = await this.doHTTPRequest(url, RequestMethods.DELETE, options, data, parseDataFromResponse);
         SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+        return res;
+    }
+
+    public formDataHeaders(
+        options: Record<any, any>,
+        formData: FormData,
+    ): Record<any, any> {
+        const params = {
+            options,
+            formData,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        const formDataHeaders = formData.getHeaders();
+        const headers = {...options["headers"], ...formDataHeaders}
+        SimbaConfig.log.debug(`:: SIMBA : EXIT`);
+        return headers;
+    }
+
+    public formDataFromFilePathsAndInputs(
+        inputs: Record<any, any>,
+        filePaths: Array<string>,
+    ): FormData {
+        const params = {
+            filePaths,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        const formData = new FormData();
+        filePaths.forEach(fileName => {
+            // you do NOT have to JSON.stringify the readStream below
+            formData.append("_files", fs.createReadStream(fileName));
+        });
+        Object.keys(inputs).forEach(key => {
+            // you do NOT have to JSON.stringify inputs[key] below
+            formData.append(key, JSON.stringify(inputs[key]));
+        });
+        SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+        return formData;
+    }
+
+    private async doPostOrPutRequestWithFormData(
+        url: string,
+        method: RequestMethods.POST | RequestMethods.PUT,
+        formData: FormData,
+        headers: Record<any, any>,
+        parseDataFromResponse: boolean = true,
+    ): Promise<AxiosResponse<any> | Record<any, any> | Array<any>> {
+        const params = {
+            url,
+            method,
+            formData,
+            headers,
+            parseDataFromResponse,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        const axiosConfig = {
+            method: method,
+            url: url,
+            headers: headers,
+            data: formData
+        };
+        try {
+            const res = await axios(axiosConfig);
+            if (res.data && parseDataFromResponse) {
+                SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${JSON.stringify(res.data)}`);
+                return res.data;
+            }
+            SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+            return res;
+        } catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
+			} else {
+				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+			}
+			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+			throw(error);
+		}
+    }
+
+    public async doPostRequestWithFormData(
+        url: string,
+        formData: FormData,
+        headers: Record<any, any>,
+        parseDataFromResponse: boolean = true,
+    ): Promise<AxiosResponse<any> | Record<any, any> | Array<any>> {
+        const params = {
+            url,
+            formData,
+            headers,
+            parseDataFromResponse,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        const res = await this.doPostOrPutRequestWithFormData(
+            url,
+            RequestMethods.POST,
+            formData,
+            headers,
+            parseDataFromResponse,
+        );
+        SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+        return res;
+    }
+
+    public async doPutRequestWithFormData(
+        url: string,
+        formData: FormData,
+        headers: Record<any, any>,
+        parseDataFromResponse: boolean = true,
+    ): Promise<AxiosResponse<any> | Record<any, any> | Array<any>> {
+        const params = {
+            url,
+            formData,
+            headers,
+            parseDataFromResponse,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        const res = await this.doPostOrPutRequestWithFormData(
+            url,
+            RequestMethods.PUT,
+            formData,
+            headers,
+            parseDataFromResponse,
+        );
+        SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
         return res;
     }
 

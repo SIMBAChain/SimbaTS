@@ -7,13 +7,13 @@ import {
 } from "axios";
 import {
   RequestHandler,
-  RequestMethods,
 } from "./request_handler"
 import FormData from "form-data";
 import * as fs from "fs";
 import {
   ParamCheckingContract,
 } from "./param_checking_contract";
+
 
 // interface Headers {
 //   Authorization: string;
