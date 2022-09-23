@@ -86,16 +86,16 @@ class ParamCheckingContract {
             const char = arrString[i];
             switch (char) {
                 case ("["): {
-                reverseArray += "]";
-                break;
+                    reverseArray += "]";
+                    break;
                 }
-                case ("]"): {
-                reverseArray += "[";
-                break;
+                    case ("]"): {
+                    reverseArray += "[";
+                    break;
                 }
-                default: {
-                reverseArray += char;
-                break;
+                    default: {
+                    reverseArray += char;
+                    break;
                 }
             }
         }
@@ -131,40 +131,40 @@ class ParamCheckingContract {
         // SimbaConfig.log.debug(`:: methods : ${JSON.stringify(methods)}`);
         const paramRest = {} as any;
         for (let method in methods) {
-        if (method) {
-            const methodKeys = methods[method];
-            const methodParams = methodKeys["params"];
-            // SimbaConfig.log.debug(`:: methodParams : ${JSON.stringify(methodParams)}`);
-            for (let param in methodParams) {
-            if (param) {
-                const paramName = methodParams[param]["name"];
-                const rawType = methodParams[param]["type"];
-                const containsOrIsUint = rawType.startsWith("uint");
-                if (!containsOrIsUint && !this.isArray(paramName)) {
-                    continue;
-                }
-                if (paramRest[method] === undefined) {
-                    paramRest[method] = {};
-                }
-                if (containsOrIsUint && !this.isArray(rawType)) {
-                    if (paramRest[method]["uintParams"] === undefined) {
-                        paramRest[method]["uintParams"] = [paramName];
-                    } else {
-                        paramRest[method]["uintParams"].push(paramName);
-                    }
-                } else {
-                    if (this.isArray(rawType)) {
-                        if (paramRest[method]["arrayParams"] === undefined) {
-                        paramRest[method]["arrayParams"] = {};
+            if (method) {
+                const methodKeys = methods[method];
+                const methodParams = methodKeys["params"];
+                // SimbaConfig.log.debug(`:: methodParams : ${JSON.stringify(methodParams)}`);
+                for (let param in methodParams) {
+                    if (param) {
+                        const paramName = methodParams[param]["name"];
+                        const rawType = methodParams[param]["type"];
+                        const containsOrIsUint = rawType.startsWith("uint");
+                        if (!containsOrIsUint && !this.isArray(paramName)) {
+                            continue;
                         }
-                        const _arrayRestrictions = this.arrayRestrictions(rawType);
-                        _arrayRestrictions["containsUint"] = containsOrIsUint;
-                        paramRest[method]["arrayParams"][paramName] = _arrayRestrictions;
+                        if (paramRest[method] === undefined) {
+                            paramRest[method] = {};
+                        }
+                        if (containsOrIsUint && !this.isArray(rawType)) {
+                            if (paramRest[method]["uintParams"] === undefined) {
+                                paramRest[method]["uintParams"] = [paramName];
+                            } else {
+                                paramRest[method]["uintParams"].push(paramName);
+                            }
+                        } else {
+                            if (this.isArray(rawType)) {
+                                if (paramRest[method]["arrayParams"] === undefined) {
+                                paramRest[method]["arrayParams"] = {};
+                                }
+                                const _arrayRestrictions = this.arrayRestrictions(rawType);
+                                _arrayRestrictions["containsUint"] = containsOrIsUint;
+                                paramRest[method]["arrayParams"][paramName] = _arrayRestrictions;
+                            }
+                        }
                     }
                 }
             }
-            }
-        }
         }
         SimbaConfig.log.debug(`:: EXIT : ${JSON.stringify(paramRest)}`);
         return paramRest;
@@ -195,14 +195,14 @@ class ParamCheckingContract {
             throw(message);
         }
         if (levelRestriction !== null) {
-        if (arr.length !== Number(levelRestriction)) {
-            const message =
-            `Array length error for param ${paramName}. This param
-            should have length ${Number(levelRestriction)}, but had
-            length ${arr.length}`;
-            SimbaConfig.log.error(`:: EXIT : ${message}`);
-            throw(message);
-        }
+            if (arr.length !== Number(levelRestriction)) {
+                const message =
+                `Array length error for param ${paramName}. This param
+                should have length ${Number(levelRestriction)}, but had
+                length ${arr.length}`;
+                SimbaConfig.log.error(`:: EXIT : ${message}`);
+                throw(message);
+            }
         }
         level += 1;
         for(const [i, element] of arr.entries()) {

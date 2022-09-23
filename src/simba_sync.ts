@@ -1,17 +1,17 @@
 import {
-  SimbaConfig,
+    SimbaConfig,
 } from "./config";
 import {
-  AxiosResponse,
+    AxiosResponse,
 } from "axios";
 import {
-  RequestHandler,
+    RequestHandler,
 } from "./request_handler"
 import {
     Simba,
 } from "./simba";
 import {
-  SimbaContractSync,
+    SimbaContractSync,
 } from "./simba_contract_sync";
 
 export class SimbaSync extends Simba {

@@ -1,14 +1,14 @@
 import {
-  SimbaConfig,
+    SimbaConfig,
 } from "./config";
 import {
-  AxiosResponse,
+    AxiosResponse,
 } from "axios";
 import {
-  RequestHandler,
+    RequestHandler,
 } from "./request_handler"
 import {
-  ParamCheckingContract,
+    ParamCheckingContract,
 } from "./param_checking_contract";
 import {
     Simba,

@@ -831,12 +831,13 @@ export class Simba {
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/${methodName}/`);
-        const options = await this.requestHandler.getAuthAndOptions(undefined, undefined, false);
+        // addContentType needs to be false below, or it botches formData boundaries
+		const options = await this.requestHandler.getAuthAndOptions(undefined, undefined, true);
         inputs = inputs || {};
 		let data = inputs;
         if (!filePaths) {
-            const res: Record<any, any> = await this.requestHandler.doPostRequest(url, data, options, parseDataFromResponse);
-            SimbaConfig.log.debug(`:: EXIT : res.data: ${JSON.stringify(res.data)}`);
+            const res: Record<any, any> = await this.requestHandler.doPostRequest(url, options, data, parseDataFromResponse);
+            SimbaConfig.log.debug(`:: EXIT : res: ${JSON.stringify(res)}`);
             return res;
         }
         const formData = this.requestHandler.formDataFromFilePathsAndInputs(
@@ -883,11 +884,12 @@ export class Simba {
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/sync/contract/${contractName}/${methodName}/`);
+		// addContentType needs to be false below, or it botches formData boundaries
         const options = await this.requestHandler.getAuthAndOptions(undefined, undefined, false);
         inputs = inputs || {};
 		let data = inputs;
         if (!filePaths) {
-            const res: Record<any, any> = await this.requestHandler.doPostRequest(url, data, options, parseDataFromResponse);
+            const res: Record<any, any> = await this.requestHandler.doPostRequest(url, options, data, parseDataFromResponse);
             SimbaConfig.log.debug(`:: EXIT : res.data: ${JSON.stringify(res.data)}`);
             return res;
         }
@@ -1219,8 +1221,6 @@ export class Simba {
 			throw(error);
 		}
 	}
-
-	// // implement TS version of this python code tomorrow
 
 	public async waitForDeployDesign(
 		orgName: string,

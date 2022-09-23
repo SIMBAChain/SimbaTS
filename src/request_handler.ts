@@ -118,7 +118,7 @@ export class RequestHandler {
             parseDataFromResponse,
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-        const res = await this.doHTTPRequest(url, RequestMethods.POST, options, undefined, parseDataFromResponse);
+        const res = await this.doHTTPRequest(url, RequestMethods.POST, options, data, parseDataFromResponse);
         SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
         return res;
     }
