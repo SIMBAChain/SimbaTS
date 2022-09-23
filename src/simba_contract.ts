@@ -10,7 +10,9 @@ import {
 import {
   ParamCheckingContract,
 } from "./param_checking_contract";
-import { Simba } from ".";
+import {
+    Simba,
+} from ".";
 
 export class SimbaContract extends ParamCheckingContract {
     baseApiURL: string;
