@@ -13,9 +13,12 @@ import {
   SimbaSync,
 } from "./";
 import utf8 from "utf8";
-import { parse } from "path";
+import {
+	getAddress,
+	getDeployedArtifactID,
+} from "./utils"
 
-export class Simba extends SimbaSync {
+export class Simba {
 	baseApiUrl: string;
 	requestHandler: RequestHandler;
 	
@@ -23,9 +26,24 @@ export class Simba extends SimbaSync {
 		baseApiUrl: string = SimbaConfig.baseURL,
 		requestHandler: RequestHandler = new RequestHandler()
 	) {
-		super(baseApiUrl, requestHandler);
 		this.baseApiUrl = baseApiUrl;
 		this.requestHandler = requestHandler;
+	}
+
+	public getSimbaContract(
+		appName: string,
+		contractName: string,
+		parseDataFromResponse: boolean = true,
+	): SimbaContract {
+		const params = {
+			appName,
+			contractName,
+			parseDataFromResponse,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const simbaContract = new SimbaContract(this.baseApiUrl, appName, contractName);
+		SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+		return simbaContract;
 	}
 
 	public async whoAmI(parseDataFromResponse: boolean = true): Promise<AxiosResponse<any> | Record<any, any>> {
@@ -151,6 +169,43 @@ export class Simba extends SimbaSync {
 		}
 	}
 
+	public async setWallet(
+		blockchain: string,
+		pub: string,
+		priv: string,
+		parseDataFromResponse: boolean = true,
+	): Promise<AxiosResponse<any> | Record<any, any>> {
+		const params = {
+			blockchain,
+			pub,
+			priv,
+			parseDataFromResponse,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/user/wallet/set/`);
+		const data = {
+			blockchain,
+			identities: [{
+				pub,
+				priv,
+			}]
+		};
+    	const options = await this.requestHandler.getAuthAndOptions();
+    	try {
+			const res = await this.requestHandler.doPostRequest(url, options, data, parseDataFromResponse);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+			return res;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
+			} else {
+				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+			}
+			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+			throw(error);
+		}
+	}
+
 	public async getWallet(parseDataFromResponse: boolean = true,): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
 			parseDataFromResponse,
@@ -209,14 +264,12 @@ export class Simba extends SimbaSync {
 		orgName: string,
 		name: string,
 		display: string,
-		force: string,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any> | void> {
 		const params = {
 			orgName,
 			name,
 			display,
-			force,
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
@@ -249,22 +302,6 @@ export class Simba extends SimbaSync {
 			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
 			throw(error);
 		}
-	}
-
-	public getContract(
-		appName: string,
-		contractName: string,
-		parseDataFromResponse: boolean = true,
-	): SimbaContract {
-		const params = {
-			appName,
-			contractName,
-			parseDataFromResponse,
-		};
-		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const simbaContract = new SimbaContract(this.baseApiUrl, appName, contractName);
-		SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
-		return simbaContract;
 	}
 	
 	public async getApplications(
@@ -306,7 +343,7 @@ export class Simba extends SimbaSync {
     	const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -334,7 +371,7 @@ export class Simba extends SimbaSync {
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -364,7 +401,7 @@ export class Simba extends SimbaSync {
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -377,7 +414,7 @@ export class Simba extends SimbaSync {
 		}
   	}
 
-	public async getContractTranssactions(
+	public async getContractTransactions(
     	appName: string,
     	contractName: string,
     	queryParams?: Record<any, any>,
@@ -389,11 +426,12 @@ export class Simba extends SimbaSync {
 			queryParams,
 			parseDataFromResponse,
 		}
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/transactions/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -421,7 +459,7 @@ export class Simba extends SimbaSync {
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -434,7 +472,7 @@ export class Simba extends SimbaSync {
 		}
 	}
 
-  	public async validateBundle(
+  	public async validateBundleHash(
 		appName: string,
 		contractName: string,
 		bundleHash: string,
@@ -451,7 +489,7 @@ export class Simba extends SimbaSync {
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -468,7 +506,7 @@ export class Simba extends SimbaSync {
 		appName: string,
 		contractName: string,
 		bundleHash: string,
-		downloadLocation: string,
+		downloadLocation?: string,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
@@ -483,7 +521,7 @@ export class Simba extends SimbaSync {
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -501,7 +539,7 @@ export class Simba extends SimbaSync {
 		contractName: string,
 		bundleHash: string,
 		fileName: string,
-		downloadLocation: string,
+		downloadLocation?: string,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
@@ -547,7 +585,7 @@ export class Simba extends SimbaSync {
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -575,7 +613,39 @@ export class Simba extends SimbaSync {
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+			return res;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
+			} else {
+				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+			}
+			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+			throw(error);
+		}
+	}
+
+	public async getEvents(
+		appName: string,
+		contractName: string,
+		eventName: string,
+		queryParams?: Record<any, any>,
+		parseDataFromResponse: boolean = true,
+	): Promise<AxiosResponse<any> | Record<any, any>> {
+		const params = {
+			appName,
+			contractName,
+			eventName,
+			queryParams,
+			parseDataFromResponse,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/events/${eventName}/`);
+		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
+		try {
+			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -607,7 +677,7 @@ export class Simba extends SimbaSync {
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -639,7 +709,7 @@ export class Simba extends SimbaSync {
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -656,22 +726,20 @@ export class Simba extends SimbaSync {
 		appName: string,
 		contractName: string,
 		transactionHash: string,
-		queryParams?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
 			appName,
 			contractName,
 			transactionHash,
-			queryParams,
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/transaction/${transactionHash}/`);
-		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
+		const options = await this.requestHandler.getAuthAndOptions();
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -703,7 +771,7 @@ export class Simba extends SimbaSync {
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -733,73 +801,7 @@ export class Simba extends SimbaSync {
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
-			return res;
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
-			} else {
-				SimbaConfig.log.error(`${JSON.stringify(error)}`);
-			}
-			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
-			throw(error);
-		}
-	}
-
-	public async callGetterByAddress(
-		appName: string,
-		contractName: string,
-		identifier: string,
-		methodName: string,
-		queryParams?: Record<any, any>,
-		parseDataFromResponse: boolean = true,
-	): Promise<AxiosResponse<any> | Record<any, any>> {
-		const params = {
-			appName,
-			contractName,
-			identifier,
-			methodName,
-			queryParams,
-			parseDataFromResponse,
-		};
-		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/address/${identifier}/${methodName}/`);
-		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
-		try {
-			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
-			return res;
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
-			} else {
-				SimbaConfig.log.error(`${JSON.stringify(error)}`);
-			}
-			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
-			throw(error);
-		}
-	}
-
-	public async getContractMethods(
-		appName: string,
-		contractName: string,
-		methodName: string,
-		queryParams?: Record<any, any>,
-		parseDataFromResponse: boolean = true,
-	): Promise<AxiosResponse<any> | Record<any, any>> {
-		const params = {
-			appName,
-			contractName,
-			methodName,
-			queryParams,
-			parseDataFromResponse,
-		};
-		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/${methodName}/`);
-		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
-		try {
-			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -816,7 +818,7 @@ export class Simba extends SimbaSync {
 		appName: string,
 		contractName: string,
         methodName: string,
-        inputs: Record<any, any>,
+        inputs?: Record<any, any>,
         filePaths?: Array<any>,
 		parseDataFromResponse: boolean = true,
     ): Promise<AxiosResponse<any> | Record<any, any>> {
@@ -831,7 +833,8 @@ export class Simba extends SimbaSync {
         SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/${methodName}/`);
         const options = await this.requestHandler.getAuthAndOptions(undefined, undefined, false);
-        let data = inputs;
+        inputs = inputs || {};
+		let data = inputs;
         if (!filePaths) {
             const res: Record<any, any> = await this.requestHandler.doPostRequest(url, data, options, parseDataFromResponse);
             SimbaConfig.log.debug(`:: EXIT : res.data: ${JSON.stringify(res.data)}`);
@@ -867,7 +870,7 @@ export class Simba extends SimbaSync {
 		appName: string,
 		contractName: string,
         methodName: string,
-        inputs: Record<any, any>,
+        inputs?: Record<any, any>,
         filePaths?: Array<any>,
 		parseDataFromResponse: boolean = true,
     ): Promise<AxiosResponse<any> | Record<any, any>> {
@@ -882,7 +885,8 @@ export class Simba extends SimbaSync {
         SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/sync/contract/${contractName}/${methodName}/`);
         const options = await this.requestHandler.getAuthAndOptions(undefined, undefined, false);
-        let data = inputs;
+        inputs = inputs || {};
+		let data = inputs;
         if (!filePaths) {
             const res: Record<any, any> = await this.requestHandler.doPostRequest(url, data, options, parseDataFromResponse);
             SimbaConfig.log.debug(`:: EXIT : res.data: ${JSON.stringify(res.data)}`);
@@ -903,6 +907,7 @@ export class Simba extends SimbaSync {
 				headers,
 				parseDataFromResponse,
 			);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -915,37 +920,35 @@ export class Simba extends SimbaSync {
 		}
     }
 
-	// public async callContractMethod(
-	// 	appName: string,
-	// 	contractName: string,
-	// 	methodName: string,
-	// 	inputs: Record<any, any>,
-	// 	queryParams?: Record<any, any>
-	// ): Promise<AxiosResponse<any> | Record<any, any>> {
-	// 	const params = {
-	// 		appName,
-	// 		contractName,
-	// 		methodName,
-	// 		inputs,
-	// 		queryParams,
-	// 	};
-	// 	SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-	// 	const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/${methodName}/`);
-	// 	const data = inputs;
-	// 	const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
-	// 	try {
-	// 		const res = await this.requestHandler.doPostRequest(url, options, data, parseDataFromResponse);
-	// 		return res;
-	// 	} catch (error) {
-	// 		if (axios.isAxiosError(error) && error.response) {
-	// 			SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
-	// 		} else {
-	// 			SimbaConfig.log.error(`${JSON.stringify(error)}`);
-	// 		}
-	// 		SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
-	// 		throw(error);
-	// 	}
-	// }
+	public async callContractMethod(
+		appName: string,
+		contractName: string,
+		methodName: string,
+		args?: Record<any, any>,
+		parseDataFromResponse: boolean = true,
+	): Promise<AxiosResponse<any> | Record<any, any>> {
+		const params = {
+			appName,
+			contractName,
+			methodName,
+			args,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/${methodName}/`);
+		const options = await this.requestHandler.getAuthAndOptions(undefined, args);
+		try {
+			const res = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
+			return res;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
+			} else {
+				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+			}
+			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+			throw(error);
+		}
+	}
 
 	public async submitSignedTransaction(
 		appName: string,
@@ -1091,7 +1094,7 @@ export class Simba extends SimbaSync {
 					throw(message);
 				}
 				await new Promise(resolve => setTimeout(resolve, 2000));
-				totalTime +=2;
+				totalTime += 2;
 				return await this.waitForDeployment(
 					orgName,
 					uid,
@@ -1259,8 +1262,8 @@ export class Simba extends SimbaSync {
 		let address, contractID;
 		try {
 			const deployed = await this.waitForDeployment(orgName, deploymentID);
-			address = this.getAddress(deployed);
-			contractID = this.getDeployedArtifactID(deployed);
+			address = getAddress(deployed);
+			contractID = getDeployedArtifactID(deployed);
 			const ret = [address, contractID];
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : ret : ${JSON.stringify(ret)}`);
 			return ret;
@@ -1310,8 +1313,8 @@ export class Simba extends SimbaSync {
 		let address, contractID;
 		try {
 			const deployed = await this.waitForDeployment(orgName, deploymentID);
-			address = this.getAddress(deployed);
-			contractID = this.getDeployedArtifactID(deployed);
+			address = getAddress(deployed);
+			contractID = getDeployedArtifactID(deployed);
 			const ret = [address, contractID];
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : ret : ${JSON.stringify(ret)}`);
 			return ret;
@@ -1319,6 +1322,58 @@ export class Simba extends SimbaSync {
 			const message = `failed to wait for deployment : ${error}`;
 			SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
 			throw(message);
+		}
+	}
+
+	public async waitForOrgTransaction(
+		orgName: string,
+		uid: string,
+		totalTime: number = 0,
+		maxTime: number = 480,
+		parseDataFromResponse: boolean = true,
+	): Promise<AxiosResponse<any> | Record<any, any>> {
+		const params = {
+			orgName,
+			uid,
+			totalTime,
+			maxTime,
+			parseDataFromResponse,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
+        const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/transactions/${uid}/`);
+		const options = await this.requestHandler.getAuthAndOptions();
+		try {
+			// parseDataFromResponse NEEDS to be true here, for res.state to exist
+			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
+			const state = res.state;
+			if (state === "FAILED") {
+				const message = `:: SIMBA : EXIT : transaction failed: ${JSON.stringify(res)}`;
+				SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
+				throw(message);
+			} else {
+				if (totalTime > maxTime) {
+					const message = `waited too long`;
+					SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
+					throw(message);
+				}
+				await new Promise(resolve => setTimeout(resolve, 2000));
+				totalTime += 2;
+				return await this.waitForOrgTransaction(
+					orgName,
+					uid,
+					totalTime,
+					maxTime,
+					parseDataFromResponse,
+				);
+			}
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
+			} else {
+				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+			}
+			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+			throw(error);
 		}
 	}
 
@@ -1385,6 +1440,32 @@ export class Simba extends SimbaSync {
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/storages/`);
+		const options = await this.requestHandler.getAuthAndOptions();
+		try {
+			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+			return res;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
+			} else {
+				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+			}
+			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+			throw(error);
+		}
+	}
+
+	public async getArtifacts(
+		orgName: string,
+		parseDataFromResponse: boolean = true,
+	): Promise<AxiosResponse<any> | Record<any, any>> {
+		const params = {
+			orgName,
+			parseDataFromResponse,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
+        const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/contract_artifacts/`);
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
@@ -1504,6 +1585,54 @@ export class Simba extends SimbaSync {
 			const sub = await this.requestHandler.doPostRequest(url, options, data, parseDataFromResponse);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : sub : ${sub}`);
 			return sub;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
+			} else {
+				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+			}
+			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+			throw(error);
+		}
+	}
+
+	public async setNotificationConfig(
+		orgName: string,
+		scheme: string,
+		authType: string,
+		authInfo: Record<any, any>,
+		parseDataFromResponse: boolean = true,
+	): Promise<AxiosResponse<any> | Record<any, any>> {
+		const params = {
+			orgName,
+			scheme,
+			authType,
+			authInfo,
+			parseDataFromResponse,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/notification_config/`);
+		const options = await this.requestHandler.getAuthAndOptions();
+		const data = {
+			scheme,
+			auth_type: authType,
+			auth_info: authInfo,
+		}
+		try {
+			const results = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse) as Array<any>;
+			for (let i = 0; i < results.length; i++) {
+				const result: Record<any, any> = results[i];
+				if (result.scheme === scheme &&
+					result.auth_type === authType &&
+					result.authInfo === authInfo
+				) {
+					SimbaConfig.log.debug(`:: SIMBA : EXIT : result : ${JSON.stringify(result)}`);
+					return result;
+				}
+			}
+			const conf = await this.requestHandler.doPostRequest(url, options, data, parseDataFromResponse);
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : sub : ${conf}`);
+			return conf;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
 				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);

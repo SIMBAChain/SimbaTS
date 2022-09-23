@@ -20,7 +20,7 @@ class ParamCheckingContract {
     baseApiUrl: string;
     contractUri: string;
     asyncContractUri: string;
-    metadata: Record<any, any> | null = null;
+    metadata: Record<any, any>;
     paramsRestricted: Record<any, any> | null = null;
     requestHandler: RequestHandler;
 
@@ -43,15 +43,14 @@ class ParamCheckingContract {
         return Object.prototype.toString.call(someObject).slice(8, -1).toLowerCase()
     }
 
-    public async getMetadata(
-        queryParams?: Record<any, any>
-    ): Promise<Record<any, any> | Error> {
-        const par = {
-            queryParams,
-        };
-        SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(par)}`);
+    public async getMetadata(): Promise<Record<any, any>> {
+        SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
+        if (this.metadata) {
+            SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+            return this.metadata;
+        }
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${this.contractUri}/?format=json`);
-        const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
+        const options = await this.requestHandler.getAuthAndOptions();
         try {
             const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options);
             if (!res.data) {
@@ -125,11 +124,9 @@ class ParamCheckingContract {
         return this.getDimensions(param, dims);
     }
 
-    private async paramRestrictions(
-        queryParams?: Record<any, any>
-    ): Promise<Record<any, any> | void> {
-        SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(queryParams)}`);
-        const metadata = await this.getMetadata(queryParams) as any;
+    private async paramRestrictions(): Promise<Record<any, any> | void> {
+        SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
+        const metadata = await this.getMetadata() as any;
         const methods = metadata["contract"]["methods"];
         // SimbaConfig.log.debug(`:: methods : ${JSON.stringify(methods)}`);
         const paramRest = {} as any;

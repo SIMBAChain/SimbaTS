@@ -9,11 +9,13 @@ import {
   RequestHandler,
 } from "./request_handler"
 import {
-  SimbaContract,
-} from "./simba_contract";
-import utf8 from "utf8";
+    Simba,
+} from "./simba";
+import {
+  SimbaContractSync,
+} from "./simba_contract_sync";
 
-export class SimbaSync {
+export class SimbaSync extends Simba {
 	baseApiUrl: string;
 	requestHandler: RequestHandler;
 	
@@ -21,28 +23,53 @@ export class SimbaSync {
 		baseApiUrl: string = SimbaConfig.baseURL,
 		requestHandler: RequestHandler = new RequestHandler()
 	) {
+        super(baseApiUrl, requestHandler)
 		this.baseApiUrl = baseApiUrl;
 		this.requestHandler = requestHandler;
 	}
 
-    public getAddress(deployment: Record<any, any>): string | undefined {
-        const params = {
-            deployment,
-        };
-        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-        const primary = deployment.primary;
-        SimbaConfig.log.debug(`:: SIMBA : EXIT : primary: ${primary}`);
-        return primary;
-    }
+	public getSimbaContract(
+		appName: string,
+		contractName: string,
+		parseDataFromResponse: boolean = true,
+	): SimbaContractSync {
+		const params = {
+			appName,
+			contractName,
+			parseDataFromResponse,
+		};
+		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+		const simbaContract = new SimbaContractSync(this.baseApiUrl, appName, contractName);
+		SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+		return simbaContract;
+	}
 
-    public getDeployedArtifactID(deployment: Record<any, any>): string | undefined {
+    public async submitContractMethod(
+		appName: string,
+		contractName: string,
+        methodName: string,
+        inputs?: Record<any, any>,
+        filePaths?: Array<any>,
+		parseDataFromResponse: boolean = true,
+    ): Promise<AxiosResponse<any> | Record<any, any>> {
         const params = {
-            deployment,
+			appName,
+			contractName,
+            methodName,
+            inputs,
+            filePaths,
+			parseDataFromResponse,
         };
-        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-        const primary = deployment.primary;
-        SimbaConfig.log.debug(`:: SIMBA : EXIT : primary: ${primary}`);
-        return primary;
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
+        const res = await this.submitContractMethodSync(
+            appName,
+            contractName,
+            methodName,
+            inputs,
+            filePaths,
+            parseDataFromResponse,
+        );
+        SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+        return res;
     }
-
 }

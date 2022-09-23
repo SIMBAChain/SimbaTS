@@ -1,46 +1,23 @@
-// export enum Path {
-//   WHOAMI = "/user/whoami/"
-//   APPS = "/v2/apps/"
-//   APP = "/v2/apps/{}/"
-//   APP_TXNS = "/v2/apps/{}/transactions/"
-//   APP_TXN = "/v2/apps/{}/transactions/{}/"
-//   APP_CONTRACT = "/v2/apps/{}/contract/{}/"
-//   APP_CONTRACTS = "/v2/apps/{}/contracts/"
-//   CONTRACT_TXNS = "/v2/apps/{}/contract/{}/transactions/"
-//   CONTRACT_TXN = "/v2/apps/{}/contract/{}/transaction/{}/"
-//   CONTRACTS = "/v2/apps/{}/contracts/"
-//   VALIDATE_BUNDLE = "/v2/apps/{}/validate/{}/{}/"
-//   BUNDLE = "/v2/apps/{}/contract/{}/bundle/{}/"
-//   BUNDLE_FILE = "/v2/apps/{}/contract/{}/bundle/{}/filename/{}/"
-//   BUNDLE_MANIFEST = "/v2/apps/{}/contract/{}/bundle/{}/manifest/"
-//   CONTRACT_INFO = "/v2/apps/{}/contract/{}/info"
-//   CONTRACT_EVENTS = "/v2/apps/{}/contract/{}/events/{}/"
-//   CONTRACT_RECEIPT = "/v2/apps/{}/contract/{}/receipt/{}/"
-//   CONTRACT_METHOD = "/v2/apps/{}/contract/{}/{}/"
-//   SYNC_CONTRACT_METHOD = "/v2/apps/{}/sync/contract/{}/{}/"
-//   USER_FUND_ADDRESS = "/user/account/{}/fund/"
-//   USER_ADDRESS_BALANCE = "/user/account/{}/balance/{}/"
-//   ADMIN_WALLET_SET = "/admin/users/{}/wallet/set/"
-//   USER_WALLET_SET = "/user/wallet/set/"
-//   USER_WALLET = "/user/wallet/"
-//   ORGANISATION = "/v2/organisations/{}/"
-//   ORGANISATIONS = "/v2/organisations/"
-//   ORG_APP = "/v2/organisations/{}/applications/{}/"
-//   ORG_APPS = "/v2/organisations/{}/applications/"
-//   ORG_TXN = "/v2/organisations/{}/transactions/{}/"
-//   ORG_TXNS = "/v2/organisations/{}/transactions/"
-//   DESIGNS = "/v2/organisations/{}/contract_designs/"
-//   DESIGN = "/v2/organisations/{}/contract_designs/{}/"
-//   CONTRACT_ARTIFACTS = "/v2/organisations/{}/contract_artifacts/"
-//   CONTRACT_ARTIFACT = "/v2/organisations/{}/contract_artifacts/{}/"
-//   DEPLOYED_CONTRACTS = "/v2/organisations/{}/deployed_contracts/"
-//   DEPLOYED_CONTRACT = "/v2/organisations/{}/deployed_contracts/{}/"
-//   DESIGN_DEPLOY = "/v2/organisations/{}/contract_designs/{}/deploy/"
-//   DEPLOYMENT = "/v2/organisations/{}/deployments/{}/"
-//   DEPLOYMENTS = "/v2/organisations/{}/deployments/"
-//   STORAGES = "/v2/organisations/{}/storage/"
-//   BLOCKCHAINS = "/v2/organisations/{}/blockchains/"
-//   SUBSCRIPTIONS = "/v2/organisations/{}/subscriptions/"
-//   SUBSCRIPTION = "/v2/organisations/{}/subscriptions/{}/"
-//   NOTIFICATION_CONFIGS = "/v2/organisations/{}/notification_config/"
-// }
+import {
+    SimbaConfig,
+} from "./config";
+
+export function getAddress(deployment: Record<any, any>): string | undefined {
+    const params = {
+        deployment,
+    };
+    SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+    const primary = deployment.primary;
+    SimbaConfig.log.debug(`:: SIMBA : EXIT : primary: ${primary}`);
+    return primary;
+}
+
+export function getDeployedArtifactID(deployment: Record<any, any>): string | undefined {
+  const params = {
+      deployment,
+  };
+  SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+  const primary = deployment.primary;
+  SimbaConfig.log.debug(`:: SIMBA : EXIT : primary: ${primary}`);
+  return primary;
+}
