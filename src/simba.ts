@@ -10,8 +10,7 @@ import {
 } from "./request_handler"
 import {
   SimbaContract,
-  SimbaSync,
-} from "./";
+} from "./simba_contract";
 import utf8 from "utf8";
 import {
 	getAddress,

@@ -12,7 +12,7 @@ import {
 } from "./param_checking_contract";
 import {
     Simba,
-} from ".";
+} from "./simba";
 
 export class SimbaContract extends ParamCheckingContract {
     baseApiURL: string;
