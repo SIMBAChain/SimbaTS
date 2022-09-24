@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "commonjs",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "strict": true,
+    "rootDirs": ["./src", "./test"],
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "strictPropertyInitialization": false,
+    "typeRoots": ["node_modules/@types"],
+    "allowJs": true,
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "./dist",
+    "./node_modules",
+    "./src/tests"
+  ],
+  "include": [
+    "./test",
+    "./src"
+  ]
+}
