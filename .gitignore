@@ -9,3 +9,7 @@
 
 # authconfig.json
 **authconfig.json
+
+# polyglot - these are files that users have dropped into their
+# local verison of SimbaTS
+**polyglot

@@ -85,7 +85,7 @@ export class SimbaConfig {
     public static get baseURL(): string {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         const baseURL = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_API_BASE_URL);
-        SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+        SimbaConfig.log.debug(`:: SIMBA : EXIT : baseURL : ${baseURL}`);
         return baseURL;
     }
 
@@ -155,8 +155,8 @@ export class SimbaConfig {
      */
     public static get logLevel(): LogLevel {
         let logLevel = this.ProjectConfigStore.get('log_level') ? 
-        this.ProjectConfigStore.get('log_level').toLowerCase() :
-        LogLevel.INFO;
+            this.ProjectConfigStore.get('log_level').toLowerCase() :
+            LogLevel.INFO;
         if (!Object.values(LogLevel).includes(logLevel)) {
             logLevel = LogLevel.INFO;
         }

@@ -30,12 +30,10 @@ export class SimbaSync extends Simba {
 	public getSimbaContract(
 		appName: string,
 		contractName: string,
-		parseDataFromResponse: boolean = true,
 	): SimbaContractSync {
 		const params = {
 			appName,
 			contractName,
-			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
 		const simbaContract = new SimbaContractSync(this.baseApiUrl, appName, contractName);

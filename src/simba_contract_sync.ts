@@ -29,7 +29,7 @@ export class SimbaContractSync extends SimbaContract {
         appName: string,
         contractName: string
     ) {
-        super(appName, contractName, baseApiUrl);
+        super(baseApiUrl, appName, contractName);
         this.baseApiUrl = baseApiUrl;
         this.appName = appName;
         this.contractName = contractName;

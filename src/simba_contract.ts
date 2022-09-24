@@ -40,14 +40,11 @@ export class SimbaContract extends ParamCheckingContract {
 
     public async callMethod(
         methodName: string,
-        inputs: Record<any, any>,
     ): Promise<AxiosResponse<any> | Record<any, any>> {
         const params = {
             methodName,
-            inputs,
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-        await this.validateParams(methodName, inputs);
         const res = await this.simba.callContractMethod(
             this.appName,
             this.contractName,
