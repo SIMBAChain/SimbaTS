@@ -1,13 +1,13 @@
 {
-  "name": "typescriptfiles",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@simbachain/simbats",
+  "version": "0.0.1",
+  "description": "SIMBA Chain TypeScript SDK",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "SIMBA Chain",
+  "license": "MIT",
   "dependencies": {
     "@types/node": "^18.7.18",
     "buffer": "^6.0.3",
