@@ -4,24 +4,30 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "unit_test": "cd src/tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './unit/**/*.ts'"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/node": "^18.7.18",
     "buffer": "^6.0.3",
+    "chai": "^4.3.6",
     "configstore": "^5.0.1",
     "fs": "0.0.1-security",
+    "mocha": "^10.0.0",
     "path": "^0.12.7",
     "tslog": "^3.3.1",
     "utf8": "^3.0.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.3",
     "@types/configstore": "^6.0.0",
+    "@types/mocha": "^9.1.1",
     "@types/utf8": "^3.0.1",
     "axios": "^0.25.0",
     "dotenv": "^14.2.0",
-    "form-data": "^4.0.0"
+    "form-data": "^4.0.0",
+    "ts-node": "^10.9.1"
   }
 }
