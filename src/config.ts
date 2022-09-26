@@ -66,7 +66,7 @@ export class SimbaConfig {
      */
     public static get ProjectConfigStore(): Configstore {
         if (!this._projectConfigStore) {
-            this._projectConfigStore = new Configstore(`@simbachain/SimbaTS`, null, {
+            this._projectConfigStore = new Configstore(`@simbachain/simbats`, null, {
                 configPath: path.join(cwd(), 'simba.json'),
             });
         }

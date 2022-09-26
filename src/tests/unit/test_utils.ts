@@ -1,18 +1,25 @@
 import {
     getAddress,
     getDeployedArtifactID,
-} from "../../utils"
-import * as fs from "fs";
+} from "../../utils";
 import { expect } from 'chai';
 import 'mocha';
-import * as path from 'path';
-import {cwd} from 'process';
 
 
 describe('testing getAddress', () => {
-    it('address should be 0x', async () => {
+    it('address should be deployment.primary', async () => {
         const deployment = {
             primary: "0x",
+        };
+        const primary = getAddress(deployment);
+        expect(primary).to.equal(deployment.primary);
+    });
+});
+
+describe('testing getDeployedArtifactID', () => {
+    it('id should be deployment.primary', async () => {
+        const deployment = {
+            primary: "1234",
         };
         const primary = getAddress(deployment);
         expect(primary).to.equal(deployment.primary);
