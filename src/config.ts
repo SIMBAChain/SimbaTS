@@ -8,9 +8,6 @@ import * as dotenv from "dotenv";
 import * as os from "os";
 
 const SIMBA_HOME = process.env.SIMBA_HOME || os.homedir();
-const SIMBA_LOGGING_CONF = process.env.SIMBA_LOGGING_CONF;
-console.log("simba logging conf: ", SIMBA_LOGGING_CONF)
-const LOG_LEVEL = "LOG_LEVEL";
 const DEFAULT_AUTH_ENDPOINT = "/o/";
 
 export enum SimbaEnvVarKeys {
@@ -94,14 +91,14 @@ export class SimbaConfig {
      */
     public static get logLevel(): LogLevel {
         const level = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBATS_LOG_LEVEL)
-        if (level && !Object.keys(LogLevel).includes(level)) {
-            console.error(`SimbaConfig.logLevel :: SIMBA : EXIT : unrecognized SIMBATS_LOG_LEVEL set in ${SimbaConfig.simbaEnvVarFile} : ${level} : using level "info" instead. Please note that LOG_LEVEL can be one of ${Object.values(LogLevel)}`);
+        if (level && !Object.values(LogLevel).includes(level as LogLevel)) {
+            console.error(`SimbaConfig.logLevel :: SIMBA : EXIT : unrecognized SIMBATS_LOG_LEVEL - ${level} set in ${SimbaConfig.simbaEnvVarFile} : ${level} : using level "info" instead. Please note that LOG_LEVEL can be one of ${Object.values(LogLevel)}`);
             return LogLevel.INFO;
         }
         if (!level) {
             return LogLevel.INFO;
         }
-        return process.env[LOG_LEVEL] as LogLevel;
+        return process.env[SimbaEnvVarKeys.SIMBATS_LOG_LEVEL] as LogLevel;
     }
 
     public static get baseURL(): string {
@@ -127,12 +124,7 @@ export class SimbaConfig {
      * @param envVarKey key of environment variable we want to retrieve value
      */
      public static retrieveEnvVar(envVarKey: SimbaEnvVarKeys): string {
-        const params = {
-            envVarKey,
-        }
-        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
         if (envVarKey === SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT) {
-            SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
             return DEFAULT_AUTH_ENDPOINT;
         }
         
@@ -140,7 +132,6 @@ export class SimbaConfig {
         if (SimbaConfig.simbaEnvVarFileConfigured) {
             const val = process.env[envVarKey];
             if (val) {
-                SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
                 return val;
             } else {
                 // we don't want to panic if we're just looking for log level - user shouldn't have to set that
@@ -148,7 +139,7 @@ export class SimbaConfig {
                     return LogLevel.INFO;
                 }
                 const message = `no value found for environment variable ${envVarKey}`;
-                SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
+                console.error(`SimbaConfig.retrieveEnvVar :: SIMBA : EXIT : ${message}`);
                 throw(message);
             }
         }
@@ -159,7 +150,6 @@ export class SimbaConfig {
             if (val) {
                 SimbaConfig.simbaEnvVarFileConfigured = true;
                 SimbaConfig.simbaEnvVarFile = path.join(cwd(), fileName);
-                SimbaConfig.log.debug(`:: SIMBA : EXIT : retrieved ${envVarKey} from your local project directory.`);
                 return val;
             }
         }
@@ -172,7 +162,6 @@ export class SimbaConfig {
             if (val) {
                 SimbaConfig.simbaEnvVarFileConfigured = true;
                 SimbaConfig.simbaEnvVarFile = path.join(SIMBA_HOME, fileName);
-                SimbaConfig.log.debug(`:: SIMBA : EXIT : retrieved ${envVarKey} from your SIMBA_HOME directory`);
                 return val;
             }
         }
@@ -184,7 +173,7 @@ export class SimbaConfig {
         
         const message = `unable to find ${envVarKey} in local project or in your SIMBA_HOME directory. To solve, please make sure ${envVarKey} is set as an environment variable in ${SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV}, ${SimbaEnvFiles.SIMBACHAIN_DOT_ENV}, or ${SimbaEnvFiles.DOT_ENV}. You can do this in either the top level of this project's directory, or in the directory that your system level SIMBA_HOME points to.`;
 
-        SimbaConfig.log.debug(`:: SIMBA : EXIT : ${message}`);
+        console.error(`SimbaConfig.retrieveEnvVar :: SIMBA : EXIT : ${message}`);
         throw(message);
     }
 
