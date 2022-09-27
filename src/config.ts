@@ -90,11 +90,11 @@ export class SimbaConfig {
      * how we get loglevel throughout our plugins
      */
     public static get logLevel(): LogLevel {
-        if (!SIMBA_LOGGING_CONF) {
-            dotenv.config({ path: path.resolve(cwd(), LOGGING_FILE_NAME) });
+        if (SIMBA_LOGGING_CONF) {
+            dotenv.config({ path: path.resolve(SIMBA_LOGGING_CONF, LOGGING_FILE_NAME) });
             return process.env[LOG_LEVEL] as LogLevel || LogLevel.INFO;
         } else {
-            dotenv.config({ path: path.resolve(SIMBA_LOGGING_CONF, LOGGING_FILE_NAME) });
+            dotenv.config({ path: path.resolve(cwd(), LOGGING_FILE_NAME) });
             return process.env[LOG_LEVEL] as LogLevel || LogLevel.INFO;
         }
     }
