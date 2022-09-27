@@ -51,8 +51,8 @@ export enum LogLevel {
 export class SimbaConfig {
     public static _authConfig: Configstore;
     public static _projectConfigStore: Configstore;
-    public static simbaEnvVarFileConfigured: boolean = false;
-    public static simbaEnvVarFile: string;
+    public static simbaEnvVarFileConfigured: boolean | undefined = false;
+    public static simbaEnvVarFile: string | undefined;
     /**
      * handles our auth / access token info
      */
