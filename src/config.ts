@@ -78,7 +78,7 @@ export class SimbaConfig {
     }
 
     /**
-     * this is what we use for logging throughout our plugins
+     * this is what we use for logging
      */
     public static get log(): Logger {
         const logLevel = SimbaConfig.logLevel;
@@ -87,7 +87,7 @@ export class SimbaConfig {
     }
 
     /**
-     * how we get loglevel throughout our plugins
+     * how we get loglevel
      */
     public static get logLevel(): LogLevel {
         if (SIMBA_LOGGING_CONF) {
