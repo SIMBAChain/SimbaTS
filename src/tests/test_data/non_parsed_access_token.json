@@ -1,0 +1,6 @@
+{
+    "access_token": "DrgRKmLa06hCouFO6kWvSdHgy0FNBw",
+    "expires_in": 36000,
+    "token_type": "Bearer",
+    "scope": "openid read write groups"
+}

@@ -1,3 +1,4 @@
+import { SimbaConfig } from "../config";
 import {
     Simba,
 } from "../simba";
@@ -30,6 +31,7 @@ async function main() {
         inputs,
     );
     console.log(`submitMethod res : ${JSON.stringify(res)}`);
+    SimbaConfig.log.debug("debug coming through?")
 
     const name = "Lenny's Ghost";
     const age = 1000;

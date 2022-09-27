@@ -3,11 +3,7 @@ import {
     SimbaConfig,
 } from "./config";
 import {
-    AxiosResponse,
-} from "axios";
-import {
     RequestHandler,
-    RequestMethods,
 } from "./request_handler"
 
 
