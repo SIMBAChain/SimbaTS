@@ -55,6 +55,7 @@ export class SimbaConfig {
     public static _authConfig: Configstore;
     public static _projectConfigStore: Configstore;
     public static simbaEnvVarFileConfigured: boolean = false;
+    public static simbaEnvVarFile: string;
     /**
      * handles our auth / access token info
      */
@@ -92,11 +93,9 @@ export class SimbaConfig {
      * how we get loglevel
      */
     public static get logLevel(): LogLevel {
-        const loggingPath = SIMBA_LOGGING_CONF || cwd();
-        dotenv.config({ path: path.resolve(loggingPath, LOGGING_FILE_NAME) });
-        const level = process.env[LOG_LEVEL];
+        const level = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBATS_LOG_LEVEL)
         if (level && !Object.keys(LogLevel).includes(level)) {
-            console.error(`SimbaConfig.logLevel :: SIMBA : EXIT : unrecognized LOG_LEVEL set in simbats.logging.conf : ${level} : using level "info" instead. Please note that LOG_LEVEL can be one of ${Object.values(LogLevel)}`);
+            console.error(`SimbaConfig.logLevel :: SIMBA : EXIT : unrecognized SIMBATS_LOG_LEVEL set in ${SimbaConfig.simbaEnvVarFile} : ${level} : using level "info" instead. Please note that LOG_LEVEL can be one of ${Object.values(LogLevel)}`);
             return LogLevel.INFO;
         }
         if (!level) {
@@ -155,6 +154,7 @@ export class SimbaConfig {
             const val = process.env[envVarKey];
             if (val) {
                 SimbaConfig.simbaEnvVarFileConfigured = true;
+                SimbaConfig.simbaEnvVarFile = fileName;
                 SimbaConfig.log.debug(`:: SIMBA : EXIT : retrieved ${envVarKey} from your local project directory.`);
                 return val;
             }
@@ -175,6 +175,7 @@ export class SimbaConfig {
             const val = process.env[envVarKey];
             if (val) {
                 SimbaConfig.simbaEnvVarFileConfigured = true;
+                SimbaConfig.simbaEnvVarFile = fileName;
                 SimbaConfig.log.debug(`:: SIMBA : EXIT : retrieved ${envVarKey} from your SIMBA_HOME directory`);
                 return val;
             }
