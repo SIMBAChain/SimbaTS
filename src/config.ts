@@ -5,8 +5,9 @@ import {
     Logger,
 } from "tslog";
 import * as dotenv from "dotenv";
+import * as os from "os";
 
-const SIMBA_HOME = process.env.SIMBA_HOME;
+const SIMBA_HOME = process.env.SIMBA_HOME || os.homedir();
 const SIMBA_LOGGING_CONF = process.env.SIMBA_LOGGING_CONF;
 console.log("simba logging conf: ", SIMBA_LOGGING_CONF)
 const LOG_LEVEL = "LOG_LEVEL";
@@ -142,6 +143,10 @@ export class SimbaConfig {
                 SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
                 return val;
             } else {
+                // we don't want to panic if we're just looking for log level - user shouldn't have to set that
+                if (envVarKey === SimbaEnvVarKeys.SIMBATS_LOG_LEVEL) {
+                    return LogLevel.INFO;
+                }
                 const message = `no value found for environment variable ${envVarKey}`;
                 SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
                 throw(message);
@@ -159,14 +164,6 @@ export class SimbaConfig {
             }
         }
 
-        // we're now going to check SIMBA_HOME. so if it wasn't successfully defined at the beginning of this file,
-        // we have a problem
-        if (!SIMBA_HOME) {
-            const message = `unable to find ${envVarKey} in local project, and your SIMBA_HOME environment variable is not set in your system environment variables. To solve, please do one of the following. First, you can create a ${SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV}, ${SimbaEnvFiles.SIMBACHAIN_DOT_ENV}, or ${SimbaEnvFiles.DOT_ENV} file in the root of this project. Secondly/alternatively, you can, in the directory of your choice, create a ${SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV}, ${SimbaEnvFiles.SIMBACHAIN_DOT_ENV}, or ${SimbaEnvFiles.DOT_ENV} file; then you can, as a system environment variable (eg in your .bash_profile) set a SIMBA_HOME environment variable that is defined as the path to that directory. Whichever solution you choose, then set the value for ${envVarKey} inside of your ${SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV}, ${SimbaEnvFiles.SIMBACHAIN_DOT_ENV}, or ${SimbaEnvFiles.DOT_ENV} file.`;
-            SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
-            throw(message);
-        }
-
         // now we check SIMBA_HOME directory
         for (let i = 0; i < simbaEnvFilesArray.length; i++) {
             const fileName = simbaEnvFilesArray[i];
@@ -178,6 +175,11 @@ export class SimbaConfig {
                 SimbaConfig.log.debug(`:: SIMBA : EXIT : retrieved ${envVarKey} from your SIMBA_HOME directory`);
                 return val;
             }
+        }
+
+        // we don't want to panic if we're just looking for log level - user shouldn't have to set that
+        if (envVarKey === SimbaEnvVarKeys.SIMBATS_LOG_LEVEL) {
+            return LogLevel.INFO;
         }
         
         const message = `unable to find ${envVarKey} in local project or in your SIMBA_HOME directory. To solve, please make sure ${envVarKey} is set as an environment variable in ${SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV}, ${SimbaEnvFiles.SIMBACHAIN_DOT_ENV}, or ${SimbaEnvFiles.DOT_ENV}. You can do this in either the top level of this project's directory, or in the directory that your system level SIMBA_HOME points to.`;
