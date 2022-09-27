@@ -23,6 +23,7 @@ export enum SimbaEnvVarKeys {
     SIMBA_AUTH_ENDPOINT = "SIMBA_AUTH_ENDPOINT",
     SIMBA_LOGGING_HOME = "SIMBA_LOGGING_HOME",
     SIMBA_HOME = "SIMBA_HOME",
+    SIMBATS_LOG_LEVEL = "SIMBATS_LOG_LEVEL",
 }
 
 enum SimbaEnvFiles {
@@ -53,6 +54,7 @@ export enum LogLevel {
 export class SimbaConfig {
     public static _authConfig: Configstore;
     public static _projectConfigStore: Configstore;
+    public static simbaEnvVarFileConfigured: boolean = false;
     /**
      * handles our auth / access token info
      */
@@ -135,12 +137,24 @@ export class SimbaConfig {
             return DEFAULT_AUTH_ENDPOINT;
         }
         
-        // first check local project:
+        // first check project root:
+        if (SimbaConfig.simbaEnvVarFileConfigured) {
+            const val = process.env[envVarKey];
+            if (val) {
+                SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
+                return val;
+            } else {
+                const message = `no value found for environment variable ${envVarKey}`;
+                SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
+                throw(message);
+            }
+        }
         for (let i = 0; i < simbaEnvFilesArray.length; i++) {
             const fileName = simbaEnvFilesArray[i];
             dotenv.config({ path: path.resolve(cwd(), fileName) });
             const val = process.env[envVarKey];
             if (val) {
+                SimbaConfig.simbaEnvVarFileConfigured = true;
                 SimbaConfig.log.debug(`:: SIMBA : EXIT : retrieved ${envVarKey} from your local project directory.`);
                 return val;
             }
