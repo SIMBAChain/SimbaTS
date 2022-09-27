@@ -92,9 +92,17 @@ export class SimbaConfig {
     public static get logLevel(): LogLevel {
         if (SIMBA_LOGGING_CONF) {
             dotenv.config({ path: path.resolve(SIMBA_LOGGING_CONF, LOGGING_FILE_NAME) });
+            const level = process.env[LOG_LEVEL];
+            if (!level || !Object.keys(LogLevel).includes(level)) {
+                return LogLevel.INFO;
+            }
             return process.env[LOG_LEVEL] as LogLevel || LogLevel.INFO;
         } else {
             dotenv.config({ path: path.resolve(cwd(), LOGGING_FILE_NAME) });
+            const level = process.env[LOG_LEVEL];
+            if (!level || !Object.keys(LogLevel).includes(level)) {
+                return LogLevel.INFO;
+            }
             return process.env[LOG_LEVEL] as LogLevel || LogLevel.INFO;
         }
     }
