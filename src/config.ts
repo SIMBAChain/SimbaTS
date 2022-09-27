@@ -9,7 +9,6 @@ import * as dotenv from "dotenv";
 const SIMBA_HOME = process.env.SIMBA_HOME;
 const SIMBA_LOGGING_CONF = process.env.SIMBA_LOGGING_CONF;
 console.log("simba logging conf: ", SIMBA_LOGGING_CONF)
-const LOGGING_FILE_NAME = "simbats.logging.conf";
 const LOG_LEVEL = "LOG_LEVEL";
 const DEFAULT_AUTH_ENDPOINT = "/o/";
 
@@ -154,7 +153,7 @@ export class SimbaConfig {
             const val = process.env[envVarKey];
             if (val) {
                 SimbaConfig.simbaEnvVarFileConfigured = true;
-                SimbaConfig.simbaEnvVarFile = fileName;
+                SimbaConfig.simbaEnvVarFile = path.join(cwd(), fileName);
                 SimbaConfig.log.debug(`:: SIMBA : EXIT : retrieved ${envVarKey} from your local project directory.`);
                 return val;
             }
@@ -175,7 +174,7 @@ export class SimbaConfig {
             const val = process.env[envVarKey];
             if (val) {
                 SimbaConfig.simbaEnvVarFileConfigured = true;
-                SimbaConfig.simbaEnvVarFile = fileName;
+                SimbaConfig.simbaEnvVarFile = path.join(SIMBA_HOME, fileName);
                 SimbaConfig.log.debug(`:: SIMBA : EXIT : retrieved ${envVarKey} from your SIMBA_HOME directory`);
                 return val;
             }
