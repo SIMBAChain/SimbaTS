@@ -90,21 +90,13 @@ export class SimbaConfig {
      * how we get loglevel
      */
     public static get logLevel(): LogLevel {
-        if (SIMBA_LOGGING_CONF) {
-            dotenv.config({ path: path.resolve(SIMBA_LOGGING_CONF, LOGGING_FILE_NAME) });
-            const level = process.env[LOG_LEVEL];
-            if (!level || !Object.keys(LogLevel).includes(level)) {
-                return LogLevel.INFO;
-            }
-            return process.env[LOG_LEVEL] as LogLevel || LogLevel.INFO;
-        } else {
-            dotenv.config({ path: path.resolve(cwd(), LOGGING_FILE_NAME) });
-            const level = process.env[LOG_LEVEL];
-            if (!level || !Object.keys(LogLevel).includes(level)) {
-                return LogLevel.INFO;
-            }
-            return process.env[LOG_LEVEL] as LogLevel || LogLevel.INFO;
+        const loggingPath = SIMBA_LOGGING_CONF || cwd();
+        dotenv.config({ path: path.resolve(loggingPath, LOGGING_FILE_NAME) });
+        const level = process.env[LOG_LEVEL];
+        if (!level || !Object.keys(LogLevel).includes(level)) {
+            return LogLevel.INFO;
         }
+        return process.env[LOG_LEVEL] as LogLevel || LogLevel.INFO;
     }
 
     public static get baseURL(): string {
