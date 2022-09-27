@@ -93,10 +93,14 @@ export class SimbaConfig {
         const loggingPath = SIMBA_LOGGING_CONF || cwd();
         dotenv.config({ path: path.resolve(loggingPath, LOGGING_FILE_NAME) });
         const level = process.env[LOG_LEVEL];
-        if (!level || !Object.keys(LogLevel).includes(level)) {
+        if (level && !Object.keys(LogLevel).includes(level)) {
+            console.error(`:: SIMBA : EXIT : unrecognized LOG_LEVEL set in simbats.logging.conf : ${level} : using level "info" instead. Please note that LOG_LEVEL can be one of ${Object.values(LogLevel)}`);
             return LogLevel.INFO;
         }
-        return process.env[LOG_LEVEL] as LogLevel || LogLevel.INFO;
+        if (!level) {
+            return LogLevel.INFO;
+        }
+        return process.env[LOG_LEVEL] as LogLevel;
     }
 
     public static get baseURL(): string {
