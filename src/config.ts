@@ -174,6 +174,7 @@ export class SimbaConfig {
             dotenv.config({ path: path.resolve(SIMBA_HOME, fileName) });
             const val = process.env[envVarKey];
             if (val) {
+                SimbaConfig.simbaEnvVarFileConfigured = true;
                 SimbaConfig.log.debug(`:: SIMBA : EXIT : retrieved ${envVarKey} from your SIMBA_HOME directory`);
                 return val;
             }
