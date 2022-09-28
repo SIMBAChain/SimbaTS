@@ -183,6 +183,12 @@ export class RequestHandler {
             options,
             formData,
         };
+        if (options.headers["Content-Type"]) {
+            delete options.headers["Content-Type"];
+        }
+        if (options.headers["content-type"]) {
+            delete options.headers["content-type"];
+        }
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
         const formDataHeaders = formData.getHeaders();
         const headers = {...options["headers"], ...formDataHeaders}
@@ -344,7 +350,7 @@ export class RequestHandler {
 
     /**
      * returns headers with access token
-     * @returns 
+     * @returns
      */
     public async accessTokenHeader(): Promise<Record<any, any>> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);

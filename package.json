@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run unit_test && npm run integration_test",
     "unit_test": "cd src/tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './unit/**/*.ts'",
     "integration_test": "cd src/tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './integration/**/*.ts'",
     "setup_test": "cd src/tests/tests_setup/ && ts-node setup.ts",
