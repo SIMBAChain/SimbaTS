@@ -21,7 +21,7 @@ describe('testing getDeployedArtifactID', () => {
         const deployment = {
             primary: "1234",
         };
-        const primary = getAddress(deployment);
+        const primary = getDeployedArtifactID(deployment);
         expect(primary).to.equal(deployment.primary);
     });
 });

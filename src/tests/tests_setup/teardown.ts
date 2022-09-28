@@ -5,8 +5,7 @@ import * as path from 'path';
 import {cwd} from 'process';
 
 function main() {
-    const pathToProjectSimbachainEnv = path.join(cwd(), "..", ".simbachain.env");
-    FileHandler.removeFile(pathToProjectSimbachainEnv);
+    // passing for now; leaving here in case it needs to be implemented
 }
 
 main();

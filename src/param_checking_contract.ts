@@ -14,8 +14,6 @@ class ParamCheckingContract {
     appName: string;
     contractName: string;
     baseApiUrl: string;
-    contractUri: string;
-    asyncContractUri: string;
     metadata: Record<any, any>;
     paramsRestricted: Record<any, any> | null = null;
     requestHandler: RequestHandler;
@@ -28,8 +26,6 @@ class ParamCheckingContract {
         this.appName = appName;
         this.contractName = contractName;
         this.baseApiUrl = baseApiUrl;
-        this.contractUri = `${this.appName}/contract/${this.contractName}`;
-        this.asyncContractUri = `${this.appName}/async/contract/${this.contractName}`;
         this.requestHandler = new RequestHandler(this.baseApiUrl);
     }
 
@@ -45,7 +41,7 @@ class ParamCheckingContract {
             SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
             return this.metadata;
         }
-        const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${this.contractUri}/?format=json`);
+        const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${this.appName}/contract/${this.contractName}/?format=json`);
         const options = await this.requestHandler.getAuthAndOptions();
         try {
             const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options);
@@ -120,17 +116,19 @@ class ParamCheckingContract {
         return this.getDimensions(param, dims);
     }
 
-    private async paramRestrictions(): Promise<Record<any, any> | void> {
+    private async paramRestrictions(
+        metaDataObject?: Record<any, any>
+    ): Promise<Record<any, any> | void> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
-        const metadata = await this.getMetadata() as any;
+        const metadata = metaDataObject ?
+            metaDataObject :
+            await this.getMetadata() as Record<any, any>;
         const methods = metadata["contract"]["methods"];
-        // SimbaConfig.log.debug(`:: methods : ${JSON.stringify(methods)}`);
         const paramRest = {} as any;
         for (let method in methods) {
             if (method) {
                 const methodKeys = methods[method];
                 const methodParams = methodKeys["params"];
-                // SimbaConfig.log.debug(`:: methodParams : ${JSON.stringify(methodParams)}`);
                 for (let param in methodParams) {
                     if (param) {
                         const paramName = methodParams[param]["name"];

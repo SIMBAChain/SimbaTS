@@ -1,0 +1,6 @@
+SIMBA_API_BASE_URL="fake_api_base_url"
+SIMBA_AUTH_BASE_URL="fake_auth_base_url"
+SIMBA_AUTH_CLIENT_ID="fake_id"
+SIMBA_AUTH_CLIENT_SECRET="fake_secret"
+SIMBA_AUTH_ENDPOINT="/o/"
+SIMBATS_LOG_LEVEL="info"

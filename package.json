@@ -5,10 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "unit_test": "cd src/tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './unit/**/*.ts' && npm run teardown_test",
+    "unit_test": "cd src/tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './unit/**/*.ts'",
+    "integration_test": "cd src/tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './integration/**/*.ts'",
     "setup_test": "cd src/tests/tests_setup/ && ts-node setup.ts",
     "teardown_test": "cd src/tests/tests_setup/ && ts-node teardown.ts",
-    "unit_test_with_setup": "npm run setup_test && npm run unit_test && npm run "
+    "unit_test_with_setup": "npm run setup_test && npm run unit_test && npm run teardown_test",
+    "integration_test_with_setup": "npm run setup_test && npm run integration_test && npm run teardown_test"
   },
   "author": "",
   "license": "ISC",

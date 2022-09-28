@@ -128,7 +128,7 @@ export class SimbaConfig {
             return DEFAULT_AUTH_ENDPOINT;
         }
         
-        // first check project root:
+        // if we've already configured process.env:
         if (SimbaConfig.simbaEnvVarFileConfigured) {
             const val = process.env[envVarKey];
             if (val) {
@@ -143,6 +143,8 @@ export class SimbaConfig {
                 throw(message);
             }
         }
+
+        // first check local directory
         for (let i = 0; i < simbaEnvFilesArray.length; i++) {
             const fileName = simbaEnvFilesArray[i];
             dotenv.config({ path: path.resolve(cwd(), fileName) });
