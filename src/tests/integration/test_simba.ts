@@ -4,8 +4,10 @@ import {
 import { expect } from 'chai';
 import 'mocha';
 import {
+    orgName,
     appName,
     contractName,
+    bundleHash,
     mumbaiWallet,
     userEmail,
 } from "../project_configs";
@@ -108,22 +110,29 @@ describe('testing Simba.getApplications', () => {
 describe('testing Simba.getApplication', () => {
     it('specified fields should exist', async () => {
         const simba = new Simba();
-        const app = await simba.getApplication("BrendanTestApp") as Record<any, any>;
-        expect(app.name).to.equal("BrendanTestApp");
-        expect(app.id).to.exist;
-        expect(app.display_name).to.exist;
-        expect(app.created_on).to.exist;
-        expect(app.components).to.exist;
-        expect(app.organisation.name).to.equal("brendan_birch_simbachain_com");
-        expect(app.metadata).to.exist;
-        expect(app.openapi).to.exist;
+        const app = await simba.getApplication(orgName, appName) as Record<any, any>;
+        expect(app.name).to.equal(appName);
+        expect(app.id).to.equal("fb5fd523-9982-4785-a0ea-89d277f4014b");
+        expect(app.display_name).to.equal(appName)
+        expect(app.created_on).to.equal("2022-07-15T22:00:42.480234Z");
+        expect(app.components.length).to.be.greaterThan(0);
+        const firstComponent = app.components[0];
+        expect(firstComponent.id).to.exist;
+        expect(firstComponent.api_name).to.exist;
+        expect(firstComponent.created_on).to.exist;
+        expect(firstComponent.updated_on).to.exist;
+        expect(app.organisation.name).to.equal(orgName);
+        expect(app.organisation.id).to.equal("20e69814-43d0-42b4-8499-d13a9d1afb23");
+        expect(app.organisation.name).to.equal(orgName)
+        expect(Object.keys(app).includes("metadata")).to.equal(true);
+        expect(app.openapi).to.equal("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/");
     }).timeout(5000);
 });
 
 describe('testing Simba.getApplicationTransactions', () => {
     it('specified fields should exist', async () => {
         const simba = new Simba();
-        const txns = await simba.getApplicationTransactions("BrendanTestApp") as Record<any, any>;
+        const txns = await simba.getApplicationTransactions(appName) as Record<any, any>;
         expect(txns.count).to.be.greaterThan(193);
         expect(txns.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/transactions/?limit=10&offset=10");
         expect(txns.previous).to.not.equal(undefined);
@@ -132,7 +141,7 @@ describe('testing Simba.getApplicationTransactions', () => {
 });
 
 describe('testing Simba.getApplicationContract', () => {
-    it('s', async () => {
+    it('specified fields should exist', async () => {
         const simba = new Simba();
         const contract = await simba.getApplicationContract("BrendanTestApp", contractName) as Record<any, any>;
         expect(contract.id).to.exist;
@@ -150,4 +159,48 @@ describe('testing Simba.getApplicationContract', () => {
         expect(contract.asset_type).to.equal(contractName);
         expect(contract.generate_request_id).to.equal(false);
     }).timeout(5000);
+});
+
+describe('testing Simba.getContracts', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const contracts = await simba.getContracts(appName) as Record<any, any>;
+        expect(contracts.count).to.be.greaterThan(0);
+        expect(contracts.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contracts/?limit=10&offset=10");
+        expect(Object.keys(contracts).includes("previous")).to.equal(true);
+        const contract = await simba.getApplicationContract("BrendanTestApp", contractName) as Record<any, any>;
+        expect(contract.id).to.exist;
+        expect(contract.artifact).to.exist;
+        expect(contract.metadata.contract.name).to.exist;
+        expect(contract.has_assets).to.exist;
+        expect(contract.blockchain).to.exist;
+        expect(contract.storage).to.exist;
+        expect(contract.created_on).to.exist;
+        expect(contract.updated_on).to.exist;
+        expect(Object.keys(contract).includes("version")).to.equal(true);
+        expect(contract.display_name).to.exist;
+        expect(contract.api_name).to.exist;
+        expect(contract.organisation).to.exist;
+        expect(contract.asset_type).to.exist;
+        expect(contract.generate_request_id).to.exist;
+    }).timeout(10000);
+});
+
+describe('testing Simba.validateBundleHash', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const ver = await simba.validateBundleHash(appName, contractName, bundleHash) as Record<any, any>;
+        expect(Object.keys(ver).includes("errors")).to.equal(true);
+        expect(ver.alg).to.equal("sha256");
+        expect(ver.digest).to.equal("hex");
+        expect(ver.files.length).to.equal(2);
+        const file1 = ver.files[0];
+        expect(file1.alg).to.equal("sha256");
+        expect(file1.digest).to.equal("hex");
+        expect(file1.uid).to.equal("189f55d6-19e8-4b16-8bec-7c31978d3c04.gz");
+        expect(file1.mime).to.equal("image/png");
+        expect(file1.name).to.equal("testimage1.png");
+        expect(file1.hash).to.equal("2296eb9942777137afc109a19b8140feb3f31a5bc816d53362e68506346d6b9a");
+        expect(file1.size).to.equal(83763);
+    }).timeout(10000);
 });

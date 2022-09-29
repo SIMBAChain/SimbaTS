@@ -327,17 +327,19 @@ export class Simba {
   	}
 	
 	public async getApplication(
+		orgName: string,
 		appName: string,
     	queryParams?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
   	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
+			orgName,
 			appName,
 			queryParams,
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/applications/${appName}/`);
     	const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
