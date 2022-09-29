@@ -37,7 +37,7 @@ describe('testing RequestHandler.doPostRequestWithFormData', () => {
         const fdHeaders = rh.formDataHeaders(options, formData);
         const res = await rh.doPostRequestWithFormData(url, formData, fdHeaders) as Record<any, any>;
         expect(res.id).to.exist;
-    }).timeout(15000);
+    }).timeout(5000);
 });
 
 describe('testing RequestHandler.formDataHeaders', () => {
@@ -62,7 +62,7 @@ describe('testing RequestHandler.formDataHeaders', () => {
         const options = await rh.getAuthAndOptions();
         const fdHeaders = rh.formDataHeaders(options, formData);
         expect(fdHeaders["content-type"].includes("multipart/form-data; boundary=")).to.equal(true);
-    }).timeout(15000);
+    }).timeout(5000);
 });
 
 describe('testing RequestHandler.formDataFromFilePathsAndInputs', () => {
@@ -85,7 +85,7 @@ describe('testing RequestHandler.formDataFromFilePathsAndInputs', () => {
         const rh = new RequestHandler();
         const formData = rh.formDataFromFilePathsAndInputs(inputs, filePaths) as any;
         expect(formData["_boundary"]).to.exist;
-    }).timeout(15000);
+    }).timeout(5000);
 });
 
 describe('testing RequestHandler.setAndGetAuthToken', () => {
@@ -97,7 +97,7 @@ describe('testing RequestHandler.setAndGetAuthToken', () => {
         const accessTokenFromConfig = authTokenFromConfig.access_token;
         const accessTokenFromAPI = authTokenFromAPI.access_token;
         expect(accessTokenFromConfig).to.equal(accessTokenFromAPI);
-    }).timeout(15000);
+    }).timeout(5000);
 });
 
 describe('testing RequestHandler.getAuthTokenFromClientCreds', () => {
@@ -110,7 +110,7 @@ describe('testing RequestHandler.getAuthTokenFromClientCreds', () => {
         expect(authToken.scope).to.exist;
         expect(authToken.retrieved_at).to.exist;
         expect(authToken.token_type).to.exist;
-    }).timeout(15000);
+    }).timeout(5000);
 });
 
 describe('testing RequestHandler.accessTokenHeader', () => {
@@ -122,7 +122,7 @@ describe('testing RequestHandler.accessTokenHeader', () => {
         const accessTokenFromConfig = authToken.access_token;
         const accessTokenFromHeaders = headers.Authorization.split(" ")[1];
         expect(accessTokenFromConfig).to.equal(accessTokenFromHeaders);
-    }).timeout(15000);
+    }).timeout(5000);
 });
 
 describe('testing RequestHandler.getAuthAndOptions', () => {
@@ -137,7 +137,7 @@ describe('testing RequestHandler.getAuthAndOptions', () => {
         expect(params.someParam).to.equal(queryParams.someParam);
         expect(headers["Content-Type"]).to.equal("application/json");
         expect(headers.Authorization.startsWith("Bearer")).to.equal(true);
-    }).timeout(15000);
+    }).timeout(5000);
 });
 
 describe('testing RequestHandler.doPostRequest', () => {
@@ -156,7 +156,7 @@ describe('testing RequestHandler.doPostRequest', () => {
         const options = await rh.getAuthAndOptions();
         const res = await rh.doPostRequest(url, options, data) as Record<any, any>;
         expect(res.organisation_name).to.equal(data.organisation_name);
-    }).timeout(15000);
+    }).timeout(5000);
 });
 
 describe('testing RequestHandler.doGetRequest', () => {
@@ -166,7 +166,7 @@ describe('testing RequestHandler.doGetRequest', () => {
         const options = await rh.getAuthAndOptions();
         const res = await rh.doGetRequest(url, options) as Record<any, any>;
         expect(res.count).to.be.greaterThan(0);
-    }).timeout(15000);
+    }).timeout(5000);
 });
 
 describe('testing RequestHandler.doPutRequest', () => {
@@ -179,12 +179,12 @@ describe('testing RequestHandler.doPutRequest', () => {
         const options = await rh.getAuthAndOptions();
         const res = await rh.doPutRequest(url, options, data) as Record<any, any>;
         expect(res.default_organisation).to.equal(data.default_organisation);
-    }).timeout(15000);
+    }).timeout(5000);
 });
 
 describe('testing RequestHandler.doDeleteRequest', () => {
     it('needs to be implemented', async () => {
         // needs to be implemented
-    }).timeout(15000);
+    }).timeout(5000);
 });
 

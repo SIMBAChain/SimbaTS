@@ -1,0 +1,3 @@
+import {
+    SimbaContractSync,
+} from "../../";

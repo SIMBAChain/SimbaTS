@@ -208,7 +208,7 @@ export class Simba {
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/user/wallet/set/`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/user/wallet/`);
     	const options = await this.requestHandler.getAuthAndOptions();
     	try {
 			const res = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
@@ -259,29 +259,30 @@ export class Simba {
 
 	public async createApp(
 		orgName: string,
-		name: string,
+		appName: string,
 		display: string,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any> | void> {
 		const params = {
 			orgName,
-			name,
+			appName,
 			display,
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/applications/${name}/`);
-    	const options = await this.requestHandler.getAuthAndOptions();
+		const getURL = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/applications/${appName}/`);
+    	const postURL = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/applications/`);
+		const options = await this.requestHandler.getAuthAndOptions();
 		try {
-			await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
+			await this.requestHandler.doGetRequest(getURL, options, parseDataFromResponse);
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response && error.response.status === 404) {
 				const data = {
-					name,
+					name: appName,
 					display_name: display,
 				};
 				try {
-					const res = await this.requestHandler.doPostRequest(url, options, data, parseDataFromResponse);
+					const res = await this.requestHandler.doPostRequest(postURL, options, data, parseDataFromResponse);
 					SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
 					return res;
 				} catch (error) {
