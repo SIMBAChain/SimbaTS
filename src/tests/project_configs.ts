@@ -5,3 +5,7 @@ export const contractName = "test_contract_vds5";
 export const mumbaiWallet = "0x59D859Da04439AE87Afd689A4CA89C354CB93532";
 export const userEmail = "brendan.birch@simbachain.com";
 export const bundleHash = "57f6ef0fcc97614f899af3f165cabbaec9632b95fc89906837f474a6a2c8a184";
+export const solContractName = "TestContractChanged";
+export const Quorum = "Quorum";
+export const ethereum = "ethereum";
+export const transactionHash = "0x2b05a28c90283011054f9299e92b80f045ff3d454f87008c8b67e767393b7d14";
