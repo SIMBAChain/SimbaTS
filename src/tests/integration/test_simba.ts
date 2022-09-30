@@ -215,20 +215,22 @@ describe('testing Simba.getContracts', () => {
         expect(contracts.count).to.be.greaterThan(0);
         expect(contracts.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contracts/?limit=10&offset=10");
         expect(Object.keys(contracts).includes("previous")).to.equal(true);
-        const contract = await simba.getApplicationContract("BrendanTestApp", contractName) as Record<any, any>;
+        const contract = contracts.results[0]
         expect(contract.id).to.exist;
         expect(contract.artifact).to.exist;
-        expect(contract.metadata.contract.name).to.exist;
-        expect(contract.has_assets).to.exist;
         expect(contract.blockchain).to.exist;
         expect(contract.storage).to.exist;
+        expect(contract.storage_container).to.exist;
         expect(contract.created_on).to.exist;
         expect(contract.updated_on).to.exist;
+        expect(contract.address).to.exist;
         expect(Object.keys(contract).includes("version")).to.equal(true);
         expect(contract.display_name).to.exist;
         expect(contract.api_name).to.exist;
         expect(contract.organisation).to.exist;
+        expect(contract.contract_type).to.exist;
         expect(contract.asset_type).to.exist;
+        expect(contract.state).to.exist;
         expect(contract.generate_request_id).to.exist;
     }).timeout(10000);
 });
