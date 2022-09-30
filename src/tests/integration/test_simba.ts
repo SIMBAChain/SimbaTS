@@ -140,22 +140,82 @@ describe('testing Simba.getApplicationTransactions', () => {
     it('specified fields should exist', async () => {
         const simba = new Simba();
         const txns = await simba.getApplicationTransactions(appName) as Record<any, any>;
+        console.log("txns: ", txns)
         expect(txns.count).to.be.greaterThan(193);
         expect(txns.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/transactions/?limit=10&offset=10");
         expect(txns.previous).to.not.equal(undefined);
         expect(txns.results.length).to.be.greaterThan(0);
+        
+        const txn = txns.results[0];
+        expect(txn.id).to.exist;
+        expect(txn.request_id).to.exist;
+        expect(txn.created_on).to.exist;
+        expect(Object.keys(txn).includes("finalized_on")).to.equal(true);
+        expect(txn.method).to.exist;
+        expect(txn.inputs).to.exist;
+        expect(txn.receipt).to.exist;
+        expect(Object.keys(txn).includes("error")).to.equal(true);
+        expect(txn.error_details).to.exist;
+        expect(txn.state).to.exist;
+        expect(txn.raw_transaction).to.exist;
+        expect(txn.signed_transaction).to.exist;
+        expect(txn.transaction_hash).to.exist;
+        expect(txn.bundle).to.exist;
+        expect(Object.keys(txn).includes("block")).to.equal(true);
+        expect(txn.nonce).to.exist;
+        expect(txn.from_address).to.exist;
+        expect(txn.to_address).to.exist;
+        expect(txn.created_by).to.exist;
+        expect(txn.contract).to.exist;
+        expect(txn.app).to.exist;
+        expect(txn.blockchain).to.exist;
+        expect(txn.origin).to.exist;
+        expect(txn.transaction_type).to.exist;
+        expect(txn.confirmations).to.exist;
+        expect(txn.value).to.exist;
     }).timeout(5000);
 });
 
 // filtering not supported yet
-describe('testing Simba.getApplicationTransactions with queryParams', () => {
+describe.skip('testing Simba.getApplicationTransactions with queryParams', () => {
     it('specified fields should exist', async () => {
         const simba = new Simba();
         const request_id = "34bb8e12-8459-43cc-ae7f-e0fe0a59fbb1";
         const queryParams = {
             request_id,
         }
-        const txn = await simba.getApplicationTransactions(appName, queryParams) as Record<any, any>;
+        const txns = await simba.getApplicationTransactions(appName, queryParams) as Record<any, any>;
+        expect(txns.count).to.equal(1);
+        expect(txns.next).to.equal(null);
+        expect(txns.previous).to.equal(null);
+
+        const txn = txns.results[0];
+        expect(txn.id).to.exist;
+        expect(txn.request_id).to.exist;
+        expect(txn.created_on).to.exist;
+        expect(Object.keys(txn).includes("finalized_on")).to.equal(true);
+        expect(txn.method).to.exist;
+        expect(txn.inputs).to.exist;
+        expect(txn.receipt).to.exist;
+        expect(Object.keys(txn).includes("error")).to.equal(true);
+        expect(txn.error_details).to.exist;
+        expect(txn.state).to.exist;
+        expect(txn.raw_transaction).to.exist;
+        expect(txn.signed_transaction).to.exist;
+        expect(txn.transaction_hash).to.exist;
+        expect(txn.bundle).to.exist;
+        expect(Object.keys(txn).includes("block")).to.equal(true);
+        expect(txn.nonce).to.exist;
+        expect(txn.from_address).to.exist;
+        expect(txn.to_address).to.exist;
+        expect(txn.created_by).to.exist;
+        expect(txn.contract).to.exist;
+        expect(txn.app).to.exist;
+        expect(txn.blockchain).to.exist;
+        expect(txn.origin).to.exist;
+        expect(txn.transaction_type).to.exist;
+        expect(txn.confirmations).to.exist;
+        expect(txn.value).to.exist;
     }).timeout(5000);
 });
 
