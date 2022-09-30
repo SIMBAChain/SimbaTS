@@ -9,3 +9,4 @@ export const solContractName = "TestContractChanged";
 export const Quorum = "Quorum";
 export const ethereum = "ethereum";
 export const transactionHash = "0x2b05a28c90283011054f9299e92b80f045ff3d454f87008c8b67e767393b7d14";
+export const solidity = "solidity";
