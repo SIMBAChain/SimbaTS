@@ -147,7 +147,7 @@ describe('testing Simba.getApplicationTransactions', () => {
     }).timeout(5000);
 });
 
-// queries to not seem supported
+// filtering not supported yet
 describe('testing Simba.getApplicationTransactions with queryParams', () => {
     it('specified fields should exist', async () => {
         const simba = new Simba();
@@ -156,7 +156,6 @@ describe('testing Simba.getApplicationTransactions with queryParams', () => {
             request_id,
         }
         const txn = await simba.getApplicationTransactions(appName, queryParams) as Record<any, any>;
-        console.log(txn)
     }).timeout(5000);
 });
 
@@ -211,7 +210,6 @@ describe('testing Simba.getContracts', () => {
     it('specified fields should exist', async () => {
         const simba = new Simba();
         const contracts = await simba.getContracts(appName) as Record<any, any>;
-        console.log(contracts);
         expect(contracts.count).to.be.greaterThan(0);
         expect(contracts.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contracts/?limit=10&offset=10");
         expect(Object.keys(contracts).includes("previous")).to.equal(true);
@@ -235,8 +233,8 @@ describe('testing Simba.getContracts', () => {
     }).timeout(10000);
 });
 
-// querying does not seem to be supported
-describe('testing Simba.getContracts with queryParams', () => {
+// filtering not supported yet
+describe.skip('testing Simba.getContracts with queryParams', () => {
     it('specified fields should exist', async () => {
         const simba = new Simba();
         const id = "acf6fd5d-e27a-4493-ae79-9b73c6ddc9a4";
@@ -244,7 +242,6 @@ describe('testing Simba.getContracts with queryParams', () => {
             id,
         }
         const res = await simba.getContracts(appName, queryParams) as Record<any, any>;
-        console.log(res);
         expect(res.count).to.equal(1);
         expect(res.next).to.equal(null);
         expect(res.previous).to.equal(null);
@@ -653,43 +650,162 @@ describe('testing Simba.getDesigns', () => {
 });
 
 describe('testing Simba.getBlockchains', () => {
-    it('implement', async () => {
-        // implement
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const res = await simba.getBlockchains(orgName) as Record<any, any>;
+        expect(res.count).to.be.greaterThan(0);
+        expect(Object.keys(res).includes("next")).to.equal(true);
+        expect(res.previous).to.equal(null);
+        expect(res.results.length).to.be.greaterThan(0);
+        
+        const blockchain = res.results[0];
+        expect(blockchain.id).to.exist;
+        expect(blockchain.global_id).to.exist;
+        expect(blockchain.display_name).to.exist;
+        expect(blockchain.name).to.exist;
+        expect(blockchain.blockchain_type).to.exist;
+        expect(blockchain.poa).to.exist;
+        expect(Object.keys(blockchain).includes("faucet")).to.equal(true);
+        expect(blockchain.supported_contract_types).to.exist;
+        expect(blockchain.currency_unit).to.exist;
+        expect(Object.keys(blockchain).includes("consensus_alg")).to.equal(true);
+        expect(blockchain.gas_price_multiplier).to.exist;
+        expect(blockchain.block_time).to.exist;
+        expect(blockchain.min_confirms_reqd).to.exist;
+        expect(blockchain.min_confirms_adjustable).to.exist;
+        expect(blockchain.disable_gap_analysis).to.exist;
+        expect(blockchain.disable_new_blocks).to.exist;
+        expect(blockchain.perform_initial_import).to.exist;
+        expect(blockchain.base_price_multiplier).to.exist;
+        expect(blockchain.priority_fee_multiplier).to.exist;
+        expect(blockchain.low_fee_percentile).to.exist;
+        expect(blockchain.high_fee_percentile).to.exist;
+        expect(blockchain.name).to.exist;
+        expect(blockchain.dynamic_pricing).to.exist;
     }).timeout(10000);
 });
 
 describe('testing Simba.getStorages', () => {
-    it('implement', async () => {
-        // implement
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const res = await simba.getStorages(orgName) as Record<any, any>;
+        expect(res.count).to.be.greaterThan(0);
+        expect(Object.keys(res).includes("next")).to.equal(true);
+        expect(res.previous).to.equal(null);
+        expect(res.results.length).to.be.greaterThan(0);
+        
+        const storage = res.results[0];
+        expect(storage.id).to.exist;
+        expect(storage.display_name).to.exist;
+        expect(storage.name).to.exist;
+        expect(storage.storage_type).to.exist;
     }).timeout(10000);
 });
 
 describe('testing Simba.getArtifacts', () => {
-    it('implement', async () => {
-        // implement
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const res = await simba.getArtifacts(orgName) as Record<any, any>;
+        expect(res.count).to.be.greaterThan(0);
+        expect(Object.keys(res).includes("next")).to.equal(true);
+        expect(res.previous).to.equal(null);
+        expect(res.results.length).to.be.greaterThan(0);
+        
+        const artifact = res.results[0];
+        expect(artifact.id).to.exist;
+        expect(artifact.design).to.exist;
+        expect(artifact.created_on).to.exist;
+        expect(artifact.updated_on).to.exist;
+        expect(artifact.name).to.exist;
+        expect(artifact.code).to.exist;
+        expect(artifact.metadata).to.exist;
+        expect(artifact.service_args).to.exist;
+        expect(artifact.organisation).to.exist;
+        expect(artifact.language).to.exist;
+        expect(artifact.methods).to.exist;
+        expect(Object.keys(artifact).includes("asset_type")).to.equal(true);
+        expect(artifact.linked_contracts).to.exist;
     }).timeout(10000);
 });
 
 describe('testing Simba.getArtifact', () => {
-    it('implement', async () => {
-        // implement
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const artifactID = "af76b1a9-365a-428f-8749-cd23280b4ead";
+        const artifact = await simba.getArtifact(orgName, artifactID) as Record<any, any>;
+        expect(artifact.id).to.exist;
+        expect(artifact.design).to.exist;
+        expect(artifact.created_on).to.exist;
+        expect(artifact.updated_on).to.exist;
+        expect(artifact.name).to.exist;
+        expect(artifact.code).to.exist;
+        expect(artifact.metadata).to.exist;
+        expect(artifact.service_args).to.exist;
+        expect(artifact.organisation).to.exist;
+        expect(artifact.language).to.exist;
+        expect(artifact.methods).to.exist;
+        expect(Object.keys(artifact).includes("asset_type")).to.equal(true);
+        expect(artifact.linked_contracts).to.exist;
     }).timeout(10000);
 });
 
 describe('testing Simba.createArtifact', () => {
-    it('implement', async () => {
-        // implement
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const designID = "644ed6cc-8073-4c4b-9395-aa466a3a27e7";
+        const artifact = await simba.createArtifact(orgName, designID) as Record<any, any>;
+        expect(artifact.id).to.exist;
+        expect(artifact.design).to.exist;
+        expect(artifact.created_on).to.exist;
+        expect(artifact.updated_on).to.exist;
+        expect(artifact.name).to.exist;
+        expect(artifact.code).to.exist;
+        expect(artifact.metadata).to.exist;
+        expect(artifact.service_args).to.exist;
+        expect(artifact.organisation).to.exist;
+        expect(artifact.language).to.exist;
+        expect(artifact.methods).to.exist;
+        expect(Object.keys(artifact).includes("asset_type")).to.equal(true);
+        expect(artifact.linked_contracts).to.exist;
     }).timeout(10000);
 });
 
 describe('testing Simba.subscribe', () => {
-    it('implement', async () => {
-        // implement
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const notificationEndpoint = "https://a-fake-url/v2/a.fake.endpoint";
+        const contractAPI = contractName;
+        const txn = "structTest5";
+        const subscriptionType = "METHOD";
+        const res = await simba.subscribe(
+            orgName,
+            notificationEndpoint,
+            contractAPI,
+            txn,
+            subscriptionType,
+        ) as Record<any, any>;
+        expect(res.id).to.exist;
+        expect(res.endpoint).to.equal(notificationEndpoint);
+        expect(res.txn).to.equal(txn);
+        expect(res.contract).to.exist;
+        expect(res.applications).to.exist;
+        expect(res.filters).to.exist;
     }).timeout(10000);
 });
 
 describe('testing Simba.setNotificationConfig', () => {
-    it('implement', async () => {
-        // implement
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const scheme = "http";
+        const authType = "";
+        const authInfo = {};
+        const res = await simba.setNotificationConfig(orgName, scheme, authType, authInfo) as Record<any, any>;
+        expect(res.id).to.exist;
+        expect(res.scheme).to.equal(scheme);
+        expect(res.auth_type).to.equal(authType)
+        expect(res.auth_info).to.exist;
+        expect(res.created_on).to.exist;
+        expect(res.updated_on).to.exist;
+        expect(res.organisation).to.exist;
     }).timeout(10000);
 });

@@ -1433,7 +1433,7 @@ export class Simba {
 			parseDataFromResponse,
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
-        const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/storages/`);
+        const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/storage/`);
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
@@ -1452,15 +1452,17 @@ export class Simba {
 
 	public async getArtifacts(
 		orgName: string,
+		queryParams?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
 			orgName,
+			queryParams,
 			parseDataFromResponse,
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/contract_artifacts/`);
-		const options = await this.requestHandler.getAuthAndOptions();
+		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
@@ -1538,10 +1540,10 @@ export class Simba {
 	public async subscribe(
 		orgName: string,
 		notificationEndpoint: string,
-		authType: string,
 		contractAPI: string,
 		txn: string,
 		subscriptionType: string,
+		authType: string = "",
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
@@ -1593,8 +1595,8 @@ export class Simba {
 	public async setNotificationConfig(
 		orgName: string,
 		scheme: string,
-		authType: string,
-		authInfo: Record<any, any>,
+		authType?: string,
+		authInfo?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
@@ -1606,6 +1608,8 @@ export class Simba {
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/notification_config/`);
+		authType = authType ? authType : "";
+		authInfo = authInfo ? authInfo : {};
 		const options = await this.requestHandler.getAuthAndOptions();
 		const data = {
 			scheme,
