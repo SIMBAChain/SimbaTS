@@ -555,7 +555,7 @@ describe('testing Simba.submitContractMethod', () => {
     }).timeout(10000);
 });
 
-describe('testing Simba.submitContractMethod', () => {
+describe('testing Simba.submitContractMethodSync', () => {
     it('specified fields should exist', async () => {
         const simba = new Simba();
         const person = {
