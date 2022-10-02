@@ -19,12 +19,15 @@
     "buffer": "^6.0.3",
     "chai": "^4.3.6",
     "configstore": "^5.0.1",
+    "file-type": "^18.0.0",
     "fs": "0.0.1-security",
+    "jszip": "^3.10.1",
     "mocha": "^10.0.0",
     "path": "^0.12.7",
     "tslog": "^3.3.1",
+    "typescript": "3.9.7",
     "utf8": "^3.0.0",
-    "typescript": "3.9.7"
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@types/chai": "^4.3.3",

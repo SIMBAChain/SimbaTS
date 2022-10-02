@@ -1,8 +1,14 @@
 import {
     SimbaConfig,
-} from "../config";
+} from "./config";
 import * as fs from "fs";
 import * as path from 'path';
+import * as stream from "stream";
+import {promisify} from "util";
+const finished = promisify(stream.finished);
+// const pipeline = util.promisify(stream.pipeline);
+// import {createGzip} from "zlib";
+// const gzip = createGzip();
 
 /**
  * helps read file once we've found it
@@ -21,6 +27,7 @@ export const promisifiedReadFile = (filePath: fs.PathLike, options: { encoding?:
     });
 
 export class FileHandler {
+
     public static async transferFile(
         inputPath: string,
         outputPath: string,
@@ -39,6 +46,20 @@ export class FileHandler {
         // before writing, need to recursively create path to outputPath
         this.makeDirectory(outputPath);
         fs.writeFileSync(outputPath, data);
+    }
+
+    public static async download(data: any, downloadLocation: string): Promise<any> {
+        FileHandler.makeDirectory(downloadLocation);
+        const writer = fs.createWriteStream(downloadLocation);
+        if (data.data) {
+            data.data.pipe(writer);
+        } else {
+            data.pipe(writer);
+        }
+        return new Promise((resolve, reject) => {
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+        });
     }
 
     public static async parsedFile(filePath: string) {

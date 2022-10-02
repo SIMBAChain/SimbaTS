@@ -5,6 +5,9 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 import {cwd} from 'process';
+import zlib from "zlib";
+import jszip from "jszip";
+import * as fs from "fs";
 import {
     orgName,
     appName,
@@ -18,6 +21,7 @@ import {
     transactionHash,
     solidity,
 } from "../project_configs";
+import { FileHandler } from "../../filehandler";
 
 describe('testing Simba.whoAmI', () => {
     it('iAm should contain specified fields, with some specified values', async () => {
@@ -140,8 +144,7 @@ describe('testing Simba.getApplicationTransactions', () => {
     it('specified fields should exist', async () => {
         const simba = new Simba();
         const txns = await simba.getApplicationTransactions(appName) as Record<any, any>;
-        console.log("txns: ", txns)
-        expect(txns.count).to.be.greaterThan(193);
+        expect(txns.count).to.be.greaterThan(0);
         expect(txns.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/transactions/?limit=10&offset=10");
         expect(txns.previous).to.not.equal(undefined);
         expect(txns.results.length).to.be.greaterThan(0);
@@ -164,7 +167,7 @@ describe('testing Simba.getApplicationTransactions', () => {
         expect(Object.keys(txn).includes("block")).to.equal(true);
         expect(txn.nonce).to.exist;
         expect(txn.from_address).to.exist;
-        expect(txn.to_address).to.exist;
+        expect(Object.keys(txn).includes("to_address")).to.equal(true);
         expect(txn.created_by).to.exist;
         expect(txn.contract).to.exist;
         expect(txn.app).to.exist;
@@ -273,6 +276,7 @@ describe('testing Simba.getContracts', () => {
         expect(contracts.count).to.be.greaterThan(0);
         expect(contracts.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contracts/?limit=10&offset=10");
         expect(Object.keys(contracts).includes("previous")).to.equal(true);
+        
         const contract = contracts.results[0]
         expect(contract.id).to.exist;
         expect(contract.artifact).to.exist;
@@ -281,7 +285,7 @@ describe('testing Simba.getContracts', () => {
         expect(contract.storage_container).to.exist;
         expect(contract.created_on).to.exist;
         expect(contract.updated_on).to.exist;
-        expect(contract.address).to.exist;
+        expect(Object.keys(contract).includes("address")).to.equal(true);
         expect(Object.keys(contract).includes("version")).to.equal(true);
         expect(contract.display_name).to.exist;
         expect(contract.api_name).to.exist;
@@ -328,11 +332,37 @@ describe('testing Simba.validateBundleHash', () => {
     }).timeout(10000);
 });
 
-// describe('testing Simba.getBundle', () => {
-//     it('implement', async () => {
-//         // implement
-//     }).timeout(10000);
-// });
+describe('testing Simba.getBundle', () => {
+    it('file should exist after invocation', async () => {
+        const simba = new Simba();
+        const downloadLocation = path.join(cwd(), "test_data", "downloadedBundle.tar.gz");
+        await simba.getBundle(
+            appName,
+            contractName,
+            bundleHash,
+            downloadLocation,
+        ) as Record<any, any>;
+        expect(fs.existsSync(downloadLocation)).to.equal(true);
+        FileHandler.removeFile(downloadLocation);
+    }).timeout(10000);
+});
+
+describe('testing Simba.getBundle', () => {
+    it('file should exist after invocation', async () => {
+        const simba = new Simba();
+        const fileName = "testimage1.png";
+        const downloadLocation = path.join(cwd(), "test_data", "testimage1FromAPIcall.png");
+        await simba.getBundleFile(
+            appName,
+            contractName,
+            bundleHash,
+            fileName,
+            downloadLocation,
+        ) as Record<any, any>;
+        expect(fs.existsSync(downloadLocation)).to.equal(true);
+        FileHandler.removeFile(downloadLocation);
+    }).timeout(10000);
+});
 
 // describe('testing Simba.getBundleFile', () => {
 //     it('implement', async () => {

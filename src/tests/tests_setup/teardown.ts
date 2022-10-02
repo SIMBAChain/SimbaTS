@@ -1,6 +1,6 @@
 import {
     FileHandler,
-} from "../file_handler"
+} from "../../filehandler"
 import * as path from 'path';
 import {cwd} from 'process';
 

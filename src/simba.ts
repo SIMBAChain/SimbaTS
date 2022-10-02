@@ -15,7 +15,10 @@ import utf8 from "utf8";
 import {
 	getAddress,
 	getDeployedArtifactID,
-} from "./utils"
+} from "./utils";
+import {
+	FileHandler,
+} from "./filehandler";
 
 export class Simba {
 	baseApiUrl: string;
@@ -502,9 +505,9 @@ export class Simba {
 		appName: string,
 		contractName: string,
 		bundleHash: string,
-		downloadLocation?: string,
+		downloadLocation: string,
 		parseDataFromResponse: boolean = true,
-	): Promise<AxiosResponse<any> | Record<any, any>> {
+	): Promise<AxiosResponse<any> | Record<any, any> | unknown> {
 		const params = {
 			appName,
 			contractName,
@@ -516,14 +519,20 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/bundle/${bundleHash}/`);
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
-			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
+			const responseType = "stream";
+			const res = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse, responseType) as unknown;
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+			await FileHandler.download(res, downloadLocation);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
 				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
 			} else {
-				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+				if (axios.isAxiosError(error)) {
+					SimbaConfig.log.error(`${JSON.stringify(error)}`);
+				} else {
+					SimbaConfig.log.error(`${error}`);
+				}
 			}
 			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
 			throw(error);
@@ -535,9 +544,9 @@ export class Simba {
 		contractName: string,
 		bundleHash: string,
 		fileName: string,
-		downloadLocation?: string,
+		downloadLocation: string,
 		parseDataFromResponse: boolean = true,
-	): Promise<AxiosResponse<any> | Record<any, any>> {
+	): Promise<AxiosResponse<any> | Record<any, any> | unknown> {
 		const params = {
 			appName,
 			contractName,
@@ -550,8 +559,10 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/bundle/${bundleHash}/filename/${fileName}/`);
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
-			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`bundleFile info: ${res.data}`);
+			const responseType = "stream";
+			const res = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse, responseType) as unknown;
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+			await FileHandler.download(res, downloadLocation);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {

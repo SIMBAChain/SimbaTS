@@ -131,8 +131,8 @@ export class SimbaContract extends ParamCheckingContract {
 
     public async getBundle(
         bundleHash: string,
-        downloadLocation?: string,
-    ): Promise<AxiosResponse<any> | Record<any, any> | void> {
+        downloadLocation: string,
+    ): Promise<AxiosResponse<any> | Record<any, any> | void | unknown> {
         const params = {
             bundleHash,
             downloadLocation,
@@ -151,8 +151,8 @@ export class SimbaContract extends ParamCheckingContract {
     public async getBundleFile(
         bundleHash: string,
         fileName: string,
-        downloadLocation?: string,
-    ): Promise<AxiosResponse<any> | Record<any, any> | void> {
+        downloadLocation: string,
+    ): Promise<AxiosResponse<any> | Record<any, any> | void | unknown> {
         const params = {
             bundleHash,
             fileName,
