@@ -5,8 +5,6 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 import {cwd} from 'process';
-import zlib from "zlib";
-import jszip from "jszip";
 import * as fs from "fs";
 import {
     orgName,
@@ -336,6 +334,7 @@ describe('testing Simba.getBundle', () => {
     it('file should exist after invocation', async () => {
         const simba = new Simba();
         const downloadLocation = path.join(cwd(), "test_data", "downloadedBundle.tar.gz");
+        FileHandler.removeFile(downloadLocation);
         await simba.getBundle(
             appName,
             contractName,
@@ -347,11 +346,12 @@ describe('testing Simba.getBundle', () => {
     }).timeout(10000);
 });
 
-describe('testing Simba.getBundle', () => {
+describe('testing Simba.getBundleFile', () => {
     it('file should exist after invocation', async () => {
         const simba = new Simba();
         const fileName = "testimage1.png";
         const downloadLocation = path.join(cwd(), "test_data", "testimage1FromAPIcall.png");
+        FileHandler.removeFile(downloadLocation);
         await simba.getBundleFile(
             appName,
             contractName,
@@ -364,11 +364,6 @@ describe('testing Simba.getBundle', () => {
     }).timeout(10000);
 });
 
-// describe('testing Simba.getBundleFile', () => {
-//     it('implement', async () => {
-//         // implement
-//     }).timeout(10000);
-// });
 
 describe('testing Simba.getManifestForBundleFromBundleHash', () => {
     it('specified fields should exist', async () => {
