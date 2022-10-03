@@ -1,8 +1,18 @@
 {
-  "name": "typescriptfiles",
+  "name": "@simbachain/simbats",
   "version": "1.0.0",
-  "description": "",
+  "description": "TypeScript SDK for SIMBA Chain",
   "main": "index.js",
+  "repository": "https://github.com/SIMBAChain/SimbaTS",
+  "author": "SIMBA Chain",
+  "license": "MIT",
+  "keywords": [
+    "simbachain",
+    "typescript",
+    "simba chain",
+    "simba",
+    "web3"
+  ],
   "scripts": {
     "test": "npm run unit_test && npm run integration_test",
     "unit_test": "cd src/tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './unit/**/*.ts'",
@@ -12,8 +22,6 @@
     "unit_test_with_setup": "npm run setup_test && npm run unit_test && npm run teardown_test",
     "integration_test_with_setup": "npm run setup_test && npm run integration_test && npm run teardown_test"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@types/node": "^18.7.18",
     "buffer": "^6.0.3",

@@ -665,22 +665,16 @@ export class Simba {
 		}
 	}
 
-	public async getEventsByContract(
-		appName: string,
-		contractName: string,
-		eventName: string,
+	public async adminGetEvents(
 		queryParams?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
-			appName,
-			contractName,
-			eventName,
 			queryParams,
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/events/${eventName}/`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/admin/events/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);

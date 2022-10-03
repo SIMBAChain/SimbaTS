@@ -24,6 +24,8 @@ import {
     artifactID,
     transactionID,
     mumbai,
+    eventContract,
+    eventName,
 } from "../project_configs";
 import { FileHandler } from "../../filehandler";
 
@@ -66,7 +68,7 @@ describe('testing Simba.balance', () => {
 // we may want this endpoint response to be modified to
 // not return a 404
 describe.skip('testing Simba.adminSetWallet', () => {
-    it('implement', async () => {
+    it('should get a 400 error', async () => {
         const simba = new Simba();
         try {
             const userID = 17;
@@ -84,9 +86,9 @@ describe.skip('testing Simba.adminSetWallet', () => {
 });
 
 // we may want this endpoint response to be modified to
-// not return a 404
+// return a 400 vs a 404
 describe('testing Simba.setWallet', () => {
-    it('implement', async () => {
+    it('should get a 400 error', async () => {
         const simba = new Simba();
         try {
             const res = await simba.setWallet(
@@ -96,13 +98,13 @@ describe('testing Simba.setWallet', () => {
             );
             console.log(res)
         } catch (error) {
-            expect(error.message).to.equal('Request failed with status code 404')
+            expect(error.message).to.equal('Request failed with status code 400')
         }
     }).timeout(5000);
 });
 
 describe('testing Simba.getWallet', () => {
-    it('implement', async () => {
+    it('specified fields should exist', async () => {
         const simba = new Simba();
         const walletRes = await simba.getWallet() as Record<any, any>;
         const wallet = walletRes.wallet;
@@ -447,29 +449,95 @@ describe('testing Simba.getContractInfo', () => {
     }).timeout(10000);
 });
 
-// describe('testing Simba.getEvents', () => {
-//     it('implement', async () => {
-//         // implement
-//     }).timeout(10000);
-// });
+describe('testing Simba.getEvents', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const res = await simba.getEvents(
+            appName,
+            eventContract,
+            eventName,
+        ) as Record<any, any>;
+        expect(res.count).to.exist;
+        expect(Object.keys(res).includes("next")).to.equal(true);
+        expect(Object.keys(res).includes("previous")).to.equal(true);
+        expect(res.results.length).to.exist;
+        if (res.results.length > 0) {
+            const event = res.results[0];
+            expect(Object.keys(event).includes("id")).to.equal(true);
+            expect(Object.keys(event).includes("created_on")).to.equal(true);
+            expect(Object.keys(event).includes("updated_on")).to.equal(true);
+            expect(Object.keys(event).includes("event_name")).to.equal(true);
+            expect(Object.keys(event).includes("inputs")).to.equal(true);
+            expect(Object.keys(event).includes("transaction")).to.equal(true);
+        }
+    }).timeout(10000);
+});
 
-// describe('testing Simba.getEvents with queryParams', () => {
-//     it('implement', async () => {
-//         // implement
-//     }).timeout(10000);
-// });
+// filtering not supported yet in a way that works with queryParams
+describe.skip('testing Simba.getEvents with queryParams', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const queryParams = {
+            id: "insert an event id here",
+        }
+        const res = await simba.getEvents(
+            appName,
+            eventContract,
+            eventName,
+            queryParams,
+        ) as Record<any, any>;
+        expect(res.count).to.exist;
+        expect(Object.keys(res).includes("next")).to.equal(true);
+        expect(Object.keys(res).includes("previous")).to.equal(true);
+        expect(res.results.length).to.exist;
+    }).timeout(10000);
+});
 
-// describe('testing Simba.getEventsByContract', () => {
-//     it('implement', async () => {
-//         // implement
-//     }).timeout(10000);
-// });
+describe('testing Simba.adminGetEvents', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const res = await simba.adminGetEvents() as Record<any, any>;
+        expect(res.count).to.be.greaterThan(0);
+        expect(Object.keys(res).includes("next")).to.equal(true);
+        expect(Object.keys(res).includes("previous")).to.equal(true);
+        expect(res.results.length).to.exist;
+        if (res.results.length > 0) {
+            const event = res.results[0];
+            expect(event.id).to.exist;
+            expect(event.created_on).to.exist;
+            expect(event.updated_on).to.exist;
+            expect(event.event_name).to.exist;
+            expect(event.inputs).to.exist;
+            expect(event.transaction).to.exist;
+        }
+    }).timeout(10000);
+});
 
-// describe('testing Simba.getEventsByContract with queryParams', () => {
-//     it('implement', async () => {
-//         // implement
-//     }).timeout(10000);
-// });
+// queryParams not currently working the way we want
+describe.skip('testing Simba.adminGetEvents with queryParams', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const id = "195a5391-84f4-4743-8dfe-d898309db809";
+        const queryParams = {
+            id,
+        }
+        const res = await simba.adminGetEvents(queryParams) as Record<any, any>;
+        console.log('res: ', res)
+        expect(res.count).to.be.greaterThan(0);
+        expect(Object.keys(res).includes("next")).to.equal(true);
+        expect(Object.keys(res).includes("previous")).to.equal(true);
+        expect(res.results.length).to.exist;
+        if (res.results.length > 0) {
+            const event = res.results[0];
+            expect(event.id).to.exist;
+            expect(event.created_on).to.exist;
+            expect(event.updated_on).to.exist;
+            expect(event.event_name).to.exist;
+            expect(event.inputs).to.exist;
+            expect(event.transaction).to.exist;
+        }
+    }).timeout(10000);
+});
 
 describe('testing Simba.getReceipt', () => {
     it('specified fields should exist', async () => {
@@ -807,7 +875,7 @@ describe('testing Simba.waitForDeployDesign', () => {
 });
 
 describe('testing Simba.waitForDeployArtifact', () => {
-    it('implement', async () => {
+    it('expect 400 error', async () => {
         const simba = new Simba();
         try {
             const alreadyTakenAPIName = contractName;
@@ -825,7 +893,7 @@ describe('testing Simba.waitForDeployArtifact', () => {
 });
 
 describe('testing Simba.waitForOrgTransaction', () => {
-    it('implement', async () => {
+    it('specified fields should exist', async () => {
         const simba = new Simba();
         const res = await simba.waitForOrgTransaction(
             orgName,
@@ -860,7 +928,7 @@ describe('testing Simba.waitForOrgTransaction', () => {
 });
 
 describe('testing Simba.getDesigns', () => {
-    it('implement', async () => {
+    it('specified fields should exist', async () => {
         const simba = new Simba();
         const res = await simba.getDesigns(orgName) as Record<any, any>;
         expect(res.count).to.be.greaterThan(0);
