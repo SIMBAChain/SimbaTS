@@ -26,6 +26,8 @@ import {
     mumbai,
     eventContract,
     eventName,
+    nonPendingTransactionID,
+    transactionObject,
 } from "../project_configs";
 import { FileHandler } from "../../filehandler";
 
@@ -87,7 +89,7 @@ describe.skip('testing Simba.adminSetWallet', () => {
 
 // we may want this endpoint response to be modified to
 // return a 400 vs a 404
-describe('testing Simba.setWallet', () => {
+describe.skip('testing Simba.setWallet', () => {
     it('should get a 400 error', async () => {
         const simba = new Simba();
         try {
@@ -762,11 +764,22 @@ describe('testing Simba.callContractMethod', () => {
     }).timeout(10000);
 });
 
-// // describe('testing Simba.submitSignedTransaction', () => {
-// //     it('implement', async () => {
-// //         // implement
-// //     }).timeout(10000);
-// // });
+// this endpoint is not yet returning the correct
+describe.skip('testing Simba.submitSignedTransaction', () => {
+    it('transaction must be pending. we expect a 400 because this transaction is not pending', async () => {
+        const simba = new Simba();
+        const txn = transactionObject;
+        try {
+            await simba.submitSignedTransaction(
+                appName,
+                nonPendingTransactionID,
+                txn,
+            );
+        } catch (error) {
+            expect (error.message).to.equal('Request failed with status code 400')
+        }
+    }).timeout(10000);
+});
 
 describe('testing Simba.saveDesign', () => {
     it('specified fields should exist', async () => {
