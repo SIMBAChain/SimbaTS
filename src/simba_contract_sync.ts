@@ -41,6 +41,7 @@ export class SimbaContractSync extends SimbaContract {
         methodName: string,
         inputs?: Record<any, any>,
         filePaths?: Array<string>,
+        validateParams: boolean = true,
     ): Promise<AxiosResponse<any> | Record<any, any>> {
         const params = {
             methodName,
@@ -48,6 +49,9 @@ export class SimbaContractSync extends SimbaContract {
             filePaths,
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        if (validateParams && inputs) {
+            await this.validateParams(methodName, inputs);
+        }
         const res = await this.simbaSync.submitContractMethod(
             this.appName,
             this.contractName,

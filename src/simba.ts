@@ -131,7 +131,7 @@ export class Simba {
 	}
 
 	public async adminSetWallet(
-		userID: string,
+		userID: string | number,
 		blockchain: string,
 		pub: string,
 		priv: string,
@@ -1091,6 +1091,11 @@ export class Simba {
 			// parseDataFromResponse NEEDS to be true here, for res.state to exist
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
 			const state = res.state;
+			if (state === "FAILED") {
+				const message = `:: SIMBA : EXIT : transaction failed: ${JSON.stringify(res)}`;
+				SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
+				throw(message);
+			}
 			if (state === "COMPLETED") {
 				SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 				return res;
@@ -1355,6 +1360,10 @@ export class Simba {
 				const message = `:: SIMBA : EXIT : transaction failed: ${JSON.stringify(res)}`;
 				SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
 				throw(message);
+			}
+			if (state === "COMPLETED") {
+				SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+				return res;
 			} else {
 				if (totalTime > maxTime) {
 					const message = `waited too long`;

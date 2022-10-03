@@ -18,6 +18,12 @@ import {
     ethereum,
     transactionHash,
     solidity,
+    sourceCode,
+    deploymentID,
+    designID,
+    artifactID,
+    transactionID,
+    mumbai,
 } from "../project_configs";
 import { FileHandler } from "../../filehandler";
 
@@ -36,11 +42,18 @@ describe('testing Simba.whoAmI', () => {
     }).timeout(5000);
 });
 
-// describe('testing Simba.fund', () => {
-//     it('implement', async () => {
-//         // implement
-//     }).timeout(5000);
-// });
+// endpoint still needs to be fixed
+describe.skip('testing Simba.fund', () => {
+    it('implement', async () => {
+        const simba = new Simba();
+        const res = await simba.fund(
+            mumbai,
+            mumbaiWallet,
+            1,
+        );
+        console.log("res: ", res)
+    }).timeout(5000);
+});
 
 describe('testing Simba.balance', () => {
     it('balance.balance should exist for mumbai', async () => {
@@ -50,17 +63,43 @@ describe('testing Simba.balance', () => {
     }).timeout(5000);
 });
 
-// describe('testing Simba.adminSetWallet', () => {
-//     it('implement', async () => {
-//         // implement
-//     }).timeout(5000);
-// });
+// we may want this endpoint response to be modified to
+// not return a 404
+describe.skip('testing Simba.adminSetWallet', () => {
+    it('implement', async () => {
+        const simba = new Simba();
+        try {
+            const userID = 17;
+            const res = await simba.adminSetWallet(
+                userID,
+                "fakeBlockchain",
+                "fakePublicKey",
+                "fakePrivateKey",
+            );
+            console.log(res)
+        } catch (error) {
+            expect(error.message).to.equal('Request failed with status code 400')
+        }
+    }).timeout(5000);
+});
 
-// describe('testing Simba.setWallet', () => {
-//     it('implement', async () => {
-//         // implement
-//     }).timeout(5000);
-// });
+// we may want this endpoint response to be modified to
+// not return a 404
+describe('testing Simba.setWallet', () => {
+    it('implement', async () => {
+        const simba = new Simba();
+        try {
+            const res = await simba.setWallet(
+                "fakeBlockchain",
+                "fakePublicKey",
+                "fakePrivateKey",
+            );
+            console.log(res)
+        } catch (error) {
+            expect(error.message).to.equal('Request failed with status code 404')
+        }
+    }).timeout(5000);
+});
 
 describe('testing Simba.getWallet', () => {
     it('implement', async () => {
@@ -78,11 +117,8 @@ describe('testing Simba.createOrg', () => {
         const simba = new Simba();
         const orgName = "simbats_org";
         const display = "simbats_org";
-        async function createOrgThrows() {
-            await simba.createOrg(orgName, display) as Record<any, any>;
-        };
         try {
-            await createOrgThrows();
+            await simba.createOrg(orgName, display) as Record<any, any>;
         } catch (error) {
             expect(error.message).to.equal('Request failed with status code 400')
         }
@@ -664,47 +700,164 @@ describe('testing Simba.callContractMethod', () => {
 // //     }).timeout(10000);
 // // });
 
-// // describe('testing Simba.saveDesign', () => {
-// //     it('implement', async () => {
-// //         // implement
-// //     }).timeout(10000);
-// // });
+describe('testing Simba.saveDesign', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const designName = "EventContract99";
+        const res = await simba.saveDesign(
+            orgName,
+            designName,
+            sourceCode,
+        ) as Record<any, any>;
+        expect(res.id).to.exist;
+        expect(res.name).to.equal(designName);
+        expect(res.version).to.exist;
+        expect(res.created_on).to.exist;
+        expect(res.updated_on).to.exist;
+        expect(res.code).to.exist;
+        expect(res.language).to.exist;
+        expect(res.metadata).to.exist;
+        expect(Object.keys(res).includes("err")).to.equal(true);
+        expect(res.mode).to.exist;
+        expect(Object.keys(res).includes("model")).to.equal(true);
+        expect(res.service_args).to.exist;
+        expect(Object.keys(res).includes("asset_type")).to.equal(true);
+        expect(res.organisation).to.exist;
+        expect(Object.keys(res).includes("designset")).to.equal(true);
+    }).timeout(10000);
+});
 
-// // describe('testing Simba.waitForDeployment', () => {
-// //     it('implement', async () => {
-// //         // implement
-// //     }).timeout(10000);
-// // });
+describe('testing Simba.waitForDeployment', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const res = await simba.waitForDeployment(
+            orgName,
+            deploymentID,
+        ) as Record<any, any>;
+        expect(res.id).to.equal(deploymentID);
+        expect(Object.keys(res).includes("current_txn")).to.equal(true);
+        expect(res.blockchain).to.exist;
+        expect(res.storage).to.exist;
+        expect(res.updated_on).to.exist;
+        expect(res.deployment).to.exist;
+        expect(res.app_name).to.exist;
+        expect(res.api_name).to.exist;
+        expect(Object.keys(res).includes("artifact_id")).to.equal(true);
+        expect(res.design_id).to.exist;
+        expect(res.state).to.exist;
+        expect(Object.keys(res).includes("error")).to.equal(true);
+        expect(res.primary).to.exist;
+        expect(res.organisation).to.exist;
+        expect(res.generate_request_id).to.exist;
+    }).timeout(10000);
+});
 
-// // describe('testing Simba.deployDesign', () => {
-// //     it('implement', async () => {
-// //         // implement
-// //     }).timeout(10000);
-// // });
+describe('testing Simba.deployDesign', () => {
+    it('error.message should refer to 400, since api name is already taken', async () => {
+        const simba = new Simba();
+        try {
+            const alreadyTakenAPIName = contractName;
+            await simba.deployDesign(
+                orgName,
+                appName,
+                alreadyTakenAPIName,
+                designID,
+                Quorum,
+            );
+        } catch (error) {
+            expect(error.message).to.equal('Request failed with status code 400');
+        }
+    }).timeout(10000);
+});
 
-// // describe('testing Simba.deployArtifact', () => {
-// //     it('implement', async () => {
-// //         // implement
-// //     }).timeout(10000);
-// // });
+describe('testing Simba.deployArtifact', () => {
+    it('error.message should refer to 400, since api name is already taken', async () => {
+        const simba = new Simba();
+        try {
+            const alreadyTakenAPIName = contractName;
+            await simba.deployArtifact(
+                orgName,
+                appName,
+                alreadyTakenAPIName,
+                artifactID,
+                Quorum,
+            );
+        } catch (error) {
+            expect(error.message).to.equal('Request failed with status code 400');
+        }
+    }).timeout(10000);
+});
 
-// // describe('testing Simba.waitForDeployDesign', () => {
-// //     it('implement', async () => {
-// //         // implement
-// //     }).timeout(10000);
-// // });
+describe('testing Simba.waitForDeployDesign', () => {
+    it('error.message should refer to 400, since api name is already taken', async () => {
+        const simba = new Simba();
+        try {
+            const alreadyTakenAPIName = contractName;
+            await simba.waitForDeployDesign(
+                orgName,
+                appName,
+                designID,
+                alreadyTakenAPIName,
+                Quorum,
+            );
+        } catch (error) {
+            expect(error.message).to.equal('Request failed with status code 400');
+        }
+    }).timeout(10000);
+});
 
-// // describe('testing Simba.waitForDeployArtifact', () => {
-// //     it('implement', async () => {
-// //         // implement
-// //     }).timeout(10000);
-// // });
+describe('testing Simba.waitForDeployArtifact', () => {
+    it('implement', async () => {
+        const simba = new Simba();
+        try {
+            const alreadyTakenAPIName = contractName;
+            await simba.waitForDeployArtifact(
+                orgName,
+                appName,
+                artifactID,
+                alreadyTakenAPIName,
+                Quorum,
+            );
+        } catch (error) {
+            expect(error.message).to.equal('Request failed with status code 400');
+        }
+    }).timeout(10000);
+});
 
-// // describe('testing Simba.waitForOrgTransaction', () => {
-// //     it('implement', async () => {
-// //         // implement
-// //     }).timeout(10000);
-// // });
+describe('testing Simba.waitForOrgTransaction', () => {
+    it('implement', async () => {
+        const simba = new Simba();
+        const res = await simba.waitForOrgTransaction(
+            orgName,
+            transactionID,
+        ) as Record<any, any>;
+        expect(res.id).to.exist;
+        expect(res.request_id).to.exist;
+        expect(res.created_on).to.exist;
+        expect(res.finalized_on).to.exist;
+        expect(res.method).to.exist;
+        expect(res.inputs).to.exist;
+        expect(res.receipt).to.exist;
+        expect(Object.keys(res).includes("error")).to.equal(true);
+        expect(res.error_details).to.exist;
+        expect(res.state).to.exist;
+        expect(res.raw_transaction).to.exist;
+        expect(res.signed_transaction).to.exist;
+        expect(Object.keys(res).includes("bundle")).to.equal(true);
+        expect(res.block).to.exist;
+        expect(res.nonce).to.exist;
+        expect(res.from_address).to.exist;
+        expect(res.to_address).to.exist;
+        expect(res.created_by).to.exist;
+        expect(res.contract).to.exist;
+        expect(res.app).to.exist;
+        expect(res.blockchain).to.exist;
+        expect(res.origin).to.exist;
+        expect(res.transaction_type).to.exist;
+        expect(res.confirmations).to.exist;
+        expect(res.value).to.exist;
+    }).timeout(10000);
+});
 
 describe('testing Simba.getDesigns', () => {
     it('implement', async () => {

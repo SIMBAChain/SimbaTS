@@ -4,7 +4,7 @@ import {
 } from "../../config";
 import {
     FileHandler,
-} from "../file_handler"
+} from "../../filehandler"
 import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
