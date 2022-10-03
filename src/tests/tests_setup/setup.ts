@@ -5,10 +5,7 @@ import * as path from 'path';
 import {cwd} from 'process';
 
 async function main() {
-    // nothing implemented yet;
-    // const pathToTestSimbachainEnv = path.join(cwd(), "..", "test_data", "testsimbachaindotenv");
-    // const pathToProjectSimbachainEnv = path.join(cwd(), "..", ".simbachain.env");
-    // await FileHandler.transferFile(pathToTestSimbachainEnv, pathToProjectSimbachainEnv, false);
+    // passing for now; leaving here in case it needs to be implemented
 }
 
 main();
