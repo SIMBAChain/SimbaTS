@@ -10,8 +10,14 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 2. [Installation](#installation)
 3. [Configuration and Authentication](#configuration-and-authentication)
 4. [Usage](#usage)
-9. [Integrating with Polyglot](#integrating-with-polyglot)
-10. [Testing](#testing)
+    - [Note on contractName parameter](#quick-note-on-"contractName"-parameter)
+    - [Variables Used in examples](#variables-used-throughout-method-calls-below)
+    - [Simba](#simba)
+    - [SimbaContract](#SimbaContract)
+    - [SimbaSync](#SimbaSync)
+    - [SimbaContractSync](#SimbaContractSync)
+5. [Integrating with Polyglot](#integrating-with-polyglot)
+6. [Testing](#testing)
 
 
 ## Summary
@@ -103,7 +109,7 @@ The following sections provide examples of using the above objects, but we're al
 ### quick note on "contractName" parameter:
 A quick note on areas where you see the parameter "contractName" referenced. In most cases, "contractName" actually refers to the contract API name you specified when deploying your contract. So if you deployed a contract that, in its solidity code was called TestContract, and you deployed it using the API name "test_contract_v2", then this API name is actually what's being asked for where params are called "contractName".
 
-### variables used throughout method calls below:
+### variables used throughout method calls below
 ```TypeScript
 export const baseApiUrl = "https://simba-dev-api.platform.simbachain.com/";
 export const orgName = "brendan_birch_simbachain_com";
