@@ -11,7 +11,7 @@ import {cwd} from 'process';
 import { expect } from 'chai';
 import 'mocha';
 
-describe('testing Simba.submitMethod', () => {
+describe('testing SimbaContractSync.submitMethod', () => {
     it('specified fields should exist', async () => {
         const simbaContractSync = new SimbaContractSync(
             baseApiUrl,

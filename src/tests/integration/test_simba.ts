@@ -55,7 +55,6 @@ describe.skip('testing Simba.fund', () => {
             mumbaiWallet,
             1,
         );
-        console.log("res: ", res)
     }).timeout(5000);
 });
 
@@ -80,7 +79,6 @@ describe.skip('testing Simba.adminSetWallet', () => {
                 "fakePublicKey",
                 "fakePrivateKey",
             );
-            console.log(res)
         } catch (error) {
             expect(error.message).to.equal('Request failed with status code 400')
         }
@@ -98,7 +96,6 @@ describe.skip('testing Simba.setWallet', () => {
                 "fakePublicKey",
                 "fakePrivateKey",
             );
-            console.log(res)
         } catch (error) {
             expect(error.message).to.equal('Request failed with status code 400')
         }
@@ -524,7 +521,6 @@ describe.skip('testing Simba.adminGetEvents with queryParams', () => {
             id,
         }
         const res = await simba.adminGetEvents(queryParams) as Record<any, any>;
-        console.log('res: ', res)
         expect(res.count).to.be.greaterThan(0);
         expect(Object.keys(res).includes("next")).to.equal(true);
         expect(Object.keys(res).includes("previous")).to.equal(true);
