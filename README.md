@@ -1,7 +1,7 @@
 # SimbaTS
 TypeScript SDK for SIMBA Chain
 
-# @simbachain/hardhat
+# @simbachain/simbats
 
 Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
 

@@ -163,7 +163,7 @@ describe('testing SimbaContract.getManifestForBundleFromBundleHash', () => {
             appName,
             contractName,
         );
-        const manifest = await simbaContract.getmanifestFromBundleHash(bundleHash) as Record<any, any>;
+        const manifest = await simbaContract.getManifestFromBundleHash(bundleHash) as Record<any, any>;
         expect(manifest.alg).to.equal("sha256");
         expect(manifest.digest).to.equal("hex");
         expect(manifest.files.length).to.equal(2);

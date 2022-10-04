@@ -174,7 +174,7 @@ export class SimbaContract extends ParamCheckingContract {
         return res;
     }
 
-    public async getmanifestFromBundleHash(
+    public async getManifestFromBundleHash(
         bundleHash: string,
     ): Promise<AxiosResponse<any> | Record<any, any> | void> {
         const params = {
