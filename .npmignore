@@ -4,9 +4,6 @@
 # .env
 **.env
 
-# dist
-**dist
-
 # authconfig.json
 **authconfig.json
 
@@ -15,4 +12,7 @@
 **polyglot
 
 # .DS_Store
-**.DS_Store 
+**.DS_Store
+
+# src
+src

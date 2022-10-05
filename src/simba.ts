@@ -15,7 +15,10 @@ import utf8 from "utf8";
 import {
 	getAddress,
 	getDeployedArtifactID,
-} from "./utils"
+} from "./utils";
+import {
+	FileHandler,
+} from "./filehandler";
 
 export class Simba {
 	baseApiUrl: string;
@@ -128,7 +131,7 @@ export class Simba {
 	}
 
 	public async adminSetWallet(
-		userID: string,
+		userID: string | number,
 		blockchain: string,
 		pub: string,
 		priv: string,
@@ -208,7 +211,7 @@ export class Simba {
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/user/wallet/set/`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/user/wallet/`);
     	const options = await this.requestHandler.getAuthAndOptions();
     	try {
 			const res = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
@@ -259,29 +262,30 @@ export class Simba {
 
 	public async createApp(
 		orgName: string,
-		name: string,
+		appName: string,
 		display: string,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any> | void> {
 		const params = {
 			orgName,
-			name,
+			appName,
 			display,
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/applications/${name}/`);
-    	const options = await this.requestHandler.getAuthAndOptions();
+		const getURL = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/applications/${appName}/`);
+    	const postURL = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/applications/`);
+		const options = await this.requestHandler.getAuthAndOptions();
 		try {
-			await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
+			await this.requestHandler.doGetRequest(getURL, options, parseDataFromResponse);
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response && error.response.status === 404) {
 				const data = {
-					name,
+					name: appName,
 					display_name: display,
 				};
 				try {
-					const res = await this.requestHandler.doPostRequest(url, options, data, parseDataFromResponse);
+					const res = await this.requestHandler.doPostRequest(postURL, options, data, parseDataFromResponse);
 					SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
 					return res;
 				} catch (error) {
@@ -326,18 +330,18 @@ export class Simba {
   	}
 	
 	public async getApplication(
+		orgName: string,
 		appName: string,
-    	queryParams?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
   	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
+			orgName,
 			appName,
-			queryParams,
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/`);
-    	const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/applications/${appName}/`);
+    	const options = await this.requestHandler.getAuthAndOptions();
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
@@ -384,18 +388,16 @@ export class Simba {
   	public async getApplicationContract(
     	appName: string,
     	contractName: string,
-    	queryParams?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
   	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
 			appName,
 			contractName,
-			queryParams,
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/`);
-		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
+		const options = await this.requestHandler.getAuthAndOptions();
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
@@ -503,9 +505,9 @@ export class Simba {
 		appName: string,
 		contractName: string,
 		bundleHash: string,
-		downloadLocation?: string,
+		downloadLocation: string,
 		parseDataFromResponse: boolean = true,
-	): Promise<AxiosResponse<any> | Record<any, any>> {
+	): Promise<AxiosResponse<any> | Record<any, any> | unknown> {
 		const params = {
 			appName,
 			contractName,
@@ -517,14 +519,20 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/bundle/${bundleHash}/`);
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
-			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
+			const responseType = "stream";
+			const res = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse, responseType) as unknown;
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+			await FileHandler.download(res, downloadLocation);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
 				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
 			} else {
-				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+				if (axios.isAxiosError(error)) {
+					SimbaConfig.log.error(`${JSON.stringify(error)}`);
+				} else {
+					SimbaConfig.log.error(`${error}`);
+				}
 			}
 			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
 			throw(error);
@@ -536,9 +544,9 @@ export class Simba {
 		contractName: string,
 		bundleHash: string,
 		fileName: string,
-		downloadLocation?: string,
+		downloadLocation: string,
 		parseDataFromResponse: boolean = true,
-	): Promise<AxiosResponse<any> | Record<any, any>> {
+	): Promise<AxiosResponse<any> | Record<any, any> | unknown> {
 		const params = {
 			appName,
 			contractName,
@@ -551,8 +559,10 @@ export class Simba {
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/bundle/${bundleHash}/filename/${fileName}/`);
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
-			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`bundleFile info: ${res.data}`);
+			const responseType = "stream";
+			const res = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse, responseType) as unknown;
+			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+			await FileHandler.download(res, downloadLocation);
 			return res;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -655,22 +665,16 @@ export class Simba {
 		}
 	}
 
-	public async getEventsByContract(
-		appName: string,
-		contractName: string,
-		eventName: string,
+	public async adminGetEvents(
 		queryParams?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
-			appName,
-			contractName,
-			eventName,
 			queryParams,
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/events/${eventName}/`);
+		const url = this.requestHandler.buildURL(this.baseApiUrl, `/admin/events/`);
 		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
@@ -691,19 +695,17 @@ export class Simba {
 		appName: string,
 		contractName: string,
 		receiptHash: string,
-		queryParams?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
 			appName,
 			contractName,
 			receiptHash,
-			queryParams,
 			parseDataFromResponse,
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${appName}/contract/${contractName}/receipt/${receiptHash}/`);
-		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
+		const options = await this.requestHandler.getAuthAndOptions();
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
@@ -1083,6 +1085,11 @@ export class Simba {
 			// parseDataFromResponse NEEDS to be true here, for res.state to exist
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
 			const state = res.state;
+			if (state === "FAILED") {
+				const message = `:: SIMBA : EXIT : transaction failed: ${JSON.stringify(res)}`;
+				SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
+				throw(message);
+			}
 			if (state === "COMPLETED") {
 				SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
 				return res;
@@ -1347,6 +1354,10 @@ export class Simba {
 				const message = `:: SIMBA : EXIT : transaction failed: ${JSON.stringify(res)}`;
 				SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
 				throw(message);
+			}
+			if (state === "COMPLETED") {
+				SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+				return res;
 			} else {
 				if (totalTime > maxTime) {
 					const message = `waited too long`;
@@ -1436,7 +1447,7 @@ export class Simba {
 			parseDataFromResponse,
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
-        const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/storages/`);
+        const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/storage/`);
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
@@ -1455,15 +1466,17 @@ export class Simba {
 
 	public async getArtifacts(
 		orgName: string,
+		queryParams?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
 			orgName,
+			queryParams,
 			parseDataFromResponse,
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : ${JSON.stringify(params)}`);
         const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/contract_artifacts/`);
-		const options = await this.requestHandler.getAuthAndOptions();
+		const options = await this.requestHandler.getAuthAndOptions(undefined, queryParams);
 		try {
 			const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
@@ -1541,10 +1554,10 @@ export class Simba {
 	public async subscribe(
 		orgName: string,
 		notificationEndpoint: string,
-		authType: string,
 		contractAPI: string,
 		txn: string,
 		subscriptionType: string,
+		authType: string = "",
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
@@ -1596,8 +1609,8 @@ export class Simba {
 	public async setNotificationConfig(
 		orgName: string,
 		scheme: string,
-		authType: string,
-		authInfo: Record<any, any>,
+		authType?: string,
+		authInfo?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
 	): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
@@ -1609,6 +1622,8 @@ export class Simba {
 		};
 		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
 		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/notification_config/`);
+		authType = authType ? authType : "";
+		authInfo = authInfo ? authInfo : {};
 		const options = await this.requestHandler.getAuthAndOptions();
 		const data = {
 			scheme,

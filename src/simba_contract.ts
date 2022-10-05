@@ -58,6 +58,7 @@ export class SimbaContract extends ParamCheckingContract {
         methodName: string,
         inputs?: Record<any, any>,
         filePaths?: Array<string>,
+        validateParams: boolean = true,
     ): Promise<AxiosResponse<any> | Record<any, any>> {
         const params = {
             methodName,
@@ -65,6 +66,9 @@ export class SimbaContract extends ParamCheckingContract {
             filePaths,
         };
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        if (validateParams && inputs) {
+            await this.validateParams(methodName, inputs);
+        }
         const res = await this.simba.submitContractMethod(
             this.appName,
             this.contractName,
@@ -94,7 +98,7 @@ export class SimbaContract extends ParamCheckingContract {
         return res;
     }
 
-    public async listEvents(
+    public async getEvents(
         eventName: string,
         queryParams?: Record<any, any>,
     ): Promise<AxiosResponse<any> | Record<any, any>> {
@@ -131,8 +135,8 @@ export class SimbaContract extends ParamCheckingContract {
 
     public async getBundle(
         bundleHash: string,
-        downloadLocation?: string,
-    ): Promise<AxiosResponse<any> | Record<any, any> | void> {
+        downloadLocation: string,
+    ): Promise<AxiosResponse<any> | Record<any, any> | void | unknown> {
         const params = {
             bundleHash,
             downloadLocation,
@@ -148,27 +152,11 @@ export class SimbaContract extends ParamCheckingContract {
         return res;
     }
 
-    public async getmanifestFromBundleHash(
-        bundleHash: string,
-    ): Promise<AxiosResponse<any> | Record<any, any> | void> {
-        const params = {
-            bundleHash,
-        };
-        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-        const res = await this.simba.getManifestForBundleFromBundleHash(
-            this.appName,
-            this.contractName,
-            bundleHash,
-        );
-        SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
-        return res;
-    }
-
     public async getBundleFile(
         bundleHash: string,
         fileName: string,
-        downloadLocation?: string,
-    ): Promise<AxiosResponse<any> | Record<any, any> | void> {
+        downloadLocation: string,
+    ): Promise<AxiosResponse<any> | Record<any, any> | void | unknown> {
         const params = {
             bundleHash,
             fileName,
@@ -181,6 +169,22 @@ export class SimbaContract extends ParamCheckingContract {
             bundleHash,
             fileName,
             downloadLocation,
+        );
+        SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
+        return res;
+    }
+
+    public async getManifestFromBundleHash(
+        bundleHash: string,
+    ): Promise<AxiosResponse<any> | Record<any, any> | void> {
+        const params = {
+            bundleHash,
+        };
+        SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
+        const res = await this.simba.getManifestForBundleFromBundleHash(
+            this.appName,
+            this.contractName,
+            bundleHash,
         );
         SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
         return res;

@@ -3,11 +3,7 @@ import {
     SimbaConfig,
 } from "./config";
 import {
-    AxiosResponse,
-} from "axios";
-import {
     RequestHandler,
-    RequestMethods,
 } from "./request_handler"
 
 
@@ -18,8 +14,6 @@ class ParamCheckingContract {
     appName: string;
     contractName: string;
     baseApiUrl: string;
-    contractUri: string;
-    asyncContractUri: string;
     metadata: Record<any, any>;
     paramsRestricted: Record<any, any> | null = null;
     requestHandler: RequestHandler;
@@ -28,13 +22,15 @@ class ParamCheckingContract {
         appName: string,
         contractName: string,
         baseApiUrl: string,
+        metadata?: Record<any, any>,
     ) {
         this.appName = appName;
         this.contractName = contractName;
         this.baseApiUrl = baseApiUrl;
-        this.contractUri = `${this.appName}/contract/${this.contractName}`;
-        this.asyncContractUri = `${this.appName}/async/contract/${this.contractName}`;
         this.requestHandler = new RequestHandler(this.baseApiUrl);
+        if (metadata) {
+            this.metadata = metadata;
+        }
     }
 
     trueType(
@@ -49,10 +45,11 @@ class ParamCheckingContract {
             SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
             return this.metadata;
         }
-        const url = this.requestHandler.buildURL(this.baseApiUrl, `/apps/${this.contractUri}/?format=json`);
+        
+        const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/${this.appName}/contract/${this.contractName}/`);
         const options = await this.requestHandler.getAuthAndOptions();
         try {
-            const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options);
+            const res: Record<any, any> = await this.requestHandler.doGetRequest(url, options, false);
             if (!res.data) {
                 const message = "unable to retrieve metadata"
                 SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
@@ -73,11 +70,11 @@ class ParamCheckingContract {
 		}
     }
 
-    private isArray(param: string): boolean {
+    public isArray(param: string): boolean {
         return param.endsWith("]");
     }
 
-    private arrayRestrictions(
+    public arrayRestrictions(
         arrString: string
     ): Record<number | string, string> {
         SimbaConfig.log.debug(`:: ENTER : ${arrString}`);
@@ -105,14 +102,14 @@ class ParamCheckingContract {
                 reverseArray.indexOf("[")+1, reverseArray.indexOf("]")
             );
             arrLengths[i] = arrLen ?
-                Number(arrLen) : null;
+                Number(arrLen.split("").reverse().join("")) : null;
             reverseArray = reverseArray.slice(reverseArray.indexOf("]")+1)
         }
         SimbaConfig.log.debug(`:: EXIT : ${JSON.stringify(arrLengths)}`);
         return arrLengths;
     }
 
-    private getDimensions(
+    public getDimensions(
         param: string,
         dims: number = 0
     ): number {
@@ -124,21 +121,19 @@ class ParamCheckingContract {
         return this.getDimensions(param, dims);
     }
 
-    private async paramRestrictions(): Promise<Record<any, any> | void> {
+    public async paramRestrictions(): Promise<Record<any, any> | void> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
-        const metadata = await this.getMetadata() as any;
-        const methods = metadata["contract"]["methods"];
-        // SimbaConfig.log.debug(`:: methods : ${JSON.stringify(methods)}`);
+        const metadata = this.metadata ? this.metadata : await this.getMetadata() as Record<any, any>;
+        const methods = metadata.contract.methods;
         const paramRest = {} as any;
         for (let method in methods) {
             if (method) {
                 const methodKeys = methods[method];
-                const methodParams = methodKeys["params"];
-                // SimbaConfig.log.debug(`:: methodParams : ${JSON.stringify(methodParams)}`);
+                const methodParams = methodKeys.params;
                 for (let param in methodParams) {
                     if (param) {
-                        const paramName = methodParams[param]["name"];
-                        const rawType = methodParams[param]["type"];
+                        const paramName = methodParams[param].name;
+                        const rawType = methodParams[param].type;
                         const containsOrIsUint = rawType.startsWith("uint");
                         if (!containsOrIsUint && !this.isArray(paramName)) {
                             continue;
@@ -147,10 +142,10 @@ class ParamCheckingContract {
                             paramRest[method] = {};
                         }
                         if (containsOrIsUint && !this.isArray(rawType)) {
-                            if (paramRest[method]["uintParams"] === undefined) {
-                                paramRest[method]["uintParams"] = [paramName];
+                            if (paramRest[method].uintParams === undefined) {
+                                paramRest[method].uintParams = [paramName];
                             } else {
-                                paramRest[method]["uintParams"].push(paramName);
+                                paramRest[method].uintParams.push(paramName);
                             }
                         } else {
                             if (this.isArray(rawType)) {
@@ -183,6 +178,11 @@ class ParamCheckingContract {
             level,
         };
         SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(funcParams)}`);
+        if (!Array.isArray(arr)) {
+            const message = `${arr} is not an array`;
+            SimbaConfig.log.error(`:: SIMBA : EXIT : ${message}`);
+            throw(message);
+        }
         let levelRestriction;
         const strLevel = String(level);
         SimbaConfig.log.debug(`strLevel: ${strLevel}`);
@@ -190,16 +190,14 @@ class ParamCheckingContract {
             levelRestriction = paramRestrictionsObj[paramName][strLevel]
             // SimbaConfig.log.debug(`:: levelRestriction : ${levelRestriction}`);
         } else {
-            const message = "Passed array contains too many dimensions";
+            const message = `Passed array contains too many dimensions for param ${paramName}`;
             SimbaConfig.log.error(message)
             throw(message);
         }
         if (levelRestriction !== null) {
             if (arr.length !== Number(levelRestriction)) {
                 const message =
-                `Array length error for param ${paramName}. This param
-                should have length ${Number(levelRestriction)}, but had
-                length ${arr.length}`;
+                `Array length error for param ${paramName}. param "${paramName}" should have length ${Number(levelRestriction)}, but had length ${arr.length}`;
                 SimbaConfig.log.error(`:: EXIT : ${message}`);
                 throw(message);
             }
@@ -217,14 +215,12 @@ class ParamCheckingContract {
         } else {
             if (paramRestrictionsObj[paramName]["containsUint"]) {
                 if (!Number.isInteger(element)) {
-                    const message = `array elements must be int,
-                    but element is ${this.trueType(element)}`;
+                    const message = `array elements for param "${paramName}" must be int, but element is ${this.trueType(element)}`;
                     SimbaConfig.log.error(`:: EXIT : ${message}`);
                     throw(message);
                 }
                 if (element < 0) {
-                    const message = `array elements must be uint (>0), but
-                    element's value is ${element}`;
+                    const message = `array elements for param "${paramName}" must be uint (>0), but element's value is ${element}`;
                     SimbaConfig.log.error(`:: EXIT : ${message}`);
                     throw(message);
                 }
@@ -235,19 +231,17 @@ class ParamCheckingContract {
         return true;
     }
 
-    checkUintRestriction(
+    private checkUintRestriction(
         paramValue: number
     ): boolean | Error {
         SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(paramValue)}`);
         if (paramValue < 0) {
-            const message = `parameter must be positive,
-            but parameter value is ${paramValue}`;
+            const message = `parameter must be positive, but parameter value is ${paramValue}`;
             SimbaConfig.log.error(`:: EXIT : ${message}`);
             throw(message);
         }
         if (!Number.isInteger(paramValue)) {
-            const message = `parameter must be an integer,
-            but parameter value is ${paramValue}`;
+            const message = `parameter must be an integer, but parameter value is ${paramValue}`;
             SimbaConfig.log.error(`:: EXIT : ${message}`);
             throw(message);
         }
@@ -255,35 +249,35 @@ class ParamCheckingContract {
         return true;
     }
 
-    async validateParams(
+    public async validateParams(
         methodName: string,
         inputs: Record<any, any> | null
     ): Promise<boolean | Error> {
         const par = {
-        methodName,
-        inputs,
+            methodName,
+            inputs,
         };
         SimbaConfig.log.debug(`:: ENTER : ${JSON.stringify(par)}`);
         const paramRest = await this.paramRestrictions() as any;
         const methodRestrictions = paramRest[methodName] || null;
         if (!methodRestrictions) {
-        SimbaConfig.log.debug(`:: EXIT : valid`);
-        return true
+            SimbaConfig.log.debug(`:: EXIT : valid`);
+            return true
         }
         const uintParams = methodRestrictions["uintParams"] || {};
         const arrayParams = methodRestrictions["arrayParams"] || {};
         for (const paramName in inputs) {
-        SimbaConfig.log.debug(`paramName: ${paramName}`);
-        if (paramName !== undefined) {
-            if (paramName in uintParams) {
-            const paramValue = inputs[paramName];
-            this.checkUintRestriction(paramValue);
+            SimbaConfig.log.debug(`paramName: ${paramName}`);
+            if (paramName !== undefined) {
+                if (paramName in uintParams) {
+                const paramValue = inputs[paramName];
+                this.checkUintRestriction(paramValue);
+                }
+                if (paramName in arrayParams) {
+                const paramValue = inputs[paramName];
+                this.checkArrayRestrictions(paramValue, paramName, arrayParams);
+                }
             }
-            if (paramName in arrayParams) {
-            const paramValue = inputs[paramName];
-            this.checkArrayRestrictions(paramValue, paramName, arrayParams);
-            }
-        }
         }
         SimbaConfig.log.debug(`:: EXIT : passed validateParams, valid`);
         return true;

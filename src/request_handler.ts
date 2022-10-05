@@ -88,7 +88,7 @@ export class RequestHandler {
             }
         }
         if (res.data && parseDataFromResponse) {
-            SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${JSON.stringify(res.data)}`);
+            SimbaConfig.log.debug(`:: SIMBA : EXIT : res.data : ${res.data}`);
             const resData: Record<any, any> = res.data;
             return resData;
         }
@@ -127,12 +127,16 @@ export class RequestHandler {
         url: string,
         options: Record<any, any>,
         parseDataFromResponse: boolean = true,
+        responseType?: string,
     ): Promise<AxiosResponse<any> | Record<any, any> | Array<any>> {
         const params = {
             url,
             options,
             parseDataFromResponse,
         };
+        if (responseType) {
+            options.responseType = responseType;
+        }
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
         const res = await this.doHTTPRequest(url, RequestMethods.GET, options, undefined, parseDataFromResponse);
         SimbaConfig.log.debug(`:: SIMBA : EXIT : res : ${res}`);
@@ -183,6 +187,12 @@ export class RequestHandler {
             options,
             formData,
         };
+        if (options.headers["Content-Type"]) {
+            delete options.headers["Content-Type"];
+        }
+        if (options.headers["content-type"]) {
+            delete options.headers["content-type"];
+        }
         SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
         const formDataHeaders = formData.getHeaders();
         const headers = {...options["headers"], ...formDataHeaders}
@@ -344,7 +354,7 @@ export class RequestHandler {
 
     /**
      * returns headers with access token
-     * @returns 
+     * @returns
      */
     public async accessTokenHeader(): Promise<Record<any, any>> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
