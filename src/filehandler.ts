@@ -5,10 +5,6 @@ import * as fs from "fs";
 import * as path from 'path';
 import * as stream from "stream";
 import {promisify} from "util";
-const finished = promisify(stream.finished);
-// const pipeline = util.promisify(stream.pipeline);
-// import {createGzip} from "zlib";
-// const gzip = createGzip();
 
 /**
  * helps read file once we've found it
