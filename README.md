@@ -34,6 +34,8 @@ npm install @simbachain/simbats
 To clone:
 ```
 git clone https://github.com/SIMBAChain/SimbaTS.git
+
+Then you'll want to checkout the develop branch
 ```
 
 ## Configuration and Authentication
