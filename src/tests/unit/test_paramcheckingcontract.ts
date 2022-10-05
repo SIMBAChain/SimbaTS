@@ -1,33 +1,14 @@
 import {
     ParamCheckingContract,
 } from "../../param_checking_contract";
-
-import {
-    Simba,
-} from "../../";
 import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 import {cwd} from 'process';
 import * as fs from "fs";
 import {
-    orgName,
     appName,
     contractName,
-    bundleHash,
-    mumbaiWallet,
-    userEmail,
-    solContractName,
-    Quorum,
-    ethereum,
-    transactionHash,
-    solidity,
-    sourceCode,
-    deploymentID,
-    designID,
-    artifactID,
-    transactionID,
-    mumbai,
     baseApiUrl,
 } from "../project_configs";
 import { FileHandler } from "../../filehandler";

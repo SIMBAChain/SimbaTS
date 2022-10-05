@@ -2,7 +2,6 @@ import {
     SimbaSync,
 } from "../../";
 import {
-    baseApiUrl,
     appName,
     contractName,
 } from "../project_configs";
