@@ -93,16 +93,16 @@ Once all of this is configured, you're ready to start using SimbaTS!
 
 ## Usage
 There are a few main objects that you'll want to use in your project:
-    - Simba
-        - Simba objects handle general interaction with the platform
-        - Simba objects can also be used to submit, call, and query methods of your deployed smart contracts
-    - SimbaContract
-        - SimbaContract objects are used specifically to interact with your deployed smart contracts
-        - SIMBA Chain contract method endopints are "async" by default. This term is overloaded here; what "async" means here is that hitting a default contract method, a response will be returned without waiting for additional details about the transaction
-    - SimbaSync
-        - SimbaSync is idential to Simba, except the contract object it instantiates through .getSimbaContract is an instance of SimbaContractSync instead of SimbaContract
-    - SimbaContractSync
-        - SimbaContractSync is identical to SimbaContract, except it hits contract method endpoints synchronously instead of asynchronously. That that means in this context is that contract method requests made using SimbaContractSync will call /sync/ endpoints for contract methods, which means that the response will not return immediately, but will return with more information on the transaction when it does return.
+- Simba
+    - Simba objects handle general interaction with the platform
+    - Simba objects can also be used to submit, call, and query methods of your deployed smart contracts
+- SimbaContract
+    - SimbaContract objects are used specifically to interact with your deployed smart contracts
+    - SIMBA Chain contract method endopints are "async" by default. This term is overloaded here; what "async" means here is that hitting a default contract method, a response will be returned without waiting for additional details about the transaction
+- SimbaSync
+    - SimbaSync is idential to Simba, except the contract object it instantiates through .getSimbaContract is an instance of SimbaContractSync instead of SimbaContract
+- SimbaContractSync
+    - SimbaContractSync is identical to SimbaContract, except it hits contract method endpoints synchronously instead of asynchronously. That that means in this context is that contract method requests made using SimbaContractSync will call /sync/ endpoints for contract methods, which means that the response will not return immediately, but will return with more information on the transaction when it does return.
 
 The following sections provide examples of using the above objects, but we're also going to provide some example variables that are used throughout the examples, so that you can reference them when you see them in example method calls. So when you see a method call use the argument baseApiUrl, but you don't see it defined locally, know that it was defined previously, in the following variables, below.
 
