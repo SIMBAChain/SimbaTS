@@ -914,7 +914,7 @@ export class Simba {
 			if (axios.isAxiosError(error) && error.response) {
 				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
 			} else {
-				SimbaConfig.log.error(`${JSON.stringify(error)}`);
+				SimbaConfig.log.error(`${error}`);
 			}
 			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
 			throw(error);
