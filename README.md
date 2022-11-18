@@ -13,16 +13,36 @@ Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
     - [Note on contractName parameter](#quick-note-on-"contractName"-parameter)
     - [Variables Used in examples](#variables-used-throughout-method-calls-below)
     - [Simba](#simba)
+        - [Simba Insantiation](#simba-instantation)
+        - [Simba Wallet Methods](#simba-wallet-methods)
+        - [Simba Org And App Methods](#simba-org-and-app-methods)
+        - [Getting Contracts and Transactions](#getting-contracts-and-transactions)
+        - [File (Bundle) Methods](#simba-bundle-file-methods)
+        - [Event Methods](#event-methods)
+        - [Getting a Transaction Receipt](#get-receipt)
+        - [Smart Contract Methods](#simba-smart-contract-methods)
+        - [Submitting a Signed Transaction](#submitting-a-signed-transaction)
+        - [Saving, Getting, and Deploying Contract Designs and Artifacts](#saving-and-getting-and-deploying-contract-designs-and-artifacts)
+        - [Method That Wait For Processes To Complete](#method-that-wait-for-processes-to-complete)
+        - [Getting Blockchains and Storages](#getting-blockchains-and-storages)
+        - [Subscriptions and Notifications](#subscriptions-and-notifications)
     - [SimbaContract](#SimbaContract)
+        - [Instantiating SimbaContract](#instantiating-simbacontract)
+        - [SimbaContract Smart Contract Methods](#simbacontract-smart-contract-methods)
+        - [SimbaContract Bundle File Methods](#simbacontract-bundle-file-methods)
     - [SimbaSync](#SimbaSync)
+        - [Instantiating SimbaSync](#instantiating-simbasync)
+        - [Submitting a SimbaSync Smart Contract Method](#submitting-a-simbasync-smart-contract-method)
     - [SimbaContractSync](#SimbaContractSync)
+        - [Instantiating SimbaContractSync](#instantiating-simbacontractsync)
+        - [Submitting a SimbaContractSync Smart Contract Method](#submitting-a-simbacontractsync-smart-contract-method)
 5. [Integrating with Polyglot](#integrating-with-polyglot)
 6. [Testing](#testing)
 
 
 ## Summary
 
-SimbaTS is the TypeScript SDK for SIMBA Chain. It contains functionality for interacting with the SIMBA platform in general, as well as for interacting with your deployed smart contracts in particular. If you are using SimbaTS to interact with your deployed smart contracts, then we highly recommend you integrate with our Polyglot service, which we explain in this documentation.
+SimbaTS is the TypeScript SDK for SIMBA Chain. It contains functionality for interacting with the SIMBA platform in general, as well as for interacting with your deployed smart contracts in particular. We currently have a service, Polyglot, that is under construction, which will streamline the process of interacting with your deployed smart contracts If you are using SimbaTS to interact with your deployed smart contracts, then we highly recommend you integrate with our Polyglot service, which we explain in this documentation.
 
 ## Installation
 
@@ -195,6 +215,7 @@ export const transactionObject = {
 
 ### Simba
 
+#### Simba Instantiation
 ```TypeScript
 // instantiating Simba object
 import {
@@ -204,7 +225,10 @@ const simba = new Simba();
 
 // Simba.getSimbaContract
 const simbaContract = simba.getSimbaContract(appName, contractName);
+```
 
+#### Simba Wallet Methods
+```TypeScript
 // Simba.whoAmI
 const simba = new Simba();
 const iAm = await simba.whoAmI() as Record<any, any>;
@@ -217,11 +241,11 @@ const res = await simba.fund(
     1,
 );
 
-// testing Simba.balance
+// Simba.balance
 const simba = new Simba();
 const balance = await simba.balance("mumbai", mumbaiWallet) as Record<any, any>;
 
-// testing Simba.adminSetWallet
+// Simba.adminSetWallet
 const simba = new Simba();
 const res = await simba.adminSetWallet(
     userID,
@@ -241,7 +265,10 @@ const res = await simba.setWallet(
 // Simba.getWallet
 const simba = new Simba();
 const walletRes = await simba.getWallet() as Record<any, any>;
+```
 
+#### Simba Org And App Methods
+```TypeScript
 // Simba.createOrg
 const simba = new Simba();
 const orgName = "simbats_org";
@@ -255,7 +282,6 @@ const appName = "simbats_app";
 const display = "simbats_app";
 const res = await simba.createApp(orgName, appName, display) as Record<any, any>;
 
-
 // Simba.getApplications
 const simba = new Simba();
 const apps = await simba.getApplications() as Record<any, any>;
@@ -264,12 +290,11 @@ const apps = await simba.getApplications() as Record<any, any>;
 const simba = new Simba();
 const app = await simba.getApplication(orgName, appName) as Record<any, any>;
 
-
 // Simba.getApplicationTransactions
 const simba = new Simba();
 const txns = await simba.getApplicationTransactions(appName) as Record<any, any>;
 
-// testing Simba.getApplicationTransactions with queryParams
+// Simba.getApplicationTransactions with queryParams
 const simba = new Simba();
 const request_id = "34bb8e12-8459-43cc-ae7f-e0fe0a59fbb1";
 const queryParams = {
@@ -280,7 +305,10 @@ const txns = await simba.getApplicationTransactions(appName, queryParams) as Rec
 // Simba.getApplicationContract
 const simba = new Simba();
 const contract = await simba.getApplicationContract(appName, contractName) as Record<any, any>;
+```
 
+#### Getting Contracts and Transactions
+```TypeScript
 // Simba.getcontractTransactions
 const simba = new Simba();
 const txns = await simba.getContractTransactions(appName, contractName) as Record<any, any>;
@@ -297,7 +325,7 @@ const txn = await simba.getContractTransactions(appName, contractName, queryPara
 const simba = new Simba();
 const contracts = await simba.getContracts(appName) as Record<any, any>;
 
-// testing Simba.getContracts with queryParams
+// Simba.getContracts with queryParams
 const simba = new Simba();
 const id = "acf6fd5d-e27a-4493-ae79-9b73c6ddc9a4";
 const queryParams = {
@@ -305,77 +333,10 @@ const queryParams = {
 }
 const res = await simba.getContracts(appName, queryParams) as Record<any, any>;
 
-// Simba.validateBundleHash
-const simba = new Simba();
-const ver = await simba.validateBundleHash(appName, contractName, bundleHash) as Record<any, any>;
-
-// Simba.getBundle
-const simba = new Simba();
-const downloadLocation = path.join(cwd(), "test_data", "downloadedBundle.tar.gz");
-
-// Simba.getBundleFile
-const simba = new Simba();
-const fileName = "testimage1.png";
-const downloadLocation = path.join(cwd(), "test_data", "testimage1FromAPIcall.png");
-await simba.getBundleFile(
-    appName,
-    contractName,
-    bundleHash,
-    fileName,
-    downloadLocation,
-) as Record<any, any>;
-
-
-// Simba.getManifestForBundleFromBundleHash
-const simba = new Simba();
-const manifest = await simba.getManifestForBundleFromBundleHash(
-    appName,
-    contractName,
-    bundleHash
-) as Record<any, any>;
-
 // Simba.getContractInfo
 const simba = new Simba();
 const info = await simba.getContractInfo(appName, contractName) as Record<any, any>;
 const contract = info.contract;
-
-// Simba.getEvents
-const simba = new Simba();
-const res = await simba.getEvents(
-    appName,
-    eventContract,
-    eventName,
-) as Record<any, any>;
-
-// testing Simba.getEvents with queryParams
-const simba = new Simba();
-const queryParams = {
-    id: "insert an event id here",
-}
-const res = await simba.getEvents(
-    appName,
-    eventContract,
-    eventName,
-    queryParams,
-) as Record<any, any>;
-
-// Simba.adminGetEvents
-const simba = new Simba();
-const res = await simba.adminGetEvents() as Record<any, any>;
-
-// queryParams not currently working the way we want
-// testing Simba.adminGetEvents with queryParams
-const simba = new Simba();
-const id = "195a5391-84f4-4743-8dfe-d898309db809";
-const queryParams = {
-    id,
-}
-const res = await simba.adminGetEvents(queryParams) as Record<any, any>;
-
-// Simba.getReceipt
-const simba = new Simba();
-const res = await simba.getReceipt(appName, contractName, transactionHash) as Record<any, any>;
-const receipt = res.receipt;
 
 // Simba.getTransaction
 const simba = new Simba();
@@ -405,7 +366,84 @@ const queryParams = {
     id,
 }
 const res = await simba.getTransactionsByMethod(appName, contractName, "structTest5", queryParams) as Record<any, any>;
+```
 
+#### Simba Bundle File Methods
+```TypeScript
+// Simba.validateBundleHash
+const simba = new Simba();
+const ver = await simba.validateBundleHash(appName, contractName, bundleHash) as Record<any, any>;
+
+// Simba.getBundle
+const simba = new Simba();
+const downloadLocation = path.join(cwd(), "test_data", "downloadedBundle.tar.gz");
+
+// Simba.getBundleFile
+const simba = new Simba();
+const fileName = "testimage1.png";
+const downloadLocation = path.join(cwd(), "test_data", "testimage1FromAPIcall.png");
+await simba.getBundleFile(
+    appName,
+    contractName,
+    bundleHash,
+    fileName,
+    downloadLocation,
+) as Record<any, any>;
+
+// Simba.getManifestForBundleFromBundleHash
+const simba = new Simba();
+const manifest = await simba.getManifestForBundleFromBundleHash(
+    appName,
+    contractName,
+    bundleHash
+) as Record<any, any>;
+```
+
+#### Event Methods
+```TypeScript
+// Simba.getEvents
+const simba = new Simba();
+const res = await simba.getEvents(
+    appName,
+    eventContract,
+    eventName,
+) as Record<any, any>;
+
+// Simba.getEvents with queryParams
+const simba = new Simba();
+const queryParams = {
+    id: "insert an event id here",
+}
+const res = await simba.getEvents(
+    appName,
+    eventContract,
+    eventName,
+    queryParams,
+) as Record<any, any>;
+
+// Simba.adminGetEvents
+const simba = new Simba();
+const res = await simba.adminGetEvents() as Record<any, any>;
+
+// Simba.adminGetEvents with queryParams
+const simba = new Simba();
+const id = "195a5391-84f4-4743-8dfe-d898309db809";
+const queryParams = {
+    id,
+}
+const res = await simba.adminGetEvents(queryParams) as Record<any, any>;
+```
+
+#### Get Receipt
+```TypeScript
+// Simba.getReceipt
+const simba = new Simba();
+const res = await simba.getReceipt(appName, contractName, transactionHash) as Record<any, any>;
+const receipt = res.receipt;
+```
+
+### Simba Smart Contract Methods
+```TypeScript
 // Simba.submitContractMethod
 const simba = new Simba();
 const person = {
@@ -447,7 +485,6 @@ const filePaths = [imageFile1Path, imageFile2Path];
 const res = await simba.submitContractMethodSync(appName, contractName, methodName, inputs, filePaths) as Record<any, any>;
 
 const raw_transaction = res.raw_transaction;
-
 const signed_transaction = res.signed_transaction;
 
 
@@ -455,9 +492,11 @@ const signed_transaction = res.signed_transaction;
 const simba = new Simba();
 const methodName = "getNum";
 const res = await simba.callContractMethod(appName, contractName, methodName) as Record<any, any>;
+```
 
-// this endpoint is not yet returning the correct
-// testing Simba.submitSignedTransaction
+#### Submitting A Signed Transaction
+```TypeScript
+// Simba.submitSignedTransaction
 const simba = new Simba();
 const txn = transactionObject;
 const res = await simba.submitSignedTransaction(
@@ -465,7 +504,10 @@ const res = await simba.submitSignedTransaction(
     nonPendingTransactionID,
     txn,
 );
+```
 
+#### Saving and Getting and Deploying Contract Designs and Artifacts
+```TypeScript
 // Simba.saveDesign
 const simba = new Simba();
 const designName = "EventContract99";
@@ -473,13 +515,6 @@ const res = await simba.saveDesign(
     orgName,
     designName,
     sourceCode,
-) as Record<any, any>;
-
-// Simba.waitForDeployment
-const simba = new Simba();
-const res = await simba.waitForDeployment(
-    orgName,
-    deploymentID,
 ) as Record<any, any>;
 
 // Simba.deployDesign
@@ -493,6 +528,17 @@ await simba.deployDesign(
     Quorum,
 );
 
+// Simba.getDesigns
+const simba = new Simba();
+const res = await simba.getDesigns(orgName) as Record<any, any>;
+
+const design = res.results[0];
+
+// Simba.createArtifact
+const simba = new Simba();
+const designID = "644ed6cc-8073-4c4b-9395-aa466a3a27e7";
+const artifact = await simba.createArtifact(orgName, designID) as Record<any, any>;
+
 // Simba.deployArtifact
 const simba = new Simba();
 const res = alreadyTakenAPIName = contractName;
@@ -503,6 +549,34 @@ await simba.deployArtifact(
     artifactID,
     Quorum,
 );
+
+// Simba.getArtifacts
+const simba = new Simba();
+const res = await simba.getArtifacts(orgName) as Record<any, any>;
+
+const artifact = res.results[0];
+
+// Simba.getArtifact
+const simba = new Simba();
+const artifactID = "af76b1a9-365a-428f-8749-cd23280b4ead";
+const artifact = await simba.getArtifact(orgName, artifactID) as Record<any, any>;
+```
+
+#### Method That Wait For Processes To Complete
+```TypeScript
+// Simba.waitForDeployment
+const simba = new Simba();
+const res = await simba.waitForDeployment(
+    orgName,
+    deploymentID,
+) as Record<any, any>;
+
+// Simba.waitForOrgTransaction
+const simba = new Simba();
+const res = await simba.waitForOrgTransaction(
+    orgName,
+    transactionID,
+) as Record<any, any>;
 
 // Simba.waitForDeployDesign
 const simba = new Simba();
@@ -525,20 +599,10 @@ const res = await simba.waitForDeployArtifact(
     alreadyTakenAPIName,
     Quorum,
 );
+```
 
-// Simba.waitForOrgTransaction
-const simba = new Simba();
-const res = await simba.waitForOrgTransaction(
-    orgName,
-    transactionID,
-) as Record<any, any>;
-
-// Simba.getDesigns
-const simba = new Simba();
-const res = await simba.getDesigns(orgName) as Record<any, any>;
-
-const design = res.results[0];
-
+#### Getting Blockchains and Storages
+```TypeScript
 // Simba.getBlockchains
 const simba = new Simba();
 const res = await simba.getBlockchains(orgName) as Record<any, any>;
@@ -548,25 +612,11 @@ const blockchain = res.results[0];
 // Simba.getStorages
 const simba = new Simba();
 const res = await simba.getStorages(orgName) as Record<any, any>;
-
 const storage = res.results[0];
+```
 
-// Simba.getArtifacts
-const simba = new Simba();
-const res = await simba.getArtifacts(orgName) as Record<any, any>;
-
-const artifact = res.results[0];
-
-// Simba.getArtifact
-const simba = new Simba();
-const artifactID = "af76b1a9-365a-428f-8749-cd23280b4ead";
-const artifact = await simba.getArtifact(orgName, artifactID) as Record<any, any>;
-
-// Simba.createArtifact
-const simba = new Simba();
-const designID = "644ed6cc-8073-4c4b-9395-aa466a3a27e7";
-const artifact = await simba.createArtifact(orgName, designID) as Record<any, any>;
-
+#### Subscriptions and Notifications
+```TypeScript
 // Simba.subscribe
 const simba = new Simba();
 const notificationEndpoint = "https://a-fake-url/v2/a.fake.endpoint";
@@ -587,12 +637,12 @@ const scheme = "http";
 const authType = "";
 const authInfo = {};
 const res = await simba.setNotificationConfig(orgName, scheme, authType, authInfo) as Record<any, any>;
-
 ```
 
 ### SimbaContract
 A note on the use of the "validateParams" parameter in SimbaContract.submitMethod. To prevent users from having to wait for an API call before they are informed that there is something wrong with one of their parameters, in terms of what the API expects, SimbaContract validates parameters before API calls. If, for some reason, you want to turn this feature off, then you can pass the boolean value false for that param. see the example below for "SimbaContract.submitMethod without validation of params"
 
+#### Instantiating SimbaContract
 ```TypeScript
 // instantiating SimbaContract object
 import {
@@ -604,7 +654,10 @@ const simbaContract = new SimbaContract(
     appName,
     contractName,
 );
+```
 
+#### SimbaContract Smart Contract Methods
+```TypeScript
 // SimbaContract.callMethod
 const simbaContract = new SimbaContract(
     baseApiUrl,
@@ -613,7 +666,6 @@ const simbaContract = new SimbaContract(
 );
 const methodName = "getNum";
 const res = await simbaContract.callMethod(methodName) as Record<any, any>;
-
 
 // SimbaContract.submitMethod
 const simbaContract = new SimbaContract(
@@ -668,8 +720,10 @@ const res = await simbaContract.submitMethod(
     filePaths,
     validateParams
 ) as Record<any, any>;
+```
 
-
+#### SimbaContract Getting Transactions
+```TypeScript
 // SimbaContract.getTransactionsByMethod
 const simbaContract = new SimbaContract(
     baseApiUrl,
@@ -691,8 +745,10 @@ const queryParams = {
     id,
 }
 const methodName = "structTest5";
+```
 
-
+#### SimbaContract Bundle File Methods
+```TypeScript
 // SimbaContract.getBundle
 const simbaContract = new SimbaContract(
     baseApiUrl,
@@ -706,7 +762,6 @@ await simbaContract.getBundle(
     downloadLocation,
 ) as Record<any, any>;
 FileHandler.removeFile(downloadLocation);
-
 
 // SimbaContract.getBundleFile
 const simbaContract = new SimbaContract(
@@ -724,7 +779,6 @@ await simbaContract.getBundleFile(
 ) as Record<any, any>;
 FileHandler.removeFile(downloadLocation);
 
-
 // SimbaContract.getManifestForBundleFromBundleHash
 const simbaContract = new SimbaContract(
     baseApiUrl,
@@ -737,15 +791,19 @@ const file1 = manifest.files[0];
 
 ### SimbaSync
 
+#### Instantiating SimbaSync
 ```TypeScript
 // istantiating SimbaSync object
 import {
     SimbaSync,
 } from "@simbachain/simbats";
-// testing Simba.getSimbaContract
+// Simba.getSimbaContract
 const simba = new SimbaSync(baseApiUrl);
 const simbaContractSync = simba.getSimbaContract(appName, contractName);
+```
 
+#### Submitting a SimbaSync Smart Contract Method
+```TypeScript
 // Simba.submitContractMethodSync
 const simbaSync = new SimbaSync();
 const person = {
@@ -770,6 +828,7 @@ const res = await simbaSync.submitContractMethodSync(appName, contractName, meth
 ### SimbaContractSync
 A note on the use of the "validateParams" parameter in SimbaContractSync.submitMethod. To prevent users from having to wait for an API call before they are informed that there is something wrong with one of their parameters, in terms of what the API expects, SimbaContractSync validates parameters before API calls. If, for some reason, you want to turn this feature off, then you can pass the boolean value false for that param. see the example below for "SimbaContractSync.submitMethod without validation of params"
 
+#### Instantiating SimbaContractSync
 ```TypeScript
 // istantiating SimbaContractSync object
 import {
@@ -781,7 +840,10 @@ const simbaContractSync = new SimbaContractSync(
     appName,
     contractName,
 );
+```
 
+#### Submitting a SimbaContractSync Smart Contract Method
+```TypeScript
 // SimbaContractSync.submitMethod
 const simbaContractSync = new SimbaContractSync(
     baseApiUrl,
@@ -839,6 +901,7 @@ const res = await simbaContractSync.submitMethod(
 
 ## Integrating with Polyglot
 /// UNDER CONSTRUCTION ///
+Polyglot is currently under construction, but will substantially streamline the process of interacting with your deployed smart contracts once fully implemented.
 
 ### Testing
 This section pertains to testing, if you have clonded SimbaTS. To run tests for SimbaTS, you'll want to have your SIMBA environment variables set in .simbachain.env at the top level of the /tests/ directory. So something like:
