@@ -1,0 +1,49 @@
+{
+  "name": "@simbachain/simbats",
+  "version": "1.0.2",
+  "description": "TypeScript SDK for SIMBA Chain",
+  "main": "index.js",
+  "repository": "https://github.com/SIMBAChain/SimbaTS",
+  "author": "SIMBA Chain",
+  "license": "MIT",
+  "keywords": [
+    "simbachain",
+    "typescript",
+    "simba chain",
+    "simba",
+    "web3"
+  ],
+  "scripts": {
+    "test": "npm run unit_test && npm run integration_test",
+    "unit_test": "cd src/tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './unit/**/*.ts'",
+    "integration_test": "cd src/tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './integration/**/*.ts'",
+    "setup_test": "cd src/tests/tests_setup/ && ts-node setup.ts",
+    "teardown_test": "cd src/tests/tests_setup/ && ts-node teardown.ts",
+    "unit_test_with_setup": "npm run setup_test && npm run unit_test && npm run teardown_test",
+    "integration_test_with_setup": "npm run setup_test && npm run integration_test && npm run teardown_test"
+  },
+  "dependencies": {
+    "@types/node": "^18.7.18",
+    "buffer": "^6.0.3",
+    "chai": "^4.3.6",
+    "configstore": "^5.0.1",
+    "file-type": "^18.0.0",
+    "fs": "0.0.1-security",
+    "jszip": "^3.10.1",
+    "mocha": "^10.0.0",
+    "path": "^0.12.7",
+    "tslog": "^3.3.1",
+    "typescript": "3.9.7",
+    "utf8": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/configstore": "^6.0.0",
+    "@types/mocha": "^9.1.1",
+    "@types/utf8": "^3.0.1",
+    "axios": "^0.25.0",
+    "dotenv": "^14.2.0",
+    "form-data": "^4.0.0",
+    "ts-node": "^10.9.1"
+  }
+}
