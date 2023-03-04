@@ -1,6 +1,6 @@
 import {
     Simba,
-} from "../../simba";
+} from "../../src/simba";
 import { expect } from 'chai';
 import 'mocha';
 import {

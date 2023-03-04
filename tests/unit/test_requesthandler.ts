@@ -1,6 +1,6 @@
 import {
     RequestHandler,
-} from "../../request_handler";
+} from "../../src/request_handler";
 import { expect } from 'chai';
 import 'mocha';
 

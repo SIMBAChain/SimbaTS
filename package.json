@@ -15,12 +15,13 @@
   ],
   "scripts": {
     "test": "npm run unit_test && npm run integration_test",
-    "unit_test": "cd src/tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './unit/**/*.ts'",
-    "integration_test": "cd src/tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './integration/**/*.ts'",
-    "setup_test": "cd src/tests/tests_setup/ && ts-node setup.ts",
-    "teardown_test": "cd src/tests/tests_setup/ && ts-node teardown.ts",
+    "unit_test": "cd tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './unit/**/*.ts'",
+    "integration_test": "cd tests/ && env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register './integration/**/*.ts'",
+    "setup_test": "cd tests/tests_setup/ && ts-node setup.ts",
+    "teardown_test": "cd tests/tests_setup/ && ts-node teardown.ts",
     "unit_test_with_setup": "npm run setup_test && npm run unit_test && npm run teardown_test",
-    "integration_test_with_setup": "npm run setup_test && npm run integration_test && npm run teardown_test"
+    "integration_test_with_setup": "npm run setup_test && npm run integration_test && npm run teardown_test",
+    "all_test_with_setup": "npm run unit_test_with_setup && npm run integration_test_with_setup"
   },
   "dependencies": {
     "@types/node": "^18.7.18",

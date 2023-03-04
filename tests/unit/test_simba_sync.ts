@@ -1,6 +1,6 @@
 import {
     SimbaSync,
-} from "../../simba_sync";
+} from "../../src/simba_sync";
 import { expect } from 'chai';
 import 'mocha';
 import {

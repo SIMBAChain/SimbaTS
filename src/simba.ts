@@ -14,7 +14,7 @@ import {
 import utf8 from "utf8";
 import {
 	getAddress,
-	getDeployedArtifactID,
+	getArtifactID,
 } from "./utils";
 import {
 	FileHandler,
@@ -1270,9 +1270,8 @@ export class Simba {
 		try {
 			const deployed = await this.waitForDeployment(orgName, deploymentID);
 			address = getAddress(deployed);
-			contractID = getDeployedArtifactID(deployed);
+			contractID = getArtifactID(deployed);
 			const ret = [address, contractID];
-			console.log("retttt: ", ret)
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : ret : ${JSON.stringify(ret)}`);
 			return ret;
 		} catch (error) {
@@ -1322,7 +1321,7 @@ export class Simba {
 		try {
 			const deployed = await this.waitForDeployment(orgName, deploymentID);
 			address = getAddress(deployed);
-			contractID = getDeployedArtifactID(deployed);
+			contractID = getArtifactID(deployed);
 			const ret = [address, contractID];
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : ret : ${JSON.stringify(ret)}`);
 			return ret;

@@ -1,10 +1,10 @@
 import {
     SimbaConfig,
     SimbaEnvVarKeys,
-} from "../../config";
+} from "../../src/config";
 import {
     FileHandler,
-} from "../../filehandler"
+} from "../../src/filehandler"
 import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';

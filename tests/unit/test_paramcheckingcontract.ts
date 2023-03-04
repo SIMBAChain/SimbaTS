@@ -1,6 +1,6 @@
 import {
     ParamCheckingContract,
-} from "../../param_checking_contract";
+} from "../../src/param_checking_contract";
 import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
@@ -11,7 +11,7 @@ import {
     contractName,
     baseApiUrl,
 } from "../project_configs";
-import { FileHandler } from "../../filehandler";
+import { FileHandler } from "../../src/filehandler";
 const pathToTestMetaData = path.join(cwd(), "test_data", "test_metadata.json");
 
 describe('testing ParamCheckingContract.isArray', () => {

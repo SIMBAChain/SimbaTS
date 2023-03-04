@@ -124,7 +124,8 @@
         "id":"28dd46e9-6a81-4e35-bc65-e078d47f3a61","name":"EventContract99","version":"2023-03-04 06:03:04.900628+00:00","created_on":"2023-03-04T06:03:04.901199Z","updated_on":"2023-03-04T06:03:04.901214Z","code":"Ly8gU1BEWC1MaWNlbnNlLUlkZW50aWZpZXI6IFVOTElDRU5TRUQKcHJhZ21hIHNvbGlkaXR5IF4wLjguMzsKCmNvbnRyYWN0IEV2ZW50Q29udHJhY3QgewogICAgCiAgICBldmVudCBMb2coYWRkcmVzcyBpbmRleGVkIHNlbmRlciwgc3RyaW5nIG1lc3NhZ2UpOwogICAgbWFwcGluZyhzdHJpbmcgPT4gdWludCkgcHVibGljIHVzZXJCYWxhbmNlczsKCiAgICBmdW5jdGlvbiBhZGRNYXBwaW5nKHN0cmluZyBtZW1vcnkgdXNlcklkKSBwdWJsaWMgewogICAgICAgIHVzZXJCYWxhbmNlc1t1c2VySWRdKys7CiAgICAgICAgZW1pdCBMb2cobXNnLnNlbmRlciwgIkRhdGEgcmVwb3J0ZWQiKTsKICAgICAgICByZXR1cm47CiAgICB9CgogICAgZnVuY3Rpb24gZ2V0QmFsYW5jZShzdHJpbmcgbWVtb3J5IHVzZXJJZCkgcHVibGljIHZpZXcgcmV0dXJucyAodWludCkgewogICAgICAgIHJldHVybiB1c2VyQmFsYW5jZXNbdXNlcklkXTsKICAgIH0KCn0=","language":"solidity","metadata":{"contract":{"name":"EventContract","assets":{},"methods":{"addMapping":{"params":[{"name":"userId","type":"string"}],"returns":[],"emits":["Log"],"visibility":"public","accessor":false},"getBalance":{"params":[{"name":"userId","type":"string"}],"returns":[{"name":"","type":"uint256"}],"emits":[],"visibility":"public","accessor":true}},"types":{},"events":{"Log":{"params":[{"name":"sender","type":"address"},{"name":"message","type":"string"}]}},"enums":{},"inheritance":[],"abstract":false,"source":{"lang":"solidity","version":"^0.8.3"},"constructor":{"accessor":false,"emits":[],"params":[],"returns":[],"visibility":"public"}}},"err":"","mode":"code","model":null,"service_args":{"abi":{"EventContract":[{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"sender","type":"address"},{"indexed":false,"internalType":"string","name":"message","type":"string"}],"name":"Log","type":"event"},{"inputs":[{"internalType":"string","name":"userId","type":"string"}],"name":"addMapping","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"userId","type":"string"}],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"","type":"string"}],"name":"userBalances","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]},"bin":{"EventContract":"608060405234801561001057600080fd5b506102c7806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80633a51d2461461004657806340275f731461006b5780637ddf372314610080575b600080fd5b61005961005436600461017e565b6100ab565b60405190815260200160405180910390f35b61007e61007936600461017e565b6100d2565b005b61005961008e36600461017e565b805160208183018101805160008252928201919093012091525481565b600080826040516100bc919061022f565b9081526020016040518091039020549050919050565b6000816040516100e2919061022f565b90815260405190819003602001902080549060006100ff8361026a565b9190505550336001600160a01b03167f0738f4da267a110d810e6e89fc59e46be6de0c37b1d5cd559b267dc3688e74e060405161015d906020808252600d908201526c11185d18481c995c1bdc9d1959609a1b604082015260600190565b60405180910390a250565b634e487b7160e01b600052604160045260246000fd5b60006020828403121561019057600080fd5b813567ffffffffffffffff808211156101a857600080fd5b818401915084601f8301126101bc57600080fd5b8135818111156101ce576101ce610168565b604051601f8201601f19908116603f011681019083821181831017156101f6576101f6610168565b8160405282815287602084870101111561020f57600080fd5b826020860160208301376000928101602001929092525095945050505050565b6000825160005b818110156102505760208186018101518583015201610236565b8181111561025f576000828501525b509190910192915050565b60006001820161028a57634e487b7160e01b600052601160045260246000fd5b506001019056fea264697066735822122080551e3138d55c662f67e235c02eead911fb649a3b25b9467cacdf9ebe52ded364736f6c634300080e0033"},"dependencies":{},"deployed_bin":{},"lang":"solidity","version":"0.8.14","components":{"contracts":[],"extra_metadata":{},"abstract_contracts":[],"libraries":[],"interfaces":[],"extends":[],"primary":"EventContract"}},"asset_type":null,"organisation":"20e69814-43d0-42b4-8499-d13a9d1afb23","designset":null
     },
     "waitForDeployment": {
-        "id":"37cb8577-65bd-4669-8380-b0a3ba93e718","current_txn":null,"blockchain":"3b288902-8438-492b-857a-58060d9c254a","storage":"f82d86ad-9a8f-4730-9765-770d2f72f6df","created_on":"2022-09-06T17:46:43.196485Z","updated_on":"2022-09-06T17:46:51.873607Z","deployment":[],"app_name":"BrendanTestApp","api_name":"tcvbb111|BrendanTestApp","artifact_id":null,"design_id":"6eb7f86a-8b9a-42db-9bcc-525261135c24","state":"COMPLETED","error":null,"primary":{"name":"TestContractVT20","address":"0x4E78d5107AF1A118Cb067BabF278A52fA39B414F","depends":[],"component_type":"CONTRACT","transaction_id":"1421e97f-6bbc-4544-a24d-7dbc91b60f14","deployed_artifact_id":"05e0f6b5-e936-4c69-b723-bf7fdc168011"},"organisation":"20e69814-43d0-42b4-8499-d13a9d1afb23","generate_request_id":false
+        "id":"37cb8577-65bd-4669-8380-b0a3ba93e718","current_txn":null,"blockchain":"3b288902-8438-492b-857a-58060d9c254a","storage":"f82d86ad-9a8f-4730-9765-770d2f72f6df","created_on":"2022-09-06T17:46:43.196485Z","updated_on":"2022-09-06T17:46:51.873607Z","deployment":[],"app_name":"BrendanTestApp","api_name":"tcvbb111|BrendanTestApp","artifact_id":null,"design_id":"6eb7f86a-8b9a-42db-9bcc-525261135c24","state":"COMPLETED","error":null,
+        "primary":{"name":"TestContractVT20","address":"0x4E78d5107AF1A118Cb067BabF278A52fA39B414F","depends":[],"component_type":"CONTRACT","transaction_id":"1421e97f-6bbc-4544-a24d-7dbc91b60f14","deployed_artifact_id":"05e0f6b5-e936-4c69-b723-bf7fdc168011"},"organisation":"20e69814-43d0-42b4-8499-d13a9d1afb23","generate_request_id":false
     },
     "deployDesign": {
         "deployment_id": "someID",
@@ -192,5 +193,36 @@
     },
     "setNotificationConfig": {
         "id":"1e55322e-34a7-40e9-8880-4d5fd7dd7466","scheme":"http","auth_type":"","auth_info":{},"created_on":"2023-03-04T08:59:53.184572Z","updated_on":"2023-03-04T08:59:53.184547Z","organisation":"20e69814-43d0-42b4-8499-d13a9d1afb23"
-    }
+    },
+    "waitForOrgTransaction": {
+        "app": "string",
+        "block": "string",
+        "blockchain": "string",
+        "bundle": "string",
+        "confirmations": 2147483647,
+        "contract": {
+          "api_name": "string",
+          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        },
+        "created_by": 0,
+        "created_on": "2023-03-04T18:00:48.478Z",
+        "error": "string",
+        "error_details": {},
+        "finalized_on": "2023-03-04T18:00:48.478Z",
+        "from_address": "string",
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "inputs": {},
+        "method": "string",
+        "nonce": 9223372036854776000,
+        "origin": "string",
+        "raw_transaction": {},
+        "receipt": {},
+        "request_id": "string",
+        "signed_transaction": {},
+        "state": "COMPLETED",
+        "to_address": "string",
+        "transaction_hash": "string",
+        "transaction_type": "str",
+        "value": "string"
+      }
 }
