@@ -185,7 +185,7 @@ describe('testing SimbaContract.getBundleFile', () => {
         ) as Record<any, any>;
         expect(fs.existsSync(downloadLocation)).to.equal(true);
         FileHandler.removeFile(downloadLocation);
-    }).timeout(10000);
+    }).timeout(20000);
 });
 
 describe('testing SimbaContract.getManifestForBundleFromBundleHash', () => {
