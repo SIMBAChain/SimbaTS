@@ -164,7 +164,6 @@ export class SimbaConfig {
         const foundKeys: Array<any> = [];
         SimbaConfig.setEnvVarsFromDirectory(cwd(), foundKeys);
         SimbaConfig.setEnvVarsFromDirectory(SIMBA_HOME, foundKeys);
-        SimbaConfig.log.debug(`:: EXIT : ${JSON.stringify(SimbaConfig.envVars)}`);
         return SimbaConfig.envVars;
 
     }
