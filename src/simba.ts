@@ -277,7 +277,7 @@ export class Simba {
     	const postURL = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/applications/`);
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
-			await this.requestHandler.doGetRequest(getURL, options, parseDataFromResponse);
+			const res = await this.requestHandler.doGetRequest(getURL, options, parseDataFromResponse);
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response && error.response.status === 404) {
 				const data = {
@@ -303,6 +303,9 @@ export class Simba {
 			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
 			throw(error);
 		}
+		const message = `app ${appName} for org ${orgName} already exists`;
+		SimbaConfig.log.error(`${message}`);
+		throw new Error(message);
 	}
 	
 	public async getApplications(
@@ -1269,6 +1272,7 @@ export class Simba {
 			address = getAddress(deployed);
 			contractID = getDeployedArtifactID(deployed);
 			const ret = [address, contractID];
+			console.log("retttt: ", ret)
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : ret : ${JSON.stringify(ret)}`);
 			return ret;
 		} catch (error) {

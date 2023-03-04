@@ -2,10 +2,17 @@
 //     SimbaContractSync,
 // } from "../../";
 // import {
+//     RequestHandler,
+// } from "../../request_handler";
+// import {
 //     baseApiUrl,
 //     appName,
 //     contractName,
 // } from "../project_configs";
+// import {
+//     callFakeMethod,
+// } from "../tests_setup/fake_method_caller";
+// import sinon from "sinon";
 // import * as path from 'path';
 // import {cwd} from 'process';
 // import { expect } from 'chai';
@@ -34,7 +41,13 @@
 //         const imageFile1Path = path.join(cwd(), "test_data", "testimage1.png");
 //         const imageFile2Path = path.join(cwd(), "test_data", "testimage2.png");
 //         const filePaths = [imageFile1Path, imageFile2Path];
+
+//         const sandbox = sinon.createSandbox();
+//         // const fakeReturnData = callFakeMethod("structTest5Submit");
+//         sandbox.stub(RequestHandler.prototype, "doPostRequestWithFormData").resolves(await callFakeMethod("structTest5Submit"));
+
 //         const res = await simbaContractSync.submitMethod(methodName, inputs, filePaths) as Record<any, any>;
+//         console.log("res: ", JSON.stringify(res))
 //         expect(res.id).to.exist;
 //         expect(res.request_id).to.exist;
 //         expect(res.created_on).to.exist;
@@ -79,5 +92,7 @@
 //         expect(res.transaction_type).to.equal("MC");
 //         expect(res.confirmations).to.equal(0);
 //         expect(res.value).to.equal("0");
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });

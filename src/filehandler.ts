@@ -23,7 +23,6 @@ export const promisifiedReadFile = (filePath: fs.PathLike, options: { encoding?:
     });
 
 export class FileHandler {
-
     public static async transferFile(
         inputPath: string,
         outputPath: string,

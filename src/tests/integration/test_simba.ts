@@ -1,39 +1,51 @@
-// import {
-//     Simba,
-// } from "../../";
-// import { expect } from 'chai';
-// import 'mocha';
-// import * as path from 'path';
-// import {cwd} from 'process';
-// import * as fs from "fs";
-// import {
-//     orgName,
-//     appName,
-//     contractName,
-//     bundleHash,
-//     mumbaiWallet,
-//     userEmail,
-//     solContractName,
-//     Quorum,
-//     ethereum,
-//     transactionHash,
-//     solidity,
-//     sourceCode,
-//     deploymentID,
-//     designID,
-//     artifactID,
-//     transactionID,
-//     mumbai,
-//     eventContract,
-//     eventName,
-//     nonPendingTransactionID,
-//     transactionObject,
-// } from "../project_configs";
-// import { FileHandler } from "../../filehandler";
+import {
+    Simba,
+} from "../../";
+import { expect } from 'chai';
+import 'mocha';
+import * as path from 'path';
+import {cwd} from 'process';
+import * as fs from "fs";
+import {
+    orgName,
+    appName,
+    contractName,
+    bundleHash,
+    mumbaiWallet,
+    userEmail,
+    solContractName,
+    Quorum,
+    ethereum,
+    transactionHash,
+    solidity,
+    sourceCode,
+    deploymentID,
+    designID,
+    artifactID,
+    transactionID,
+    mumbai,
+    eventContract,
+    eventName,
+    nonPendingTransactionID,
+    transactionObject,
+} from "../project_configs";
+import { FileHandler } from "../../filehandler";
+
+import {
+    RequestHandler,
+} from "../../request_handler";
+import {
+    callFakeMethod,
+} from "../tests_setup/fake_method_caller";
+import sinon from "sinon";
 
 // describe('testing Simba.whoAmI', () => {
 //     it('iAm should contain specified fields, with some specified values', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("whoAmI"));
+
 //         const iAm = await simba.whoAmI() as Record<any, any>;
 //         expect(iAm.username).to.equal(userEmail);
 //         expect(iAm.first_name).to.exist;
@@ -43,6 +55,8 @@
 //         expect(iAm.organisations.length).to.be.greaterThan(0);
 //         expect(iAm.default_organisation).to.exist;
 //         expect(iAm.permissions).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(5000);
 // });
 
@@ -61,55 +75,70 @@
 // describe('testing Simba.balance', () => {
 //     it('balance.balance should exist for mumbai', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("balance"));
 //         const balance = await simba.balance("mumbai", mumbaiWallet) as Record<any, any>;
+//         console.log("balance: ", JSON.stringify(balance))
 //         expect(balance.balance).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(5000);
 // });
 
-// // we may want this endpoint response to be modified to
-// // not return a 404
-// describe.skip('testing Simba.adminSetWallet', () => {
-//     it('should get a 400 error', async () => {
+// describe('testing Simba.adminSetWallet', () => {
+//     it('should return an object with a "wallet" key', async () => {
 //         const simba = new Simba();
-//         try {
-//             const userID = 17;
-//             const res = await simba.adminSetWallet(
-//                 userID,
-//                 "fakeBlockchain",
-//                 "fakePublicKey",
-//                 "fakePrivateKey",
-//             );
-//         } catch (error) {
-//             expect(error.message).to.equal('Request failed with status code 400')
-//         }
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("adminSetWallet"));
+//         const userID = 17;
+//         const res: any = await simba.adminSetWallet(
+//             userID,
+//             "fakeBlockchain",
+//             "fakePublicKey",
+//             "fakePrivateKey",
+//         );
+//         expect(res.wallet).to.equal("someWalletData");
+
+//         sandbox.restore();
+
 //     }).timeout(5000);
 // });
 
-// // we may want this endpoint response to be modified to
-// // return a 400 vs a 404
-// describe.skip('testing Simba.setWallet', () => {
+// describe('testing Simba.setWallet', () => {
 //     it('should get a 400 error', async () => {
 //         const simba = new Simba();
-//         try {
-//             const res = await simba.setWallet(
-//                 "fakeBlockchain",
-//                 "fakePublicKey",
-//                 "fakePrivateKey",
-//             );
-//         } catch (error) {
-//             expect(error.message).to.equal('Request failed with status code 400')
-//         }
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("adminSetWallet"));
+        
+//         const res: any = await simba.setWallet(
+//             "fakeBlockchain",
+//             "fakePublicKey",
+//             "fakePrivateKey",
+//         );
+//         expect(res.wallet).to.equal("someWalletData");
+
+//         sandbox.restore();
 //     }).timeout(5000);
 // });
 
 // describe('testing Simba.getWallet', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getWallet"));
+
 //         const walletRes = await simba.getWallet() as Record<any, any>;
+//         console.log(JSON.stringify(walletRes))
 //         const wallet = walletRes.wallet;
 //         expect(wallet.principal).to.equal(userEmail);
 //         expect(wallet.alias).to.equal(userEmail);
 //         expect(wallet.identities).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(5000);
 // });
 
@@ -118,66 +147,73 @@
 //         const simba = new Simba();
 //         const orgName = "simbats_org";
 //         const display = "simbats_org";
-//         try {
-//             await simba.createOrg(orgName, display) as Record<any, any>;
-//         } catch (error) {
-//             expect(error.message).to.equal('Request failed with status code 400')
-//         }
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("createOrg"));
+//         const res = await simba.createOrg(orgName, display) as Record<any, any>;
+//         expect(res.id).to.equal("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+
+//         sandbox.restore();
 //     }).timeout(5000);
 // });
 
 // describe('testing Simba.createApp', () => {
 //     it('should throw 400 error, since app already exists', async () => {
+//         // don't need to mock/stub this method
+
 //         const simba = new Simba();
 //         const orgName = "simbats_org";
 //         const appName = "simbats_app";
 //         const display = "simbats_app";
-//         async function createAppThrows() {
-//             await simba.createApp(orgName, appName, display) as Record<any, any>;
-//         };
+        
 //         try {
-//             await createAppThrows();
+//             await simba.createApp(orgName, appName, display) as Record<any, any>;
 //         } catch (error) {
-//             expect(error.message).to.equal('Request failed with status code 400')
+//             expect(error.message).to.equal(`app ${appName} for org ${orgName} already exists`);
 //         }
+
 //     }).timeout(5000);
 // });
 
-// describe('testing Simba.getApplications', () => {
-//     it('specified fields should exist', async () => {
-//         const simba = new Simba();
-//         const apps = await simba.getApplications() as Record<any, any>;
-//         expect(apps.count).to.exist;
-//         expect(apps.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/")
-//         expect(apps.results.length).to.be.greaterThan(0);
-//     }).timeout(5000);
-// });
+// currently getting a 500 at this endpoint; the code isn't bad though
+describe.skip('testing Simba.getApplications', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const apps = await simba.getApplications() as Record<any, any>;
+        console.log(JSON.stringify(apps))
+        // expect(apps.count).to.exist;
+        // expect(apps.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/")
+        // expect(apps.results.length).to.be.greaterThan(0);
+    }).timeout(5000);
+});
 
 // describe('testing Simba.getApplication', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getApplication"));
+
 //         const app = await simba.getApplication(orgName, appName) as Record<any, any>;
+//         console.log(JSON.stringify(app))
 //         expect(app.name).to.equal(appName);
 //         expect(app.id).to.equal("fb5fd523-9982-4785-a0ea-89d277f4014b");
 //         expect(app.display_name).to.equal(appName)
 //         expect(app.created_on).to.equal("2022-07-15T22:00:42.480234Z");
-//         expect(app.components.length).to.be.greaterThan(0);
-//         const firstComponent = app.components[0];
-//         expect(firstComponent.id).to.exist;
-//         expect(firstComponent.api_name).to.exist;
-//         expect(firstComponent.created_on).to.exist;
-//         expect(firstComponent.updated_on).to.exist;
-//         expect(app.organisation.name).to.equal(orgName);
-//         expect(app.organisation.id).to.equal("20e69814-43d0-42b4-8499-d13a9d1afb23");
-//         expect(app.organisation.name).to.equal(orgName)
-//         expect(Object.keys(app).includes("metadata")).to.equal(true);
+//         expect(app.number_of_api).to.equal(40)
 //         expect(app.openapi).to.equal("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/");
+
+//         sandbox.restore();
 //     }).timeout(5000);
 // });
 
 // describe('testing Simba.getApplicationTransactions', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getApplicationTransactions"));
+
 //         const txns = await simba.getApplicationTransactions(appName) as Record<any, any>;
 //         expect(txns.count).to.be.greaterThan(0);
 //         expect(txns.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/transactions/?limit=10&offset=10");
@@ -211,55 +247,61 @@
 //         expect(txn.transaction_type).to.exist;
 //         expect(txn.confirmations).to.exist;
 //         expect(txn.value).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(5000);
 // });
 
-// // filtering not supported yet
-// describe.skip('testing Simba.getApplicationTransactions with queryParams', () => {
-//     it('specified fields should exist', async () => {
-//         const simba = new Simba();
-//         const request_id = "34bb8e12-8459-43cc-ae7f-e0fe0a59fbb1";
-//         const queryParams = {
-//             request_id,
-//         }
-//         const txns = await simba.getApplicationTransactions(appName, queryParams) as Record<any, any>;
-//         expect(txns.count).to.equal(1);
-//         expect(txns.next).to.equal(null);
-//         expect(txns.previous).to.equal(null);
+// filtering not supported yet
+describe.skip('testing Simba.getApplicationTransactions with queryParams', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const request_id = "34bb8e12-8459-43cc-ae7f-e0fe0a59fbb1";
+        const queryParams = {
+            request_id,
+        }
+        const txns = await simba.getApplicationTransactions(appName, queryParams) as Record<any, any>;
+        expect(txns.count).to.equal(1);
+        expect(txns.next).to.equal(null);
+        expect(txns.previous).to.equal(null);
 
-//         const txn = txns.results[0];
-//         expect(txn.id).to.exist;
-//         expect(txn.request_id).to.exist;
-//         expect(txn.created_on).to.exist;
-//         expect(Object.keys(txn).includes("finalized_on")).to.equal(true);
-//         expect(txn.method).to.exist;
-//         expect(txn.inputs).to.exist;
-//         expect(txn.receipt).to.exist;
-//         expect(Object.keys(txn).includes("error")).to.equal(true);
-//         expect(txn.error_details).to.exist;
-//         expect(txn.state).to.exist;
-//         expect(txn.raw_transaction).to.exist;
-//         expect(txn.signed_transaction).to.exist;
-//         expect(txn.transaction_hash).to.exist;
-//         expect(txn.bundle).to.exist;
-//         expect(Object.keys(txn).includes("block")).to.equal(true);
-//         expect(txn.nonce).to.exist;
-//         expect(txn.from_address).to.exist;
-//         expect(txn.to_address).to.exist;
-//         expect(txn.created_by).to.exist;
-//         expect(txn.contract).to.exist;
-//         expect(txn.app).to.exist;
-//         expect(txn.blockchain).to.exist;
-//         expect(txn.origin).to.exist;
-//         expect(txn.transaction_type).to.exist;
-//         expect(txn.confirmations).to.exist;
-//         expect(txn.value).to.exist;
-//     }).timeout(5000);
-// });
+        const txn = txns.results[0];
+        expect(txn.id).to.exist;
+        expect(txn.request_id).to.exist;
+        expect(txn.created_on).to.exist;
+        expect(Object.keys(txn).includes("finalized_on")).to.equal(true);
+        expect(txn.method).to.exist;
+        expect(txn.inputs).to.exist;
+        expect(txn.receipt).to.exist;
+        expect(Object.keys(txn).includes("error")).to.equal(true);
+        expect(txn.error_details).to.exist;
+        expect(txn.state).to.exist;
+        expect(txn.raw_transaction).to.exist;
+        expect(txn.signed_transaction).to.exist;
+        expect(txn.transaction_hash).to.exist;
+        expect(txn.bundle).to.exist;
+        expect(Object.keys(txn).includes("block")).to.equal(true);
+        expect(txn.nonce).to.exist;
+        expect(txn.from_address).to.exist;
+        expect(txn.to_address).to.exist;
+        expect(txn.created_by).to.exist;
+        expect(txn.contract).to.exist;
+        expect(txn.app).to.exist;
+        expect(txn.blockchain).to.exist;
+        expect(txn.origin).to.exist;
+        expect(txn.transaction_type).to.exist;
+        expect(txn.confirmations).to.exist;
+        expect(txn.value).to.exist;
+    }).timeout(5000);
+});
 
 // describe('testing Simba.getApplicationContract', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getApplicationContract"));
+
 //         const contract = await simba.getApplicationContract(appName, contractName) as Record<any, any>;
 //         expect(contract.id).to.exist;
 //         expect(contract.artifact).to.exist;
@@ -275,17 +317,25 @@
 //         expect(contract.organisation).to.equal("20e69814-43d0-42b4-8499-d13a9d1afb23");
 //         expect(contract.asset_type).to.equal(contractName);
 //         expect(contract.generate_request_id).to.equal(false);
+
+//         sandbox.restore();
 //     }).timeout(5000);
 // });
 
 // describe('testing Simba.getcontractTransactions', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContractTransactions"));
+
 //         const txns = await simba.getContractTransactions(appName, contractName) as Record<any, any>;
 //         expect(txns.count).to.be.greaterThan(0);
 //         expect(txns.next.includes("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/transactions/?limit=10&offset=10")).to.equal(true);
 //         expect(txns.previous).to.equal(null);
 //         expect(txns.results.length).to.be.greaterThanOrEqual(0);
+
+//         sandbox.restore();
 //     }).timeout(5000);
 // });
 
@@ -296,17 +346,27 @@
 //         const queryParams = {
 //             id,
 //         }
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContractTransactionsWithQueryParams"));
+
 //         const txn = await simba.getContractTransactions(appName, contractName, queryParams) as Record<any, any>;
 //         expect(txn.count).to.equal(1);
 //         expect(txn.next).to.equal(null);
 //         expect(txn.previous).to.equal(null);
 //         expect(txn.results[0].id).to.equal(id);
+
+//         sandbox.restore();
 //     }).timeout(5000);
 // });
 
 // describe('testing Simba.getContracts', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContracts"));
+
 //         const contracts = await simba.getContracts(appName) as Record<any, any>;
 //         expect(contracts.count).to.be.greaterThan(0);
 //         expect(contracts.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contracts/?limit=10&offset=10");
@@ -329,28 +389,35 @@
 //         expect(contract.asset_type).to.exist;
 //         expect(contract.state).to.exist;
 //         expect(contract.generate_request_id).to.exist;
-//     }).timeout(10000);
+
+//         sandbox.restore();
+//     }).timeout(20000);
 // });
 
-// // filtering not supported yet
-// describe.skip('testing Simba.getContracts with queryParams', () => {
-//     it('specified fields should exist', async () => {
-//         const simba = new Simba();
-//         const id = "acf6fd5d-e27a-4493-ae79-9b73c6ddc9a4";
-//         const queryParams = {
-//             id,
-//         }
-//         const res = await simba.getContracts(appName, queryParams) as Record<any, any>;
-//         expect(res.count).to.equal(1);
-//         expect(res.next).to.equal(null);
-//         expect(res.previous).to.equal(null);
-//         expect(res.results[0].id).to.equal(id);
-//     }).timeout(10000);
-// });
+// filtering not supported yet
+describe.skip('testing Simba.getContracts with queryParams', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const id = "acf6fd5d-e27a-4493-ae79-9b73c6ddc9a4";
+        const queryParams = {
+            id,
+        }
+        const res = await simba.getContracts(appName, queryParams) as Record<any, any>;
+        console.log(JSON.stringify(res))
+        expect(res.count).to.equal(1);
+        expect(res.next).to.equal(null);
+        expect(res.previous).to.equal(null);
+        expect(res.results[0].id).to.equal(id);
+    }).timeout(10000);
+});
 
 // describe('testing Simba.validateBundleHash', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("validateBundleHash"));
+
 //         const ver = await simba.validateBundleHash(appName, contractName, bundleHash) as Record<any, any>;
 //         expect(Object.keys(ver).includes("errors")).to.equal(true);
 //         expect(ver.alg).to.equal("sha256");
@@ -364,11 +431,14 @@
 //         expect(file1.name).to.equal("testimage1.png");
 //         expect(file1.hash).to.equal("2296eb9942777137afc109a19b8140feb3f31a5bc816d53362e68506346d6b9a");
 //         expect(file1.size).to.equal(83763);
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.getBundle', () => {
 //     it('file should exist after invocation', async () => {
+//         // don't mock/stub this method
 //         const simba = new Simba();
 //         const downloadLocation = path.join(cwd(), "test_data", "downloadedBundle.tar.gz");
 //         FileHandler.removeFile(downloadLocation);
@@ -385,6 +455,8 @@
 
 // describe('testing Simba.getBundleFile', () => {
 //     it('file should exist after invocation', async () => {
+//         // don't mock/stub this method
+
 //         const simba = new Simba();
 //         const fileName = "testimage1.png";
 //         const downloadLocation = path.join(cwd(), "test_data", "testimage1FromAPIcall.png");
@@ -405,7 +477,11 @@
 // describe('testing Simba.getManifestForBundleFromBundleHash', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getManifestForBundleFromBundleHash"))
 //         const manifest = await simba.getManifestForBundleFromBundleHash(appName, contractName, bundleHash) as Record<any, any>;
+
 //         expect(manifest.alg).to.equal("sha256");
 //         expect(manifest.digest).to.equal("hex");
 //         expect(manifest.files.length).to.equal(2);
@@ -417,12 +493,18 @@
 //         expect(file1.name).to.equal("testimage1.png");
 //         expect(file1.hash).to.equal("2296eb9942777137afc109a19b8140feb3f31a5bc816d53362e68506346d6b9a");
 //         expect(file1.size).to.equal(83763);
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.getContractInfo', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContractInfo"));
+
 //         const info = await simba.getContractInfo(appName, contractName) as Record<any, any>;
 //         const contract = info.contract;
 //         expect(contract.name).to.equal(solContractName);
@@ -445,12 +527,18 @@
 //         expect(info.poa).to.equal(true);
 //         expect(info.faucet).to.equal(null);
 //         expect(info.simba_faucet).to.equal(false);
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.getEvents', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getEvents"));
+
 //         const res = await simba.getEvents(
 //             appName,
 //             eventContract,
@@ -469,32 +557,38 @@
 //             expect(Object.keys(event).includes("inputs")).to.equal(true);
 //             expect(Object.keys(event).includes("transaction")).to.equal(true);
 //         }
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
-// // filtering not supported yet in a way that works with queryParams
-// describe.skip('testing Simba.getEvents with queryParams', () => {
-//     it('specified fields should exist', async () => {
-//         const simba = new Simba();
-//         const queryParams = {
-//             id: "insert an event id here",
-//         }
-//         const res = await simba.getEvents(
-//             appName,
-//             eventContract,
-//             eventName,
-//             queryParams,
-//         ) as Record<any, any>;
-//         expect(res.count).to.exist;
-//         expect(Object.keys(res).includes("next")).to.equal(true);
-//         expect(Object.keys(res).includes("previous")).to.equal(true);
-//         expect(res.results.length).to.exist;
-//     }).timeout(10000);
-// });
+// filtering not supported yet in a way that works with queryParams
+describe.skip('testing Simba.getEvents with queryParams', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const queryParams = {
+            id: "insert an event id here",
+        }
+        const res = await simba.getEvents(
+            appName,
+            eventContract,
+            eventName,
+            queryParams,
+        ) as Record<any, any>;
+        expect(res.count).to.exist;
+        expect(Object.keys(res).includes("next")).to.equal(true);
+        expect(Object.keys(res).includes("previous")).to.equal(true);
+        expect(res.results.length).to.exist;
+    }).timeout(10000);
+});
 
 // describe('testing Simba.adminGetEvents', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("adminGetEvents"));
+
 //         const res = await simba.adminGetEvents() as Record<any, any>;
 //         expect(res.count).to.be.greaterThan(0);
 //         expect(Object.keys(res).includes("next")).to.equal(true);
@@ -509,37 +603,43 @@
 //             expect(event.inputs).to.exist;
 //             expect(event.transaction).to.exist;
 //         }
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
-// // queryParams not currently working the way we want
-// describe.skip('testing Simba.adminGetEvents with queryParams', () => {
-//     it('specified fields should exist', async () => {
-//         const simba = new Simba();
-//         const id = "195a5391-84f4-4743-8dfe-d898309db809";
-//         const queryParams = {
-//             id,
-//         }
-//         const res = await simba.adminGetEvents(queryParams) as Record<any, any>;
-//         expect(res.count).to.be.greaterThan(0);
-//         expect(Object.keys(res).includes("next")).to.equal(true);
-//         expect(Object.keys(res).includes("previous")).to.equal(true);
-//         expect(res.results.length).to.exist;
-//         if (res.results.length > 0) {
-//             const event = res.results[0];
-//             expect(event.id).to.exist;
-//             expect(event.created_on).to.exist;
-//             expect(event.updated_on).to.exist;
-//             expect(event.event_name).to.exist;
-//             expect(event.inputs).to.exist;
-//             expect(event.transaction).to.exist;
-//         }
-//     }).timeout(10000);
-// });
+// queryParams not currently working the way we want
+describe.skip('testing Simba.adminGetEvents with queryParams', () => {
+    it('specified fields should exist', async () => {
+        const simba = new Simba();
+        const id = "195a5391-84f4-4743-8dfe-d898309db809";
+        const queryParams = {
+            id,
+        }
+        const res = await simba.adminGetEvents(queryParams) as Record<any, any>;
+        expect(res.count).to.be.greaterThan(0);
+        expect(Object.keys(res).includes("next")).to.equal(true);
+        expect(Object.keys(res).includes("previous")).to.equal(true);
+        expect(res.results.length).to.exist;
+        if (res.results.length > 0) {
+            const event = res.results[0];
+            expect(event.id).to.exist;
+            expect(event.created_on).to.exist;
+            expect(event.updated_on).to.exist;
+            expect(event.event_name).to.exist;
+            expect(event.inputs).to.exist;
+            expect(event.transaction).to.exist;
+        }
+    }).timeout(10000);
+});
 
 // describe('testing Simba.getReceipt', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getReceipt"));
+
 //         const res = await simba.getReceipt(appName, contractName, transactionHash) as Record<any, any>;
 //         const receipt = res.receipt;
 //         expect(receipt.blockHash).to.equal("0x8b86451a944d10019047b9e14c3c423a1d620254733b02bc34c7292b4b82f04e");
@@ -556,12 +656,18 @@
 //         expect(receipt.transactionHash).to.equal(transactionHash);
 //         expect(receipt.transactionIndex).to.equal(0);
 //         expect(receipt.type).to.equal("0x0");
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.getTransaction', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransaction"));
+
 //         const res = await simba.getTransaction(appName, contractName, transactionHash) as Record<any, any>;
 //         const transaction = res.transaction;
 //         expect(transaction.blockHash).to.equal("0x8b86451a944d10019047b9e14c3c423a1d620254733b02bc34c7292b4b82f04e");
@@ -578,16 +684,24 @@
 //         expect(transaction.v).to.equal(709);
 //         expect(transaction.r).to.equal("0x2a7f3ad4a253733599528764bfd364443cf3346b32f6a541d803c92cfaf0ff23");
 //         expect(transaction.s).to.equal("0x7f8fdf641c3ecc8c0f8e817885ff9ca1b3c006cc260039328526e093f28540e0");
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.getTransactionsByMethod', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByMethod"));
 //         const res = await simba.getTransactionsByMethod(appName, contractName, "structTest5") as Record<any, any>;
+
 //         expect(res.count).to.be.greaterThan(0);
 //         expect(res.next.includes("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/structTest5/?limit=10&offset=10")).to.equal(true);
 //         expect(res.results.length).to.be.greaterThan(0);
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
@@ -598,22 +712,34 @@
 //         const queryParams = {
 //             id,
 //         }
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByMethodWithQueryParams"));
+
 //         const res = await simba.getTransactionsByMethod(appName, contractName, "structTest5", queryParams) as Record<any, any>;
 //         expect(res.count).to.be.equal(1);
 //         expect(res.next).to.equal(null);
 //         expect(res.previous).to.equal(null);
 //         expect(res.results[0].id).to.equal(id);
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.getTransactionsByContract', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByContract"));
+
 //         const res = await simba.getTransactionsByContract(appName, contractName) as Record<any, any>;
 //         expect(res.count).to.be.greaterThan(0);
 //         expect(res.next.includes("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/transactions/?limit=10&offset=10")).to.equal(true);
 //         expect(res.previous).to.equal(null);
 //         expect(res.results.length).to.be.greaterThan(0);
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
@@ -624,11 +750,16 @@
 //         const queryParams = {
 //             id,
 //         }
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByMethodWithQueryParams"))
 //         const res = await simba.getTransactionsByMethod(appName, contractName, "structTest5", queryParams) as Record<any, any>;
 //         expect(res.count).to.equal(1);
 //         expect(res.next).to.equal(null);
 //         expect(res.previous).to.equal(null);
 //         expect(res.results[0].id).to.equal(id);
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
@@ -651,6 +782,9 @@
 //         const imageFile1Path = path.join(cwd(), "test_data", "testimage1.png");
 //         const imageFile2Path = path.join(cwd(), "test_data", "testimage2.png");
 //         const filePaths = [imageFile1Path, imageFile2Path];
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("structTest5Submit"))
 //         const res = await simba.submitContractMethod(appName, contractName, methodName, inputs, filePaths) as Record<any, any>;
 //         expect(res.id).to.exist;
 //         expect(res.request_id).to.exist;
@@ -679,6 +813,8 @@
 //         expect(res.transaction_type).to.equal("MC");
 //         expect(res.confirmations).to.equal(0);
 //         expect(res.value).to.equal("0");
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
@@ -701,6 +837,10 @@
 //         const imageFile1Path = path.join(cwd(), "test_data", "testimage1.png");
 //         const imageFile2Path = path.join(cwd(), "test_data", "testimage2.png");
 //         const filePaths = [imageFile1Path, imageFile2Path];
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("structTest5Submit"));
+
 //         const res = await simba.submitContractMethodSync(appName, contractName, methodName, inputs, filePaths) as Record<any, any>;
 //         expect(res.id).to.exist;
 //         expect(res.request_id).to.exist;
@@ -746,6 +886,8 @@
 //         expect(res.transaction_type).to.equal("MC");
 //         expect(res.confirmations).to.equal(0);
 //         expect(res.value).to.equal("0");
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
@@ -753,27 +895,35 @@
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
 //         const methodName = "getNum";
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getNumCall"));
+
 //         const res = await simba.callContractMethod(appName, contractName, methodName) as Record<any, any>;
 //         expect(res.request_id).to.exist;
 //         expect(res.value).to.equal(13);
 //         expect(res.state).to.equal("COMPLETED");
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
-// // this endpoint is not yet returning the correct
-// describe.skip('testing Simba.submitSignedTransaction', () => {
+// describe('testing Simba.submitSignedTransaction', () => {
 //     it('transaction must be pending. we expect a 400 because this transaction is not pending', async () => {
 //         const simba = new Simba();
 //         const txn = transactionObject;
-//         try {
-//             await simba.submitSignedTransaction(
-//                 appName,
-//                 nonPendingTransactionID,
-//                 txn,
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("submitSignedTransaction"));
+
+//         const res: any = await simba.submitSignedTransaction(
+//             appName,
+//             nonPendingTransactionID,
+//             txn,
 //             );
-//         } catch (error) {
-//             expect (error.message).to.equal('Request failed with status code 400')
-//         }
+//         expect(res.id).to.equal("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
@@ -781,6 +931,10 @@
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
 //         const designName = "EventContract99";
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("saveDesign"));
+
 //         const res = await simba.saveDesign(
 //             orgName,
 //             designName,
@@ -801,12 +955,18 @@
 //         expect(Object.keys(res).includes("asset_type")).to.equal(true);
 //         expect(res.organisation).to.exist;
 //         expect(Object.keys(res).includes("designset")).to.equal(true);
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.waitForDeployment', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("waitForDeployment"));
+
 //         const res = await simba.waitForDeployment(
 //             orgName,
 //             deploymentID,
@@ -826,120 +986,138 @@
 //         expect(res.primary).to.exist;
 //         expect(res.organisation).to.exist;
 //         expect(res.generate_request_id).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.deployDesign', () => {
 //     it('error.message should refer to 400, since api name is already taken', async () => {
 //         const simba = new Simba();
-//         try {
-//             const alreadyTakenAPIName = contractName;
-//             await simba.deployDesign(
-//                 orgName,
-//                 appName,
-//                 alreadyTakenAPIName,
-//                 designID,
-//                 Quorum,
-//             );
-//         } catch (error) {
-//             expect(error.message).to.equal('Request failed with status code 400');
-//         }
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("deployDesign"));
+//         const alreadyTakenAPIName = contractName;
+//         const res: any = await simba.deployDesign(
+//             orgName,
+//             appName,
+//             alreadyTakenAPIName,
+//             designID,
+//             Quorum,
+//         );
+//         expect(res.deployment_id).to.equal("someID");
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.deployArtifact', () => {
 //     it('error.message should refer to 400, since api name is already taken', async () => {
 //         const simba = new Simba();
-//         try {
-//             const alreadyTakenAPIName = contractName;
-//             await simba.deployArtifact(
-//                 orgName,
-//                 appName,
-//                 alreadyTakenAPIName,
-//                 artifactID,
-//                 Quorum,
-//             );
-//         } catch (error) {
-//             expect(error.message).to.equal('Request failed with status code 400');
-//         }
-//     }).timeout(10000);
-// });
+//         const alreadyTakenAPIName = contractName;
 
-// describe('testing Simba.waitForDeployDesign', () => {
-//     it('error.message should refer to 400, since api name is already taken', async () => {
-//         const simba = new Simba();
-//         try {
-//             const alreadyTakenAPIName = contractName;
-//             await simba.waitForDeployDesign(
-//                 orgName,
-//                 appName,
-//                 designID,
-//                 alreadyTakenAPIName,
-//                 Quorum,
-//             );
-//         } catch (error) {
-//             expect(error.message).to.equal('Request failed with status code 400');
-//         }
-//     }).timeout(10000);
-// });
-
-// describe('testing Simba.waitForDeployArtifact', () => {
-//     it('expect 400 error', async () => {
-//         const simba = new Simba();
-//         try {
-//             const alreadyTakenAPIName = contractName;
-//             await simba.waitForDeployArtifact(
-//                 orgName,
-//                 appName,
-//                 artifactID,
-//                 alreadyTakenAPIName,
-//                 Quorum,
-//             );
-//         } catch (error) {
-//             expect(error.message).to.equal('Request failed with status code 400');
-//         }
-//     }).timeout(10000);
-// });
-
-// describe('testing Simba.waitForOrgTransaction', () => {
-//     it('specified fields should exist', async () => {
-//         const simba = new Simba();
-//         const res = await simba.waitForOrgTransaction(
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("deployArtifact"));
+        
+//         const res: any = await simba.deployArtifact(
 //             orgName,
-//             transactionID,
-//         ) as Record<any, any>;
-//         expect(res.id).to.exist;
-//         expect(res.request_id).to.exist;
-//         expect(res.created_on).to.exist;
-//         expect(res.finalized_on).to.exist;
-//         expect(res.method).to.exist;
-//         expect(res.inputs).to.exist;
-//         expect(res.receipt).to.exist;
-//         expect(Object.keys(res).includes("error")).to.equal(true);
-//         expect(res.error_details).to.exist;
-//         expect(res.state).to.exist;
-//         expect(res.raw_transaction).to.exist;
-//         expect(res.signed_transaction).to.exist;
-//         expect(Object.keys(res).includes("bundle")).to.equal(true);
-//         expect(res.block).to.exist;
-//         expect(res.nonce).to.exist;
-//         expect(res.from_address).to.exist;
-//         expect(res.to_address).to.exist;
-//         expect(res.created_by).to.exist;
-//         expect(res.contract).to.exist;
-//         expect(res.app).to.exist;
-//         expect(res.blockchain).to.exist;
-//         expect(res.origin).to.exist;
-//         expect(res.transaction_type).to.exist;
-//         expect(res.confirmations).to.exist;
-//         expect(res.value).to.exist;
+//             appName,
+//             alreadyTakenAPIName,
+//             artifactID,
+//             Quorum,
+//         );
+//         expect(res.artifact_id).to.equal("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
+
+// // describe('testing Simba.waitForDeployDesign', () => {
+// //     it('error.message should refer to 400, since api name is already taken', async () => {
+// //         const simba = new Simba();
+// //         const alreadyTakenAPIName = contractName;
+
+// //         const sandbox = sinon.createSandbox();
+// //         // this is wrong - fix
+// //         sandbox.stub(Simba.prototype, "deployDesign").resolves(await callFakeMethod("deployDesign"));
+// //         sandbox.stub(Simba.prototype, "waitForDeployment").resolves(await callFakeMethod("waitForDeployDesign"));
+
+// //         const res: any = await simba.waitForDeployDesign(
+// //             orgName,
+// //             appName,
+// //             designID,
+// //             alreadyTakenAPIName,
+// //             Quorum,
+// //         );
+// //         console.log(res)
+// //         expect(res.artifact_id).to.equal("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+
+// //         sandbox.restore();
+// //     }).timeout(10000);
+// // });
+
+// // describe('testing Simba.waitForDeployArtifact', () => {
+// //     it('expect 400 error', async () => {
+// //         const simba = new Simba();
+// //         try {
+// //             const alreadyTakenAPIName = contractName;
+// //             await simba.waitForDeployArtifact(
+// //                 orgName,
+// //                 appName,
+// //                 artifactID,
+// //                 alreadyTakenAPIName,
+// //                 Quorum,
+// //             );
+// //         } catch (error) {
+// //             expect(error.message).to.equal('Request failed with status code 400');
+// //         }
+// //     }).timeout(10000);
+// // });
+
+// // describe('testing Simba.waitForOrgTransaction', () => {
+// //     it('specified fields should exist', async () => {
+// //         const simba = new Simba();
+// //         const res = await simba.waitForOrgTransaction(
+// //             orgName,
+// //             transactionID,
+// //         ) as Record<any, any>;
+// //         expect(res.id).to.exist;
+// //         expect(res.request_id).to.exist;
+// //         expect(res.created_on).to.exist;
+// //         expect(res.finalized_on).to.exist;
+// //         expect(res.method).to.exist;
+// //         expect(res.inputs).to.exist;
+// //         expect(res.receipt).to.exist;
+// //         expect(Object.keys(res).includes("error")).to.equal(true);
+// //         expect(res.error_details).to.exist;
+// //         expect(res.state).to.exist;
+// //         expect(res.raw_transaction).to.exist;
+// //         expect(res.signed_transaction).to.exist;
+// //         expect(Object.keys(res).includes("bundle")).to.equal(true);
+// //         expect(res.block).to.exist;
+// //         expect(res.nonce).to.exist;
+// //         expect(res.from_address).to.exist;
+// //         expect(res.to_address).to.exist;
+// //         expect(res.created_by).to.exist;
+// //         expect(res.contract).to.exist;
+// //         expect(res.app).to.exist;
+// //         expect(res.blockchain).to.exist;
+// //         expect(res.origin).to.exist;
+// //         expect(res.transaction_type).to.exist;
+// //         expect(res.confirmations).to.exist;
+// //         expect(res.value).to.exist;
+// //     }).timeout(10000);
+// // });
 
 // describe('testing Simba.getDesigns', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getDesigns"));
+
 //         const res = await simba.getDesigns(orgName) as Record<any, any>;
+//         console.log("ressss: ", res)
 //         expect(res.count).to.be.greaterThan(0);
 //         expect(res.next.includes("https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/contract_designs/?limit=10&offset=10")).to.equal(true);
 //         expect(res.previous).to.equal(null);
@@ -951,23 +1129,23 @@
 //         expect(Object.keys(design).includes("version")).to.equal(true);
 //         expect(design.created_on).to.exist;
 //         expect(design.updated_on).to.exist;
-//         expect(design.code).to.exist;
 //         expect(design.language).to.equal(solidity);
-//         expect(design.metadata).to.exist;
-//         expect(Object.keys(design).includes("err")).to.equal(true);
 //         expect(design.mode).to.exist;
 //         expect(Object.keys(design).includes("model")).to.equal(true);
-//         expect(design.service_args).to.exist;
-//         expect(Object.keys(design).includes("asset_type")).to.equal(true);
-//         expect(design.organisation).to.exist;
-//         expect(Object.keys(design).includes("designset")).to.equal(true);
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.getBlockchains', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getBlockchains"));
+
 //         const res = await simba.getBlockchains(orgName) as Record<any, any>;
+
 //         expect(res.count).to.be.greaterThan(0);
 //         expect(Object.keys(res).includes("next")).to.equal(true);
 //         expect(res.previous).to.equal(null);
@@ -997,13 +1175,19 @@
 //         expect(blockchain.high_fee_percentile).to.exist;
 //         expect(blockchain.name).to.exist;
 //         expect(blockchain.dynamic_pricing).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.getStorages', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getStorages"));
 //         const res = await simba.getStorages(orgName) as Record<any, any>;
+
 //         expect(res.count).to.be.greaterThan(0);
 //         expect(Object.keys(res).includes("next")).to.equal(true);
 //         expect(res.previous).to.equal(null);
@@ -1014,13 +1198,19 @@
 //         expect(storage.display_name).to.exist;
 //         expect(storage.name).to.exist;
 //         expect(storage.storage_type).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
 // describe('testing Simba.getArtifacts', () => {
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getArtifacts"));
 //         const res = await simba.getArtifacts(orgName) as Record<any, any>;
+
 //         expect(res.count).to.be.greaterThan(0);
 //         expect(Object.keys(res).includes("next")).to.equal(true);
 //         expect(res.previous).to.equal(null);
@@ -1040,6 +1230,8 @@
 //         expect(artifact.methods).to.exist;
 //         expect(Object.keys(artifact).includes("asset_type")).to.equal(true);
 //         expect(artifact.linked_contracts).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
@@ -1047,7 +1239,12 @@
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
 //         const artifactID = "af76b1a9-365a-428f-8749-cd23280b4ead";
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getArtifact"));
+
 //         const artifact = await simba.getArtifact(orgName, artifactID) as Record<any, any>;
+
 //         expect(artifact.id).to.exist;
 //         expect(artifact.design).to.exist;
 //         expect(artifact.created_on).to.exist;
@@ -1061,6 +1258,8 @@
 //         expect(artifact.methods).to.exist;
 //         expect(Object.keys(artifact).includes("asset_type")).to.equal(true);
 //         expect(artifact.linked_contracts).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
@@ -1068,7 +1267,12 @@
 //     it('specified fields should exist', async () => {
 //         const simba = new Simba();
 //         const designID = "644ed6cc-8073-4c4b-9395-aa466a3a27e7";
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("createArtifact"));
+
 //         const artifact = await simba.createArtifact(orgName, designID) as Record<any, any>;
+
 //         expect(artifact.id).to.exist;
 //         expect(artifact.design).to.exist;
 //         expect(artifact.created_on).to.exist;
@@ -1082,6 +1286,8 @@
 //         expect(artifact.methods).to.exist;
 //         expect(Object.keys(artifact).includes("asset_type")).to.equal(true);
 //         expect(artifact.linked_contracts).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
@@ -1092,6 +1298,10 @@
 //         const contractAPI = contractName;
 //         const txn = "structTest5";
 //         const subscriptionType = "METHOD";
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("subscribe"));
+
 //         const res = await simba.subscribe(
 //             orgName,
 //             notificationEndpoint,
@@ -1099,12 +1309,15 @@
 //             txn,
 //             subscriptionType,
 //         ) as Record<any, any>;
+
 //         expect(res.id).to.exist;
 //         expect(res.endpoint).to.equal(notificationEndpoint);
 //         expect(res.txn).to.equal(txn);
 //         expect(res.contract).to.exist;
 //         expect(res.applications).to.exist;
 //         expect(res.filters).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
 
@@ -1114,7 +1327,12 @@
 //         const scheme = "http";
 //         const authType = "";
 //         const authInfo = {};
+
+//         const sandbox = sinon.createSandbox();
+//         sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("setNotificationConfig"));
+
 //         const res = await simba.setNotificationConfig(orgName, scheme, authType, authInfo) as Record<any, any>;
+
 //         expect(res.id).to.exist;
 //         expect(res.scheme).to.equal(scheme);
 //         expect(res.auth_type).to.equal(authType)
@@ -1122,5 +1340,7 @@
 //         expect(res.created_on).to.exist;
 //         expect(res.updated_on).to.exist;
 //         expect(res.organisation).to.exist;
+
+//         sandbox.restore();
 //     }).timeout(10000);
 // });
