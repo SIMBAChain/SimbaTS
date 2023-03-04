@@ -165,7 +165,6 @@ export class SimbaConfig {
         SimbaConfig.setEnvVarsFromDirectory(cwd(), foundKeys);
         SimbaConfig.setEnvVarsFromDirectory(SIMBA_HOME, foundKeys);
         return SimbaConfig.envVars;
-
     }
 
     /**
