@@ -79,3 +79,48 @@ describe('testing SimbaConfig.tokenExpired, SimbaConfig.setAuthTokenField', asyn
         SimbaConfig.authConfig.clear();
     });
 });
+
+describe('tests setEnvVars', () => {
+    it('SimbaConfig.envVars should be present after calling .setEnvVars', async () => {
+        // for this test, you need to have env vars set for:
+            // SIMBA_AUTH_CLIENT_ID
+            // SIMBA_AUTH_CLIENT_SECRET
+        SimbaConfig.envVars = {};
+        SimbaConfig.setEnvVars();
+        const envVars = SimbaConfig.envVars;
+        // following two tests ensure .envVars was both set and returned
+        expect(Object.values(envVars).length).to.be.greaterThan(0);
+        expect(Object.values(SimbaConfig.envVars).length).to.be.greaterThan(0);
+    }).timeout(10000);
+
+    it('SimbaConfig.envVars should be present after calling .retrieveEnvVar()', async () => {
+        // for this test, you need to have env vars set for:
+            // SIMBA_AUTH_CLIENT_ID
+            // SIMBA_AUTH_CLIENT_SECRET
+        SimbaConfig.envVars = {};
+        SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_ID);
+        const envVars = SimbaConfig.envVars;
+        // following two tests ensure .envVars was both set and returned
+        expect(Object.values(envVars).length).to.be.greaterThan(0);
+        expect(Object.values(SimbaConfig.envVars).length).to.be.greaterThan(0);
+    }).timeout(10000);
+});
+
+describe('tests retrieveEnvVar', () => {
+    it('vals from retrieveEnvVar should be same as from process.env', async () => {
+        // for this test, you need to have env vars set for:
+            // SIMBA_AUTH_CLIENT_ID
+            // SIMBA_AUTH_CLIENT_SECRET
+        const IDFromMethod = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_ID);
+        const IDFromEnv = process.env.SIMBA_AUTH_CLIENT_ID;
+        expect(IDFromMethod).to.equal(IDFromEnv);
+
+        const secretFromMethod = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_SECRET);
+        const secretFromEnv = process.env.SIMBA_AUTH_CLIENT_SECRET;
+        expect(secretFromMethod).to.equal(secretFromEnv);
+
+        const authEndpointFromMethod = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT);
+        const authEndpointFromEnv = process.env.SIMBA_AUTH_CLIENT_ENDPOINT;
+        expect(authEndpointFromMethod).to.equal(authEndpointFromEnv);
+    }).timeout(10000);
+});

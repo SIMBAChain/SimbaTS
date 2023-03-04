@@ -135,7 +135,7 @@ describe('testing ParamCheckingContract.paramRestrictions', () => {
 });
 
 describe('testing ParamCheckingContract.validateParams', () => {
-    it('should be 0, 3, 5', async () => {
+    it('some should pass, some should fail because of param checking', async () => {
         const metadata = await FileHandler.parsedFile(pathToTestMetaData);
         const pcc = new ParamCheckingContract(
             appName,

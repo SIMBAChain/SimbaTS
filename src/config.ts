@@ -6,6 +6,7 @@ import {
 } from "tslog";
 import * as dotenv from "dotenv";
 import * as os from "os";
+import {default as chalk} from 'chalk';
 
 const SIMBA_HOME = process.env.SIMBA_HOME || os.homedir();
 const DEFAULT_AUTH_ENDPOINT = "/o/";
@@ -53,6 +54,7 @@ export class SimbaConfig {
     public static _projectConfigStore: Configstore;
     public static simbaEnvVarFileConfigured: boolean | undefined = false;
     public static simbaEnvVarFile: string | undefined;
+    public static envVars: Record<any, any> = {};
     /**
      * handles our auth / access token info
      */
@@ -109,74 +111,107 @@ export class SimbaConfig {
     }
 
     /**
-     * for env vars, we search, in this order:
-     * local project directory for:
-     *  - .simbachain.env
-     *  - simbachain.env
-     *  - .env
+     * this method only gets called once, when a process first tries to retrieve an env var
+     * if SimbaConfig.envVars's values is zero length, then we call this method
      * 
-     * then we look for a SIMBA_HOME env var at the system level,
-     * and within that directory, we search for:
-     *  - .simbachain.env
-     *  - simbachain.env
-     *  - .env
-     * 
-     * @param envVarKey key of environment variable we want to retrieve value
+     * The code is a bit convoluted, so here's the process:
+     * 1. iterate through file names of (.simbachain.env, simbachain.env, .env) in our project root
+     * 2. we then loop through each of our SimbaEnvVarKeys until we find all of them, or
+     * we have finished going through all files (not all env vars are necessary to be set)
+     * 3. we then run through 1-4 again, but we use SIMBA_HOME instead of project root
+     * 4. set as SimbaConfig.envVars once finished
+     * @returns {Promise<Record<any, any>>}
      */
-     public static retrieveEnvVar(envVarKey: SimbaEnvVarKeys): string {
-        if (envVarKey === SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT) {
-            return DEFAULT_AUTH_ENDPOINT;
-        }
-        
-        // if we've already configured process.env:
-        if (SimbaConfig.simbaEnvVarFileConfigured) {
-            const val = process.env[envVarKey];
-            if (val) {
-                return val;
-            } else {
-                // we don't want to panic if we're just looking for log level - user shouldn't have to set that
-                if (envVarKey === SimbaEnvVarKeys.SIMBATS_LOG_LEVEL) {
-                    return LogLevel.INFO;
+    public static setEnvVars(): Record<any, any> {
+        const foundKeys: Array<any> = [];
+        // the following shouldn't need to be changed
+        // has to do with whether authendpoint should be configured, but
+        // for now this is fine
+        foundKeys.push(SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT);
+        SimbaConfig.envVars[SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT] = DEFAULT_AUTH_ENDPOINT;
+
+        // first iterate through local project
+            // through each file name
+                // if we have found all our keys, return our object
+        for (let i = 0; i < simbaEnvFilesArray.length; i++) {
+            if (foundKeys.length === Object.values(SimbaEnvVarKeys).length) {
+                SimbaConfig.log.debug(`:: EXIT : ${JSON.stringify(SimbaConfig.envVars)}`)
+                return SimbaConfig.envVars;
+            }
+            const fileName = simbaEnvFilesArray[i];
+            dotenv.config({
+                override: true,
+                path: path.resolve(cwd(), fileName),
+            });
+
+            for (let j = 0; j < Object.values(SimbaEnvVarKeys).length; j++) {
+                const envVarKey = Object.values(SimbaEnvVarKeys)[j];
+                if (envVarKey in foundKeys) {
+                    continue;
                 }
-                const message = `no value found for environment variable ${envVarKey}`;
-                console.error(`SimbaConfig.retrieveEnvVar :: SIMBA : EXIT : ${message}`);
-                throw(message);
+                const simbaKey = Object.values(SimbaEnvVarKeys)[j];
+                const val = process.env[simbaKey];
+
+                if (val) {
+                    SimbaConfig.envVars[simbaKey] = val;
+                    foundKeys.push(envVarKey)
+                }
             }
         }
 
-        // first check local directory
+        // now same thing in SIMBA_HOME
         for (let i = 0; i < simbaEnvFilesArray.length; i++) {
+            if (foundKeys.length === Object.values(SimbaEnvVarKeys).length) {
+                SimbaConfig.log.debug(`:: EXIT : ${JSON.stringify(SimbaConfig.envVars)}`)
+                return SimbaConfig.envVars;
+            }
             const fileName = simbaEnvFilesArray[i];
-            dotenv.config({ path: path.resolve(cwd(), fileName) });
-            const val = process.env[envVarKey];
-            if (val) {
-                SimbaConfig.simbaEnvVarFileConfigured = true;
-                SimbaConfig.simbaEnvVarFile = path.join(cwd(), fileName);
-                return val;
+            dotenv.config({
+                override: true,
+                path: path.resolve(SIMBA_HOME, fileName),
+            });
+
+            for (let j = 0; j < Object.values(SimbaEnvVarKeys).length; j++) {
+                const envVarKey = Object.values(SimbaEnvVarKeys)[j];
+                if (envVarKey in foundKeys) {
+                    continue;
+                }
+                const simbaKey = Object.values(SimbaEnvVarKeys)[j];
+                const val = process.env[simbaKey];
+                if (val) {
+                    SimbaConfig.envVars[simbaKey] = val;
+                    foundKeys.push(envVarKey)
+                }
+
             }
         }
+        SimbaConfig.log.debug(`:: EXIT : ${JSON.stringify(SimbaConfig.envVars)}`);
+        return SimbaConfig.envVars;
+    }
 
-        // now we check SIMBA_HOME directory
-        for (let i = 0; i < simbaEnvFilesArray.length; i++) {
-            const fileName = simbaEnvFilesArray[i];
-            dotenv.config({ path: path.resolve(SIMBA_HOME, fileName) });
-            const val = process.env[envVarKey];
-            if (val) {
-                SimbaConfig.simbaEnvVarFileConfigured = true;
-                SimbaConfig.simbaEnvVarFile = path.join(SIMBA_HOME, fileName);
-                return val;
-            }
+    /**
+     * retrieves value for env var key. looks for:
+     * 
+     * if SimbaConfig.envVars values has zero length, we first call SimbaConfig.setEnvVars
+     * @param SimbaEnvVarKeys
+     * @returns 
+     */
+    public static retrieveEnvVar(envVarKey: SimbaEnvVarKeys): string {
+        let envVars;
+        if (!Object.values(SimbaConfig.envVars).length) {
+            envVars = SimbaConfig.setEnvVars();
+        } else {
+            envVars = SimbaConfig.envVars;
         }
 
-        // we don't want to panic if we're just looking for log level - user shouldn't have to set that
-        if (envVarKey === SimbaEnvVarKeys.SIMBATS_LOG_LEVEL) {
-            return LogLevel.INFO;
+        const val = envVars[envVarKey];
+        if (val) {
+            return val;
         }
-        
-        const message = `unable to find ${envVarKey} in local project or in your SIMBA_HOME directory. To solve, please make sure ${envVarKey} is set as an environment variable in ${SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV}, ${SimbaEnvFiles.SIMBACHAIN_DOT_ENV}, or ${SimbaEnvFiles.DOT_ENV}. You can do this in either the top level of this project's directory, or in the directory that your system level SIMBA_HOME points to.`;
 
-        console.error(`SimbaConfig.retrieveEnvVar :: SIMBA : EXIT : ${message}`);
-        throw(message);
+        const message = `Unable to find value for ${envVarKey}. You can set this in one of the following file names: .simbachain.env, simbachain.env, or .env; and these files can live in your local project root (best option) or in the directory that SIMBA_HOME points to in your system env vars.`
+        // SimbaConfig.log.error(`${chalk.redBright(`:: EXIT : ${message}`)}`);
+        throw new Error(message);
     }
 
     public static setAuthToken(authToken: Record<any, any>) {
