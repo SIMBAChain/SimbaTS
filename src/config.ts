@@ -21,7 +21,7 @@ export enum SimbaEnvVarKeys {
     SIMBA_AUTH_ENDPOINT = "SIMBA_AUTH_ENDPOINT",
     SIMBA_LOGGING_HOME = "SIMBA_LOGGING_HOME",
     SIMBA_HOME = "SIMBA_HOME",
-    SIMBATS_LOG_LEVEL = "SIMBATS_LOG_LEVEL",
+    SIMBA_LOG_LEVEL = "SIMBA_LOG_LEVEL",
 }
 
 enum SimbaEnvFiles {
@@ -92,15 +92,15 @@ export class SimbaConfig {
      * how we get loglevel
      */
     public static get logLevel(): LogLevel {
-        const level = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBATS_LOG_LEVEL)
+        const level = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_LOG_LEVEL)
         if (level && !Object.values(LogLevel).includes(level as LogLevel)) {
-            console.error(`SimbaConfig.logLevel :: SIMBA : EXIT : unrecognized SIMBATS_LOG_LEVEL - ${level} set in ${SimbaConfig.simbaEnvVarFile} : ${level} : using level "info" instead. Please note that LOG_LEVEL can be one of ${Object.values(LogLevel)}`);
+            console.error(`SimbaConfig.logLevel :: SIMBA : EXIT : unrecognized SIMBA_LOG_LEVEL - ${level} set in ${SimbaConfig.simbaEnvVarFile} : ${level} : using level "info" instead. Please note that LOG_LEVEL can be one of ${Object.values(LogLevel)}`);
             return LogLevel.INFO;
         }
         if (!level) {
             return LogLevel.INFO;
         }
-        return process.env[SimbaEnvVarKeys.SIMBATS_LOG_LEVEL] as LogLevel;
+        return process.env[SimbaEnvVarKeys.SIMBA_LOG_LEVEL] as LogLevel;
     }
 
     public static get baseURL(): string {
@@ -134,15 +134,16 @@ export class SimbaConfig {
 
             for (let j = 0; j < Object.values(SimbaEnvVarKeys).length; j++) {
                 const envVarKey = Object.values(SimbaEnvVarKeys)[j];
-                if (envVarKey in foundKeys) {
+                if (foundKeys.includes(envVarKey)) {
                     continue;
-                }
-                const simbaKey = Object.values(SimbaEnvVarKeys)[j];
-                const val = process.env[simbaKey];
+                } else {
+                    const simbaKey = Object.values(SimbaEnvVarKeys)[j];
+                    const val = process.env[simbaKey];
+                    if (val) {
+                        SimbaConfig.envVars[simbaKey] = val;
+                        foundKeys.push(envVarKey)
+                    }
 
-                if (val) {
-                    SimbaConfig.envVars[simbaKey] = val;
-                    foundKeys.push(envVarKey)
                 }
             }
         }

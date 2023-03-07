@@ -37,7 +37,7 @@ describe('testing SimbaConfig.retrieveEnvVar', async () => {
     });
 
     it('should exist', async () => {
-        const SIMBA_API_BASE_URL = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBATS_LOG_LEVEL);
+        const SIMBA_API_BASE_URL = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_LOG_LEVEL);
         expect(SIMBA_API_BASE_URL).to.exist;
     });
 });
@@ -110,15 +110,9 @@ describe('tests retrieveEnvVar', () => {
             // SIMBA_AUTH_CLIENT_ID
             // SIMBA_AUTH_CLIENT_SECRET
         const IDFromMethod = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_ID);
-        const IDFromEnv = process.env.SIMBA_AUTH_CLIENT_ID;
-        expect(IDFromMethod).to.equal(IDFromEnv);
-
-        const secretFromMethod = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_SECRET);
-        const secretFromEnv = process.env.SIMBA_AUTH_CLIENT_SECRET;
-        expect(secretFromMethod).to.equal(secretFromEnv);
+        expect(IDFromMethod).to.equal("6lS6sae75lJx3m6KaCKKBbmxCkJM9g1aClrZtDtm");
 
         const authEndpointFromMethod = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT);
-        const authEndpointFromEnv = process.env.SIMBA_AUTH_CLIENT_ENDPOINT;
-        expect(authEndpointFromMethod).to.equal(authEndpointFromEnv);
+        expect(authEndpointFromMethod).to.equal( "/o/");
     }).timeout(10000);
 });

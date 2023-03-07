@@ -20,7 +20,7 @@ SIMBA_AUTH_BASE_URL=https://simba-dev-api.platform.simbachain.com/
 SIMBA_AUTH_CLIENT_ID<your ID for dev env>
 SIMBA_AUTH_CLIENT_SECRET=<your secret for dev env>
 SIMBA_AUTH_ENDPOINT="/o/"
-SIMBATS_LOG_LEVEL="info"
+SIMBA_LOG_LEVEL="info"
 ```
 
 And that's all you need for setup!
