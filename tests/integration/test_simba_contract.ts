@@ -32,8 +32,17 @@ describe('testing SimbaContract.callMethod', () => {
         );
         const methodName = "getNum";
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getNumCall"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getNumCall"));
+        sandbox.stub(SimbaContract.prototype, "validateParams").resolves(true);
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
         const res = await simbaContract.callMethod(methodName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/getNum/",
+            sinon.match({}),
+            true,
+        ));
+
         expect(res.request_id).to.exist;
         expect(res.value).to.equal(13);
         expect(res.state).to.equal("COMPLETED");
@@ -67,8 +76,20 @@ describe('testing SimbaContract.submitMethod', () => {
         const filePaths = [imageFile1Path, imageFile2Path];
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("structTest5Submit"))
+        const doPostWithFormDataStub = sandbox.stub(RequestHandler.prototype, "doPostRequestWithFormData").resolves(await callFakeMethod("structTest5Submit"))
+        sandbox.stub(SimbaContract.prototype, "validateParams").resolves(true);
+        sandbox.stub(RequestHandler.prototype, "formDataFromFilePathsAndInputs").resolves({});
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+        sandbox.stub(RequestHandler.prototype, "formDataHeaders").resolves({});
+
         const res = await simbaContract.submitMethod(methodName, inputs, filePaths) as Record<any, any>;
+        
+        expect(doPostWithFormDataStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/structTest5/",
+            sinon.match({}),
+            sinon.match({}),
+        )).to.be.true;
+
         expect(res.id).to.exist;
         expect(res.request_id).to.exist;
         expect(res.created_on).to.exist;
@@ -79,13 +100,30 @@ describe('testing SimbaContract.submitMethod', () => {
         expect(res.receipt).to.exist;
         expect(Object.keys(res).includes("error")).to.equal(true);
         expect(res.error_details).to.exist;
-        expect(res.state).to.equal("ACCEPTED");
-        expect(Object.keys(res.raw_transaction).length).to.equal(0);
-        expect(res.transaction_hash).to.equal(null);
+        expect(res.state).to.equal("SUBMITTED");
+
+        const raw_transaction = res.raw_transaction;
+        expect(raw_transaction.from).to.exist;
+        expect(raw_transaction.to).to.exist;
+        expect(raw_transaction.chainId).to.exist;
+        expect(raw_transaction.nonce).to.exist;
+        expect(raw_transaction.data).to.exist;
+        expect(raw_transaction.value).to.exist;
+        expect(raw_transaction.gas).to.exist;
+        expect(raw_transaction.gasPrice).to.exist;
+
+        const signed_transaction = res.signed_transaction;
+        expect(signed_transaction.rawTransaction).to.exist;
+        expect(signed_transaction.hash).to.exist;
+        expect(signed_transaction.r).to.exist;
+        expect(signed_transaction.s).to.exist;
+        expect(signed_transaction.v).to.exist;
+
+        expect(res.transaction_hash).to.exist
         expect(res.bundle).to.exist;
         expect(res.block).to.equal(null);
-        expect(res.nonce).to.equal(null);
-        expect(res.from_address).to.equal(null);
+        expect(res.nonce).to.be.greaterThan(0);
+        expect(res.from_address).to.exist;
         expect(res.to_address).to.equal(null);
         expect(res.created_by).to.exist;
         expect(res.contract.id).to.equal("f8896066-73c4-40b6-837e-7bcb8307b231");
@@ -111,9 +149,17 @@ describe('testing SimbaContract.getTransactionsByMethod', () => {
         const methodName = "structTest5";
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("structTest5Transactions"));
-
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("structTest5Transactions"));
+        sandbox.stub(SimbaContract.prototype, "validateParams").resolves(true);
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
         const res = await simbaContract.getTransactionsByMethod(methodName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/structTest5/",
+            sinon.match({}),
+            true,
+        )).to.be.true
+
         expect(res.count).to.be.equal(194)
         expect(res.next.includes("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/structTest5/?limit=10&offset=10")).to.equal(true);
         expect(res.results.length).to.be.greaterThan(0);
@@ -136,8 +182,31 @@ describe('testing SimbaContract.getTransactionsByMethod with queryParams', () =>
         const methodName = "structTest5";
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("structTest5TransactionsWithQueryParams"))
+
+        const headersWithQueryParams = {
+            headers: {
+                Authorization: 'Bearer 12345',
+                'Content-Type': 'application/json'
+            },
+            params: { id: '56a05373-09bd-4de7-a1ab-74ab864d58d8' }
+        };
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("structTest5TransactionsWithQueryParams"));
+        sandbox.stub(SimbaContract.prototype, "validateParams").resolves(true);
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({
+            headers: {
+              Authorization: 'Bearer 12345',
+              'Content-Type': 'application/json'
+            },
+            params: { id: '56a05373-09bd-4de7-a1ab-74ab864d58d8' }
+          });
         const res = await simbaContract.getTransactionsByMethod(methodName, queryParams) as Record<any, any>;
+        
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/structTest5/",
+            sinon.match(headersWithQueryParams),
+            true,
+        )).to.be.true;
+
         expect(res.count).to.be.equal(1);
         expect(res.next).to.equal(null)
         expect(res.results[0].id).to.equal(id);
@@ -197,9 +266,17 @@ describe('testing SimbaContract.getManifestForBundleFromBundleHash', () => {
         );
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("testContractVDS5Manifest"));
-
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("testContractVDS5Manifest"));
+        sandbox.stub(SimbaContract.prototype, "validateParams").resolves(true);
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({})
+        
         const manifest = await simbaContract.getManifestFromBundleHash(bundleHash) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/bundle/57f6ef0fcc97614f899af3f165cabbaec9632b95fc89906837f474a6a2c8a184/manifest/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
 
         expect(manifest.alg).to.equal("sha256");
         expect(manifest.digest).to.equal("hex");

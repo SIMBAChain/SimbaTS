@@ -9,6 +9,7 @@ import {
     appName,
     contractName,
 } from "../project_configs";
+import FormData from "form-data";
 import {
     callFakeMethod,
 } from "../tests_setup/fake_method_caller";
@@ -43,10 +44,21 @@ describe('testing SimbaContractSync.submitMethod', () => {
         const filePaths = [imageFile1Path, imageFile2Path];
 
         const sandbox = sinon.createSandbox();
-        // const fakeReturnData = callFakeMethod("structTest5Submit");
-        sandbox.stub(RequestHandler.prototype, "doPostRequestWithFormData").resolves(await callFakeMethod("structTest5Submit"));
-
+        const doPostWithFormDataStub = sandbox.stub(RequestHandler.prototype, "doPostRequestWithFormData").resolves(await callFakeMethod("structTest5Submit"));
+        sandbox.stub(SimbaContractSync.prototype, "validateParams").resolves(true);
+        sandbox.stub(RequestHandler.prototype, "formDataFromFilePathsAndInputs").resolves({});
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+        sandbox.stub(RequestHandler.prototype, "formDataHeaders").resolves({});
+        
         const res = await simbaContractSync.submitMethod(methodName, inputs, filePaths) as Record<any, any>;
+        
+        expect(doPostWithFormDataStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/sync/contract/test_contract_vds5/structTest5/",
+            sinon.match({}),
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(res.id).to.exist;
         expect(res.request_id).to.exist;
         expect(res.created_on).to.exist;

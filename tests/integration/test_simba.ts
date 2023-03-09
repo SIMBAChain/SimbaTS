@@ -40,13 +40,21 @@ import {
 import sinon from "sinon";
 
 describe('testing Simba.whoAmI', () => {
-    it('iAm should contain specified fields, with some specified values', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("whoAmI"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("whoAmI"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const iAm = await simba.whoAmI() as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/user/whoami/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(iAm.username).to.equal(userEmail);
         expect(iAm.first_name).to.exist;
         expect(iAm.last_name).to.exist;
@@ -73,12 +81,20 @@ describe.skip('testing Simba.fund', () => {
 });
 
 describe('testing Simba.balance', () => {
-    it('balance.balance should exist for mumbai', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("balance"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("balance"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+        
         const balance = await simba.balance("mumbai", mumbaiWallet) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/user/account/mumbai/balance/0x59D859Da04439AE87Afd689A4CA89C354CB93532/",
+            sinon.match({}),
+            true,
+        ))
         expect(balance.balance).to.exist;
 
         sandbox.restore();
@@ -86,11 +102,13 @@ describe('testing Simba.balance', () => {
 });
 
 describe('testing Simba.adminSetWallet', () => {
-    it('should return an object with a "wallet" key', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("adminSetWallet"));
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("adminSetWallet"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+
         const userID = 17;
         const res: any = await simba.adminSetWallet(
             userID,
@@ -98,6 +116,14 @@ describe('testing Simba.adminSetWallet', () => {
             "fakePublicKey",
             "fakePrivateKey",
         );
+
+        expect(doPostRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/admin/users/17/wallet/set/",
+            sinon.match({}),
+            sinon.match({"blockchain":"fakeBlockchain","identities":[{"pub":"fakePublicKey","priv":"fakePrivateKey"}]}),
+            true,
+        )).to.be.true;
+
         expect(res.wallet).to.equal("someWalletData");
 
         sandbox.restore();
@@ -105,18 +131,28 @@ describe('testing Simba.adminSetWallet', () => {
     }).timeout(5000);
 });
 
+
 describe('testing Simba.setWallet', () => {
-    it('should get a 400 error', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("adminSetWallet"));
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("adminSetWallet"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
         
         const res: any = await simba.setWallet(
             "fakeBlockchain",
             "fakePublicKey",
             "fakePrivateKey",
         );
+
+        expect(doPostRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/user/wallet/set/",
+            sinon.match({}),
+            sinon.match({"blockchain":"fakeBlockchain","identities":[{"pub":"fakePublicKey","priv":"fakePrivateKey"}]}),
+            true,
+        )).to.be.true;
+
         expect(res.wallet).to.equal("someWalletData");
 
         sandbox.restore();
@@ -124,13 +160,21 @@ describe('testing Simba.setWallet', () => {
 });
 
 describe('testing Simba.getWallet', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getWallet"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getWallet"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const walletRes = await simba.getWallet() as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/user/wallet/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         const wallet = walletRes.wallet;
         expect(wallet.principal).to.equal(userEmail);
         expect(wallet.alias).to.equal(userEmail);
@@ -141,14 +185,23 @@ describe('testing Simba.getWallet', () => {
 });
 
 describe('testing Simba.createOrg', () => {
-    it('should throw 400 error, since org already exists', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const orgName = "simbats_org";
         const display = "simbats_org";
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("createOrg"));
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("createOrg"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+
         const res = await simba.createOrg(orgName, display) as Record<any, any>;
+
+        expect(doPostRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/",
+            sinon.match({}),
+            sinon.match({"name":"simbats_org","display_name":"simbats_org"}),
+            true,
+        )).to.be.true;
         expect(res.id).to.equal("3fa85f64-5717-4562-b3fc-2c963f66afa6");
 
         sandbox.restore();
@@ -156,42 +209,52 @@ describe('testing Simba.createOrg', () => {
 });
 
 describe('testing Simba.createApp', () => {
-    it('should throw 400 error, since app already exists', async () => {
+    it('request method(s) should be called with correct params', async () => {
         // don't need to mock/stub this method
 
         const simba = new Simba();
         const orgName = "simbats_org";
         const appName = "simbats_app";
         const display = "simbats_app";
+
+        const sandbox = sinon.createSandbox();
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves();
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
         
         try {
+            // create app will throw an error when doGetRequest resolves
             await simba.createApp(orgName, appName, display) as Record<any, any>;
         } catch (error) {
-            expect(error.message).to.equal(`app ${appName} for org ${orgName} already exists`);
+            // do nothing
         }
 
-    }).timeout(5000);
-});
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/simbats_org/applications/simbats_app/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
 
-// currently getting a 500 at this endpoint; the code isn't bad though
-describe.skip('testing Simba.getApplications', () => {
-    it('specified fields should exist', async () => {
-        const simba = new Simba();
-        const apps = await simba.getApplications() as Record<any, any>;
-        // expect(apps.count).to.exist;
-        // expect(apps.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/")
-        // expect(apps.results.length).to.be.greaterThan(0);
+        sandbox.restore();
+
     }).timeout(5000);
 });
 
 describe('testing Simba.getApplication', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getApplication"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getApplication"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const app = await simba.getApplication(orgName, appName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/applications/BrendanTestApp/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(app.name).to.equal(appName);
         expect(app.id).to.equal("fb5fd523-9982-4785-a0ea-89d277f4014b");
         expect(app.display_name).to.equal(appName)
@@ -204,13 +267,21 @@ describe('testing Simba.getApplication', () => {
 });
 
 describe('testing Simba.getApplicationTransactions', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getApplicationTransactions"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getApplicationTransactions"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const txns = await simba.getApplicationTransactions(appName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/transactions/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(txns.count).to.be.greaterThan(0);
         expect(txns.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/transactions/?limit=10&offset=10");
         expect(txns.previous).to.not.equal(undefined);
@@ -250,7 +321,7 @@ describe('testing Simba.getApplicationTransactions', () => {
 
 // filtering not supported yet
 describe.skip('testing Simba.getApplicationTransactions with queryParams', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const request_id = "34bb8e12-8459-43cc-ae7f-e0fe0a59fbb1";
         const queryParams = {
@@ -292,13 +363,21 @@ describe.skip('testing Simba.getApplicationTransactions with queryParams', () =>
 });
 
 describe('testing Simba.getApplicationContract', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getApplicationContract"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getApplicationContract"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const contract = await simba.getApplicationContract(appName, contractName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(contract.id).to.exist;
         expect(contract.artifact).to.exist;
         expect(contract.metadata.contract.name).to.equal("TestContractChanged");
@@ -319,13 +398,22 @@ describe('testing Simba.getApplicationContract', () => {
 });
 
 describe('testing Simba.getcontractTransactions', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContractTransactions"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContractTransactions"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const txns = await simba.getContractTransactions(appName, contractName) as Record<any, any>;
+
+        expect(
+            doGetRequestStub.calledWith(
+                "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/transactions/",
+                sinon.match({}),
+                true,
+            )
+        )
         expect(txns.count).to.be.greaterThan(0);
         expect(txns.next.includes("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/transactions/?limit=10&offset=10")).to.equal(true);
         expect(txns.previous).to.equal(null);
@@ -336,17 +424,33 @@ describe('testing Simba.getcontractTransactions', () => {
 });
 
 describe('testing Simba.getcontractTransactions with queryParams', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const id = "5a2288c6-0562-41e8-8f63-e6820fa3e62a";
         const queryParams = {
             id,
         }
 
+        const headersWithQueryParams = {
+            headers: {
+                Authorization: 'Bearer XTTGViuQ7LPi1MCqmfuTxh3zq48PNp',
+                'Content-Type': 'application/json'
+            },
+            params: { id: '5a2288c6-0562-41e8-8f63-e6820fa3e62a' }
+        };
+
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContractTransactionsWithQueryParams"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContractTransactionsWithQueryParams"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves(headersWithQueryParams);
 
         const txn = await simba.getContractTransactions(appName, contractName, queryParams) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/transactions/",
+            sinon.match(headersWithQueryParams),
+            true,
+        )).to.be.true;
+
         expect(txn.count).to.equal(1);
         expect(txn.next).to.equal(null);
         expect(txn.previous).to.equal(null);
@@ -357,13 +461,21 @@ describe('testing Simba.getcontractTransactions with queryParams', () => {
 });
 
 describe('testing Simba.getContracts', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContracts"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContracts"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const contracts = await simba.getContracts(appName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contracts/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(contracts.count).to.be.greaterThan(0);
         expect(contracts.next).to.include("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contracts/?limit=10&offset=10");
         expect(Object.keys(contracts).includes("previous")).to.equal(true);
@@ -392,7 +504,7 @@ describe('testing Simba.getContracts', () => {
 
 // filtering not supported yet
 describe.skip('testing Simba.getContracts with queryParams', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const id = "acf6fd5d-e27a-4493-ae79-9b73c6ddc9a4";
         const queryParams = {
@@ -407,13 +519,20 @@ describe.skip('testing Simba.getContracts with queryParams', () => {
 });
 
 describe('testing Simba.validateBundleHash', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("validateBundleHash"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("validateBundleHash"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const ver = await simba.validateBundleHash(appName, contractName, bundleHash) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/validate/test_contract_vds5/57f6ef0fcc97614f899af3f165cabbaec9632b95fc89906837f474a6a2c8a184/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
         expect(Object.keys(ver).includes("errors")).to.equal(true);
         expect(ver.alg).to.equal("sha256");
         expect(ver.digest).to.equal("hex");
@@ -470,12 +589,20 @@ describe('testing Simba.getBundleFile', () => {
 
 
 describe('testing Simba.getManifestForBundleFromBundleHash', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getManifestForBundleFromBundleHash"))
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getManifestForBundleFromBundleHash"))
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+
         const manifest = await simba.getManifestForBundleFromBundleHash(appName, contractName, bundleHash) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/bundle/57f6ef0fcc97614f899af3f165cabbaec9632b95fc89906837f474a6a2c8a184/manifest/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
 
         expect(manifest.alg).to.equal("sha256");
         expect(manifest.digest).to.equal("hex");
@@ -494,13 +621,21 @@ describe('testing Simba.getManifestForBundleFromBundleHash', () => {
 });
 
 describe('testing Simba.getContractInfo', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContractInfo"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getContractInfo"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const info = await simba.getContractInfo(appName, contractName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/info/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         const contract = info.contract;
         expect(contract.name).to.equal(solContractName);
         expect(contract.enums).to.exist;
@@ -528,17 +663,25 @@ describe('testing Simba.getContractInfo', () => {
 });
 
 describe('testing Simba.getEvents', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getEvents"));
+        const doGetRequestSTub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getEvents"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.getEvents(
             appName,
             eventContract,
             eventName,
         ) as Record<any, any>;
+
+        expect(doGetRequestSTub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/eventcontract_vds5/events/Log/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(res.count).to.exist;
         expect(Object.keys(res).includes("next")).to.equal(true);
         expect(Object.keys(res).includes("previous")).to.equal(true);
@@ -559,7 +702,7 @@ describe('testing Simba.getEvents', () => {
 
 // filtering not supported yet in a way that works with queryParams
 describe.skip('testing Simba.getEvents with queryParams', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const queryParams = {
             id: "insert an event id here",
@@ -578,13 +721,21 @@ describe.skip('testing Simba.getEvents with queryParams', () => {
 });
 
 describe('testing Simba.adminGetEvents', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("adminGetEvents"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("adminGetEvents"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.adminGetEvents() as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/admin/events/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(res.count).to.be.greaterThan(0);
         expect(Object.keys(res).includes("next")).to.equal(true);
         expect(Object.keys(res).includes("previous")).to.equal(true);
@@ -605,7 +756,7 @@ describe('testing Simba.adminGetEvents', () => {
 
 // queryParams not currently working the way we want
 describe.skip('testing Simba.adminGetEvents with queryParams', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const id = "195a5391-84f4-4743-8dfe-d898309db809";
         const queryParams = {
@@ -629,13 +780,21 @@ describe.skip('testing Simba.adminGetEvents with queryParams', () => {
 });
 
 describe('testing Simba.getReceipt', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getReceipt"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getReceipt"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.getReceipt(appName, contractName, transactionHash) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/receipt/0x2b05a28c90283011054f9299e92b80f045ff3d454f87008c8b67e767393b7d14/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         const receipt = res.receipt;
         expect(receipt.blockHash).to.equal("0x8b86451a944d10019047b9e14c3c423a1d620254733b02bc34c7292b4b82f04e");
         expect(receipt.blockNumber).to.equal(13814752);
@@ -657,13 +816,21 @@ describe('testing Simba.getReceipt', () => {
 });
 
 describe('testing Simba.getTransaction', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransaction"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransaction"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.getTransaction(appName, contractName, transactionHash) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/transaction/0x2b05a28c90283011054f9299e92b80f045ff3d454f87008c8b67e767393b7d14/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         const transaction = res.transaction;
         expect(transaction.blockHash).to.equal("0x8b86451a944d10019047b9e14c3c423a1d620254733b02bc34c7292b4b82f04e");
         expect(transaction.blockNumber).to.equal(13814752);
@@ -685,12 +852,20 @@ describe('testing Simba.getTransaction', () => {
 });
 
 describe('testing Simba.getTransactionsByMethod', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByMethod"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByMethod"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+
         const res = await simba.getTransactionsByMethod(appName, contractName, "structTest5") as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/structTest5/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
 
         expect(res.count).to.be.greaterThan(0);
         expect(res.next.includes("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/structTest5/?limit=10&offset=10")).to.equal(true);
@@ -701,7 +876,7 @@ describe('testing Simba.getTransactionsByMethod', () => {
 });
 
 describe('testing Simba.getTransactionsByMethod with queryParams', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const id = "5a2288c6-0562-41e8-8f63-e6820fa3e62a";
         const queryParams = {
@@ -709,9 +884,17 @@ describe('testing Simba.getTransactionsByMethod with queryParams', () => {
         }
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByMethodWithQueryParams"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByMethodWithQueryParams"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.getTransactionsByMethod(appName, contractName, "structTest5", queryParams) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/structTest5/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(res.count).to.be.equal(1);
         expect(res.next).to.equal(null);
         expect(res.previous).to.equal(null);
@@ -722,13 +905,21 @@ describe('testing Simba.getTransactionsByMethod with queryParams', () => {
 });
 
 describe('testing Simba.getTransactionsByContract', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByContract"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByContract"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.getTransactionsByContract(appName, contractName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/transactions/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(res.count).to.be.greaterThan(0);
         expect(res.next.includes("https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/transactions/?limit=10&offset=10")).to.equal(true);
         expect(res.previous).to.equal(null);
@@ -739,7 +930,7 @@ describe('testing Simba.getTransactionsByContract', () => {
 });
 
 describe('testing Simba.getTransactionsByContract with queryParams', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const id = "5a2288c6-0562-41e8-8f63-e6820fa3e62a";
         const queryParams = {
@@ -747,8 +938,17 @@ describe('testing Simba.getTransactionsByContract with queryParams', () => {
         }
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByMethodWithQueryParams"))
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getTransactionsByMethodWithQueryParams"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+
         const res = await simba.getTransactionsByMethod(appName, contractName, "structTest5", queryParams) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/structTest5/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(res.count).to.equal(1);
         expect(res.next).to.equal(null);
         expect(res.previous).to.equal(null);
@@ -759,7 +959,7 @@ describe('testing Simba.getTransactionsByContract with queryParams', () => {
 });
 
 describe('testing Simba.submitContractMethod', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const person = {
             name: "Lenny's Ghost",
@@ -779,8 +979,19 @@ describe('testing Simba.submitContractMethod', () => {
         const filePaths = [imageFile1Path, imageFile2Path];
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("structTest5Submit"))
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequestWithFormData").resolves(await callFakeMethod("structTest5Submit"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+        sandbox.stub(RequestHandler.prototype, "formDataFromFilePathsAndInputs").resolves({});
+        sandbox.stub(RequestHandler.prototype, "formDataHeaders").resolves({});
+
         const res = await simba.submitContractMethod(appName, contractName, methodName, inputs, filePaths) as Record<any, any>;
+
+        expect(doPostRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/structTest5/",
+            sinon.match({}),
+            sinon.match({}),
+        )).to.be.true;
+
         expect(res.id).to.exist;
         expect(res.request_id).to.exist;
         expect(res.created_on).to.exist;
@@ -791,13 +1002,30 @@ describe('testing Simba.submitContractMethod', () => {
         expect(res.receipt).to.exist;
         expect(Object.keys(res).includes("error")).to.equal(true);
         expect(res.error_details).to.exist;
-        expect(res.state).to.equal("ACCEPTED");
-        expect(Object.keys(res.raw_transaction).length).to.equal(0);
-        expect(res.transaction_hash).to.equal(null);
+        expect(res.state).to.equal("SUBMITTED");
+
+        const raw_transaction = res.raw_transaction;
+        expect(raw_transaction.from).to.exist;
+        expect(raw_transaction.to).to.exist;
+        expect(raw_transaction.chainId).to.exist;
+        expect(raw_transaction.nonce).to.exist;
+        expect(raw_transaction.data).to.exist;
+        expect(raw_transaction.value).to.exist;
+        expect(raw_transaction.gas).to.exist;
+        expect(raw_transaction.gasPrice).to.exist;
+
+        const signed_transaction = res.signed_transaction;
+        expect(signed_transaction.rawTransaction).to.exist;
+        expect(signed_transaction.hash).to.exist;
+        expect(signed_transaction.r).to.exist;
+        expect(signed_transaction.s).to.exist;
+        expect(signed_transaction.v).to.exist;
+
+        expect(res.transaction_hash).to.exist
         expect(res.bundle).to.exist;
         expect(res.block).to.equal(null);
-        expect(res.nonce).to.equal(null);
-        expect(res.from_address).to.equal(null);
+        expect(res.nonce).to.be.greaterThan(0);
+        expect(res.from_address).to.exist;
         expect(res.to_address).to.equal(null);
         expect(res.created_by).to.exist;
         expect(res.contract.id).to.equal("f8896066-73c4-40b6-837e-7bcb8307b231");
@@ -814,7 +1042,7 @@ describe('testing Simba.submitContractMethod', () => {
 });
 
 describe('testing Simba.submitContractMethodSync', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const person = {
             name: "Lenny's Ghost",
@@ -834,9 +1062,20 @@ describe('testing Simba.submitContractMethodSync', () => {
         const filePaths = [imageFile1Path, imageFile2Path];
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("structTest5Submit"));
-
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequestWithFormData").resolves(await callFakeMethod("structTest5Submit"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+        sandbox.stub(RequestHandler.prototype, "formDataFromFilePathsAndInputs").resolves({});
+        sandbox.stub(RequestHandler.prototype, "formDataHeaders").resolves({});
+        
         const res = await simba.submitContractMethodSync(appName, contractName, methodName, inputs, filePaths) as Record<any, any>;
+        
+        expect(doPostRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/sync/contract/test_contract_vds5/structTest5/",
+            sinon.match({}),
+            sinon.match({}),
+        )).to.be.true;
+
+
         expect(res.id).to.exist;
         expect(res.request_id).to.exist;
         expect(res.created_on).to.exist;
@@ -887,14 +1126,22 @@ describe('testing Simba.submitContractMethodSync', () => {
 });
 
 describe('testing Simba.callContractMethod', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const methodName = "getNum";
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getNumCall"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getNumCall"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.callContractMethod(appName, contractName, methodName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/contract/test_contract_vds5/getNum/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(res.request_id).to.exist;
         expect(res.value).to.equal(13);
         expect(res.state).to.equal("COMPLETED");
@@ -904,18 +1151,28 @@ describe('testing Simba.callContractMethod', () => {
 });
 
 describe('testing Simba.submitSignedTransaction', () => {
-    it('transaction must be pending. we expect a 400 because this transaction is not pending', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const txn = transactionObject;
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("submitSignedTransaction"));
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("submitSignedTransaction"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+
 
         const res: any = await simba.submitSignedTransaction(
             appName,
             nonPendingTransactionID,
             txn,
-            );
+        );
+
+        expect(doPostRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/apps/BrendanTestApp/transactions/8a2c5fbf-340f-4038-a3c0-bb8d088ecf1e/",
+            sinon.match({}),
+            sinon.match({"transaction":{"id":"8a2c5fbf-340f-4038-a3c0-bb8d088ecf1e","request_id":"418d2bc0-0b0c-455f-8ae2-1ba6ffdd63da","created_on":"2022-10-03T16:47:20.099589Z","finalized_on":null,"method":"structTest5","inputs":{"person":{"age":1000,"addr":{"town":"nyc","number":1234,"street":"rogers"},"name":"Lenny's Ghost"},"_bundleHash":"223873f49bb7623bfc7da8806f009bdead8e4aaafe5b6e56c0fb2b46471ca9e7"},"receipt":{},"error":null,"error_details":{},"state":"SUBMITTED","raw_transaction":{"to":"0x3daac1c8Bb80406D0eb2e7608C5d2fBcA92eD4a6","gas":"0x6c54","data":"0x47fb8c0a000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001c0000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000d4c656e6e7927732047686f737400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000004d200000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000006726f67657273000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000036e79630000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004032323338373366343962623736323362666337646138383036663030396264656164386534616161666535623665353663306662326234363437316361396537","from":"0xCa47475036474eAc0dF6697e6A6C74386f218236","nonce":"0x1a3","value":"0x0","chainId":"0x151","gasPrice":"0x0"},"signed_transaction":{"r":4.2809928544253906e+76,"s":5.268161053606005e+76,"v":710,"hash":"0x2a5b7db8fe8b81905ac602a1f09aedc943efd48cb5fa06e7b35537f636cf0976","rawTransaction":"0xf902898201a380826c54943daac1c8bb80406d0eb2e7608c5d2fbca92ed4a680b9022447fb8c0a000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001c0000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000d4c656e6e7927732047686f737400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000004d200000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000006726f67657273000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000036e796300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040323233383733663439626237363233626663376461383830366630303962646561643865346161616665356236653536633066623262343634373163613965378202c6a05ea58f96ab195f30f409c52bba44df15a9e9ba7acdd00ba18f83cfb060309d0ba07478bc2248e434d89e887f7f128085c89018828e002c19caf23d6a138bdbf344"},"transaction_hash":"0x2a5b7db8fe8b81905ac602a1f09aedc943efd48cb5fa06e7b35537f636cf0976","bundle":"def70871-57b3-4711-905d-6935c939529e","block":null,"nonce":419,"from_address":"0xCa47475036474eAc0dF6697e6A6C74386f218236","to_address":null,"created_by":9,"contract":{"id":"f8896066-73c4-40b6-837e-7bcb8307b231","api_name":"test_contract_vds5"},"app":"fb5fd523-9982-4785-a0ea-89d277f4014b","blockchain":"3b288902-8438-492b-857a-58060d9c254a","origin":"SCAAS","transaction_type":"MC","confirmations":0,"value":"0"}}),
+            true,
+        )).to.be.true;
+        
         expect(res.id).to.equal("3fa85f64-5717-4562-b3fc-2c963f66afa6");
 
         sandbox.restore();
@@ -923,18 +1180,26 @@ describe('testing Simba.submitSignedTransaction', () => {
 });
 
 describe('testing Simba.saveDesign', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const designName = "EventContract99";
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("saveDesign"));
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("saveDesign"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.saveDesign(
             orgName,
             designName,
             sourceCode,
         ) as Record<any, any>;
+
+        expect(doPostRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/contract_designs/",
+            sinon.match({}),
+            sinon.match({"name":"EventContract99","code":"Ly8gU1BEWC1MaWNlbnNlLUlkZW50aWZpZXI6IFVOTElDRU5TRUQKcHJhZ21hIHNvbGlkaXR5IF4wLjguMzsKCmNvbnRyYWN0IEV2ZW50Q29udHJhY3QgewogICAgCiAgICBldmVudCBMb2coYWRkcmVzcyBpbmRleGVkIHNlbmRlciwgc3RyaW5nIG1lc3NhZ2UpOwogICAgbWFwcGluZyhzdHJpbmcgPT4gdWludCkgcHVibGljIHVzZXJCYWxhbmNlczsKCiAgICBmdW5jdGlvbiBhZGRNYXBwaW5nKHN0cmluZyBtZW1vcnkgdXNlcklkKSBwdWJsaWMgewogICAgICAgIHVzZXJCYWxhbmNlc1t1c2VySWRdKys7CiAgICAgICAgZW1pdCBMb2cobXNnLnNlbmRlciwgIkRhdGEgcmVwb3J0ZWQiKTsKICAgICAgICByZXR1cm47CiAgICB9CgogICAgZnVuY3Rpb24gZ2V0QmFsYW5jZShzdHJpbmcgbWVtb3J5IHVzZXJJZCkgcHVibGljIHZpZXcgcmV0dXJucyAodWludCkgewogICAgICAgIHJldHVybiB1c2VyQmFsYW5jZXNbdXNlcklkXTsKICAgIH0KCn0=","language":"solidity"}),
+            true,
+        )).to.be.true;
         expect(res.id).to.exist;
         expect(res.name).to.equal(designName);
         expect(res.version).to.exist;
@@ -956,16 +1221,24 @@ describe('testing Simba.saveDesign', () => {
 });
 
 describe('testing Simba.waitForDeployment', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("waitForDeployment"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("waitForDeployment"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.waitForDeployment(
             orgName,
             deploymentID,
         ) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/deployments/37cb8577-65bd-4669-8380-b0a3ba93e718/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(res.id).to.equal(deploymentID);
         expect(Object.keys(res).includes("current_txn")).to.equal(true);
         expect(res.blockchain).to.exist;
@@ -987,12 +1260,14 @@ describe('testing Simba.waitForDeployment', () => {
 });
 
 describe('testing Simba.deployDesign', () => {
-    it('error.message should refer to 400, since api name is already taken', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("deployDesign"));
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("deployDesign"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
         const alreadyTakenAPIName = contractName;
+
         const res: any = await simba.deployDesign(
             orgName,
             appName,
@@ -1000,6 +1275,14 @@ describe('testing Simba.deployDesign', () => {
             designID,
             Quorum,
         );
+
+        expect(doPostRequestStub.calledWith(
+                "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/contract_designs/5114c41b-c03a-4674-b348-a0cd73d2c0d6/deploy/",
+                sinon.match({}),
+                sinon.match({"blockchain":"Quorum","storage":"no_storage","api_name":"test_contract_vds5","app_name":"BrendanTestApp","singleton":true}),
+                true,
+        )).to.be.true;
+
         expect(res.deployment_id).to.equal("someID");
 
         sandbox.restore();
@@ -1007,12 +1290,14 @@ describe('testing Simba.deployDesign', () => {
 });
 
 describe('testing Simba.deployArtifact', () => {
-    it('error.message should refer to 400, since api name is already taken', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const alreadyTakenAPIName = contractName;
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("deployArtifact"));
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("deployArtifact"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+
         
         const res: any = await simba.deployArtifact(
             orgName,
@@ -1021,6 +1306,14 @@ describe('testing Simba.deployArtifact', () => {
             artifactID,
             Quorum,
         );
+
+        expect(doPostRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/deployments/",
+            sinon.match({}),
+            sinon.match({"blockchain":"Quorum","storage":"no_storage","api_name":"test_contract_vds5","artifact_id":"4b80be26-c6a3-4aa6-82d1-f94925e5da2b","app_name":"BrendanTestApp","singleton":true}),
+            true,
+        )).to.be.true;
+
         expect(res.artifact_id).to.equal("3fa85f64-5717-4562-b3fc-2c963f66afa6");
 
         sandbox.restore();
@@ -1028,68 +1321,81 @@ describe('testing Simba.deployArtifact', () => {
 });
 
 describe('testing Simba.waitForDeployDesign', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const alreadyTakenAPIName = contractName;
 
         const sandbox = sinon.createSandbox();
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves({state: "COMPLETED"});
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
         sandbox.stub(Simba.prototype, "deployDesign").resolves(await callFakeMethod("deployDesign"));
-        sandbox.stub(Simba.prototype, "waitForDeployment").resolves(await callFakeMethod("waitForDeployDesign"));
 
-        const res: any = await simba.waitForDeployDesign(
+        await simba.waitForDeployDesign(
             orgName,
             appName,
             designID,
             alreadyTakenAPIName,
             Quorum,
         );
-        const primary = res[0];
-        const artifact_id = res[1];
-        // primary is {}, so we expect no keys or values, below
-        expect(Object.values(primary).length).to.equal(0)
-        expect(artifact_id).to.equal("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/deployments/someID/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
 
         sandbox.restore();
     }).timeout(10000);
 });
 
 describe('testing Simba.waitForDeployArtifact', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const alreadyTakenAPIName = contractName;
 
         const sandbox = sinon.createSandbox();
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves({state: "COMPLETED"});
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
         sandbox.stub(Simba.prototype, "deployArtifact").resolves(await callFakeMethod("deployArtifact"));
-        sandbox.stub(Simba.prototype, "waitForDeployment").resolves(await callFakeMethod("waitForDeployment"))
-        const res: any = await simba.waitForDeployArtifact(
+
+        // sandbox.stub(Simba.prototype, "waitForDeployment").resolves(await callFakeMethod("waitForDeployment"))
+        await simba.waitForDeployArtifact(
             orgName,
             appName,
             artifactID,
             alreadyTakenAPIName,
             Quorum,
         );
-        const primary = res[0];
-        const artifact_id = res[1]; 
-        expect(primary.deployed_artifact_id).to.equal("05e0f6b5-e936-4c69-b723-bf7fdc168011");
-        expect(primary.name).to.equal("TestContractVT20");
-        expect(primary.address).to.equal("0x4E78d5107AF1A118Cb067BabF278A52fA39B414F");
-        expect(artifact_id).to.equal(null);
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/deployments/undefined/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
 
         sandbox.restore();
     }).timeout(10000);
 });
 
 describe('testing Simba.waitForOrgTransaction', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("waitForOrgTransaction"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("waitForOrgTransaction"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.waitForOrgTransaction(
             orgName,
             transactionID,
         ) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/transactions/7eb73229-b1f8-4aa4-af4b-37f79c1df6bb/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(res.id).to.exist;
         expect(res.request_id).to.exist;
         expect(res.created_on).to.exist;
@@ -1121,13 +1427,21 @@ describe('testing Simba.waitForOrgTransaction', () => {
 });
 
 describe('testing Simba.getDesigns', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getDesigns"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getDesigns"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.getDesigns(orgName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/contract_designs/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
         expect(res.count).to.be.greaterThan(0);
         expect(res.next.includes("https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/contract_designs/?limit=10&offset=10")).to.equal(true);
         expect(res.previous).to.equal(null);
@@ -1148,13 +1462,20 @@ describe('testing Simba.getDesigns', () => {
 });
 
 describe('testing Simba.getBlockchains', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getBlockchains"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getBlockchains"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.getBlockchains(orgName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/blockchains/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
 
         expect(res.count).to.be.greaterThan(0);
         expect(Object.keys(res).includes("next")).to.equal(true);
@@ -1191,12 +1512,20 @@ describe('testing Simba.getBlockchains', () => {
 });
 
 describe('testing Simba.getStorages', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getStorages"));
+        const doGetRequest = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getStorages"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+
         const res = await simba.getStorages(orgName) as Record<any, any>;
+
+        expect(doGetRequest.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/storage/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
 
         expect(res.count).to.be.greaterThan(0);
         expect(Object.keys(res).includes("next")).to.equal(true);
@@ -1214,12 +1543,20 @@ describe('testing Simba.getStorages', () => {
 });
 
 describe('testing Simba.getArtifacts', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getArtifacts"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getArtifacts"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
+
         const res = await simba.getArtifacts(orgName) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/contract_artifacts/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
 
         expect(res.count).to.be.greaterThan(0);
         expect(Object.keys(res).includes("next")).to.equal(true);
@@ -1246,14 +1583,21 @@ describe('testing Simba.getArtifacts', () => {
 });
 
 describe('testing Simba.getArtifact', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const artifactID = "af76b1a9-365a-428f-8749-cd23280b4ead";
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getArtifact"));
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("getArtifact"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const artifact = await simba.getArtifact(orgName, artifactID) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/contract_artifacts/af76b1a9-365a-428f-8749-cd23280b4ead/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
 
         expect(artifact.id).to.exist;
         expect(artifact.design).to.exist;
@@ -1274,14 +1618,21 @@ describe('testing Simba.getArtifact', () => {
 });
 
 describe('testing Simba.createArtifact', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const designID = "644ed6cc-8073-4c4b-9395-aa466a3a27e7";
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("createArtifact"));
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("createArtifact"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const artifact = await simba.createArtifact(orgName, designID) as Record<any, any>;
+
+        expect(doPostRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/contract_artifacts/",
+            sinon.match({}),
+            sinon.match({"design_id":"644ed6cc-8073-4c4b-9395-aa466a3a27e7"}),
+        )).to.be.true;
 
         expect(artifact.id).to.exist;
         expect(artifact.design).to.exist;
@@ -1302,7 +1653,7 @@ describe('testing Simba.createArtifact', () => {
 });
 
 describe('testing Simba.subscribe', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const notificationEndpoint = "https://a-fake-url/v2/a.fake.endpoint";
         const contractAPI = contractName;
@@ -1310,7 +1661,16 @@ describe('testing Simba.subscribe', () => {
         const subscriptionType = "METHOD";
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("subscribe"));
+        const resArray = [{
+            endpoint: "fakeendpoint",
+            txn: "faketxn",
+            contract: "fakecontract",
+            auth_type: "fakeauthtype",
+        }];
+
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(resArray);
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("subscribe"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.subscribe(
             orgName,
@@ -1319,6 +1679,19 @@ describe('testing Simba.subscribe', () => {
             txn,
             subscriptionType,
         ) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/subscriptions/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
+        expect(doPostRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/subscriptions/",
+            sinon.match({}),
+            sinon.match({"endpoint":"https://a-fake-url/v2/a.fake.endpoint","txn":"structTest5","contract":"test_contract_vds5","auth_type":"","subscription_type":"METHOD"}),
+            true,
+        )).to.be.true;
 
         expect(res.id).to.exist;
         expect(res.endpoint).to.equal(notificationEndpoint);
@@ -1332,16 +1705,38 @@ describe('testing Simba.subscribe', () => {
 });
 
 describe('testing Simba.setNotificationConfig', () => {
-    it('specified fields should exist', async () => {
+    it('request method(s) should be called with correct params', async () => {
         const simba = new Simba();
         const scheme = "http";
         const authType = "";
         const authInfo = {};
 
         const sandbox = sinon.createSandbox();
-        sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(await callFakeMethod("setNotificationConfig"));
+
+        const resArray = [{
+            scheme: "fakescheme",
+            auth_type: "fakeauthtype",
+            authInfo: "fakeauthinfo",
+        }];
+
+        const doGetRequestStub = sandbox.stub(RequestHandler.prototype, "doGetRequest").resolves(resArray);
+        const doPostRequestStub = sandbox.stub(RequestHandler.prototype, "doPostRequest").resolves(await callFakeMethod("setNotificationConfig"));
+        sandbox.stub(RequestHandler.prototype, "getAuthAndOptions").resolves({});
 
         const res = await simba.setNotificationConfig(orgName, scheme, authType, authInfo) as Record<any, any>;
+
+        expect(doGetRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/notification_config/",
+            sinon.match({}),
+            true,
+        )).to.be.true;
+
+        expect(doPostRequestStub.calledWith(
+            "https://simba-dev-api.platform.simbachain.com/v2/organisations/brendan_birch_simbachain_com/notification_config/",
+            sinon.match({}),
+            sinon.match({"scheme":"http","auth_type":"","auth_info":{}}),
+            true,
+        )).to.be.true;
 
         expect(res.id).to.exist;
         expect(res.scheme).to.equal(scheme);

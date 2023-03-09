@@ -20,6 +20,7 @@ const pathToTestMetaData = path.join(cwd(), "test_data", "test_metadata.json");
 
 describe('testing ParamCheckingContract.getMetadata', () => {
     it('both metadata objects should have the same fields and values', async () => {
+        // leaving this test in integration, without mocking or stubbing
         const metadata = await FileHandler.parsedFile(pathToTestMetaData);
         const pcc1 = new ParamCheckingContract(
             appName,
@@ -35,5 +36,5 @@ describe('testing ParamCheckingContract.getMetadata', () => {
         const md1 = await pcc1.getMetadata();
         const md2 = await pcc2.getMetadata();
         expect(md1.contract.name).to.equal(md2.contract.name);
-    }).timeout(5000);
+    }).timeout(10000);
 });
