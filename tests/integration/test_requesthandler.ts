@@ -1,21 +1,18 @@
 import {
     RequestHandler,
-} from "../../request_handler";
+} from "../../src/request_handler";
 import {
     SimbaConfig,
     AUTHKEY,
-} from "../../config";
+} from "../../src/config";
 import * as path from 'path';
 import {cwd} from 'process';
 import { expect } from 'chai';
 import 'mocha';
 
 describe('testing RequestHandler.doPostRequestWithFormData', () => {
-    it('res.id should exist', async () => {
-        const appName = "BrendanTestApp";
-        const contractName = "test_contract_vds5";
-        const methodName = "structTest5";
-        const url = `https://simba-dev-api.platform.simbachain.com/v2/apps/${appName}/contract/${contractName}/${methodName}/`
+    it('res.files object should have keys and values', async () => {
+        const url = "https://httpbin.org/post";
         const person = {
             name: "Lenny's Ghost",
             age: 1000,
@@ -36,7 +33,7 @@ describe('testing RequestHandler.doPostRequestWithFormData', () => {
         const options = await rh.getAuthAndOptions();
         const fdHeaders = rh.formDataHeaders(options, formData);
         const res = await rh.doPostRequestWithFormData(url, formData, fdHeaders) as Record<any, any>;
-        expect(res.id).to.exist;
+        expect(Object.values(res.files).length).to.be.greaterThan(0)
     }).timeout(5000);
 });
 
@@ -97,7 +94,7 @@ describe('testing RequestHandler.setAndGetAuthToken', () => {
         const accessTokenFromConfig = authTokenFromConfig.access_token;
         const accessTokenFromAPI = authTokenFromAPI.access_token;
         expect(accessTokenFromConfig).to.equal(accessTokenFromAPI);
-    }).timeout(5000);
+    }).timeout(10000);
 });
 
 describe('testing RequestHandler.getAuthTokenFromClientCreds', () => {
@@ -141,50 +138,52 @@ describe('testing RequestHandler.getAuthAndOptions', () => {
 });
 
 describe('testing RequestHandler.doPostRequest', () => {
-    it('endpoint should return data with id', async () => {
+    it('res.data.user should equal data.user', async () => {
         const rh = new RequestHandler();
-        const url = "https://simba-dev-api.platform.simbachain.com/admin/users/organisation/add/";
+        const url = "https://httpbin.org/post";
         const data = {
             user: "brendan.birch@simbachain.com",
             solution_blocks: {},
             organisation_name: "brendan_birch_simbachain_com",
             role: "Owner",
         };
-        // function
-        // calling with the above data will not change anything for this user
-        // since they are already an owner
+
         const options = await rh.getAuthAndOptions();
         const res = await rh.doPostRequest(url, options, data) as Record<any, any>;
-        expect(res.organisation_name).to.equal(data.organisation_name);
+        expect(JSON.parse(res.data).user).to.equal(data.user)
     }).timeout(5000);
 });
 
 describe('testing RequestHandler.doGetRequest', () => {
-    it('res.count should be greater than 0', async () => {
+    it('res.url should equal url', async () => {
         const rh = new RequestHandler();
-        const url = "https://simba-dev-api.platform.simbachain.com/v2/organisations/";
+        const url = 'https://httpbin.org/get';
         const options = await rh.getAuthAndOptions();
         const res = await rh.doGetRequest(url, options) as Record<any, any>;
-        expect(res.count).to.be.greaterThan(0);
+        expect(res.url).to.equal(url);
     }).timeout(5000);
 });
 
 describe('testing RequestHandler.doPutRequest', () => {
-    it('res.defauult_organisation should equal data.default_organisation', async () => {
+    it('res.url should equal url', async () => {
         const rh = new RequestHandler();
-        const url = "https://simba-dev-api.platform.simbachain.com/user/default_organisation/";
+        const url = "https://httpbin.org/put";
         const data = {
             default_organisation: "brendan_birch_simbachain_com",
         };
         const options = await rh.getAuthAndOptions();
         const res = await rh.doPutRequest(url, options, data) as Record<any, any>;
-        expect(res.default_organisation).to.equal(data.default_organisation);
+        expect(res.url).to.equal(url)
     }).timeout(5000);
 });
 
 describe('testing RequestHandler.doDeleteRequest', () => {
     it('needs to be implemented', async () => {
-        // needs to be implemented
+        const rh = new RequestHandler();
+        const url = 'https://httpbin.org/delete';
+        const options = await rh.getAuthAndOptions();
+        const res = await rh.doDeleteRequest(url, options) as Record<any, any>;
+        expect(res.url).to.equal(url);
     }).timeout(5000);
 });
 

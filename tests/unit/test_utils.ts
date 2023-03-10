@@ -1,7 +1,7 @@
 import {
     getAddress,
-    getDeployedArtifactID,
-} from "../../utils";
+    getArtifactID,
+} from "../../src/utils";
 import { expect } from 'chai';
 import 'mocha';
 
@@ -16,12 +16,13 @@ describe('testing getAddress', () => {
     });
 });
 
-describe('testing getDeployedArtifactID', () => {
+describe('testing getArtifactID', () => {
     it('id should be deployment.primary', async () => {
         const deployment = {
             primary: "1234",
+            artifact_id: "5678"
         };
-        const primary = getDeployedArtifactID(deployment);
-        expect(primary).to.equal(deployment.primary);
+        const artifact_id = getArtifactID(deployment);
+        expect(artifact_id).to.equal(deployment.artifact_id);
     });
 });

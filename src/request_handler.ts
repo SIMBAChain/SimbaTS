@@ -46,7 +46,7 @@ export class RequestHandler {
         return fullURL;
     }
 
-    private async doHTTPRequest(
+    public async doHTTPRequest(
         url: string,
         method: string,
         options: Record<any, any>,

@@ -14,7 +14,7 @@ import {
 import utf8 from "utf8";
 import {
 	getAddress,
-	getDeployedArtifactID,
+	getArtifactID,
 } from "./utils";
 import {
 	FileHandler,
@@ -277,7 +277,7 @@ export class Simba {
     	const postURL = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/applications/`);
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
-			await this.requestHandler.doGetRequest(getURL, options, parseDataFromResponse);
+			const res = await this.requestHandler.doGetRequest(getURL, options, parseDataFromResponse);
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response && error.response.status === 404) {
 				const data = {
@@ -303,31 +303,10 @@ export class Simba {
 			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
 			throw(error);
 		}
+		const message = `app ${appName} for org ${orgName} already exists`;
+		SimbaConfig.log.error(`${message}`);
+		throw new Error(message);
 	}
-	
-	public async getApplications(
-		parseDataFromResponse: boolean = true,
-	): Promise<AxiosResponse<any> | Record<any, any>> {
-		const params = {
-			parseDataFromResponse,
-		}
-		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/`)
-    	const options = await this.requestHandler.getAuthAndOptions();
-    	try {
-			const res = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
-			return res;
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
-			} else {
-				SimbaConfig.log.error(`${JSON.stringify(error)}`);
-			}
-			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
-			throw(error);
-		}
-  	}
 	
 	public async getApplication(
 		orgName: string,
@@ -1267,7 +1246,7 @@ export class Simba {
 		try {
 			const deployed = await this.waitForDeployment(orgName, deploymentID);
 			address = getAddress(deployed);
-			contractID = getDeployedArtifactID(deployed);
+			contractID = getArtifactID(deployed);
 			const ret = [address, contractID];
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : ret : ${JSON.stringify(ret)}`);
 			return ret;
@@ -1318,7 +1297,7 @@ export class Simba {
 		try {
 			const deployed = await this.waitForDeployment(orgName, deploymentID);
 			address = getAddress(deployed);
-			contractID = getDeployedArtifactID(deployed);
+			contractID = getArtifactID(deployed);
 			const ret = [address, contractID];
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : ret : ${JSON.stringify(ret)}`);
 			return ret;

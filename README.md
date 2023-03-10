@@ -3,8 +3,6 @@ TypeScript SDK for SIMBA Chain
 
 # @simbachain/simbats
 
-Hardhat plugin for deploying smart contracts to the SIMBA Chain Blocks platform.
-
 # Table of Contents:
 1. [Summary](#summary)
 2. [Installation](#installation)
@@ -70,9 +68,9 @@ SIMBA_AUTH_CLIENT_ID="your SIMBA client ID"
 SIMBA_AUTH_CLIENT_SECRET="your SIMBA client secret"
 ```
 
-Additionall, you can also set the log level for debugging purposes. So for instance, if you want to set the SimbaTS logger to debug, you would set:
+Additionally, you can also set the log level for debugging purposes. So for instance, if you want to set the SimbaTS logger to debug, you would set:
 ```
-SIMBATS_LOG_LEVEL="info"
+SIMBA_LOG_LEVEL="info"
 ```
 
 ### Where to store your environment variables
@@ -913,10 +911,10 @@ SIMBA_AUTH_CLIENT_ID="Insert your client ID"
 SIMBA_AUTH_CLIENT_SECRET="Insert your clietn secret"
 ```
 
-Additionally, you can also configure SIMBATS_LOG_LEVEL, if you want tests to be run at a different log level. So if you want tests to be run at "debug" level, in .simbachain.env you would set:
+Additionally, you can also configure SIMBA_LOG_LEVEL, if you want tests to be run at a different log level. So if you want tests to be run at "debug" level, in .simbachain.env you would set:
 
 ```
-SIMBATS_LOG_LEVEL="info"
+SIMBA_LOG_LEVEL="info"
 ```
 
 ### unit and integration tests for developers
