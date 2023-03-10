@@ -308,30 +308,6 @@ export class Simba {
 		throw new Error(message);
 	}
 	
-	public async getApplications(
-		parseDataFromResponse: boolean = true,
-	): Promise<AxiosResponse<any> | Record<any, any>> {
-		const params = {
-			parseDataFromResponse,
-		}
-		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/`)
-    	const options = await this.requestHandler.getAuthAndOptions();
-    	try {
-			const res = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
-			return res;
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
-			} else {
-				SimbaConfig.log.error(`${JSON.stringify(error)}`);
-			}
-			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
-			throw(error);
-		}
-  	}
-	
 	public async getApplication(
 		orgName: string,
 		appName: string,
