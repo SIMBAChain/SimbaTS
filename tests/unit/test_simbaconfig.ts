@@ -90,7 +90,7 @@ describe('tests setEnvVars', () => {
         const envVars = SimbaConfig.envVars;
         // following two tests ensure .envVars was both set and returned
         expect(Object.values(envVars).length).to.be.greaterThan(0);
-    }).timeout(10000);
+    });
 
     it('SimbaConfig.envVars should be present after calling .retrieveEnvVar()', async () => {
         // for this test, you need to have env vars set for:
@@ -101,7 +101,7 @@ describe('tests setEnvVars', () => {
         const envVars = SimbaConfig.envVars;
         // following two tests ensure .envVars was both set and returned
         expect(Object.values(envVars).length).to.be.greaterThan(0);
-    }).timeout(10000);
+    });
 });
 
 describe('tests retrieveEnvVar', () => {
@@ -120,5 +120,5 @@ describe('tests retrieveEnvVar', () => {
         const authEndpointFromMethod = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT);
         const authEndpointFromEnv = process.env.SIMBA_AUTH_CLIENT_ENDPOINT;
         expect(authEndpointFromMethod).to.equal(authEndpointFromEnv);
-    }).timeout(10000);
+    });
 });

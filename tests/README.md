@@ -26,7 +26,7 @@ SIMBATS_LOG_LEVEL="info"
 And that's all you need for setup!
 
 ## Running Tests
-You'll see references to "setup"/"with_setup" in these tests. These commands do not currently do anything, because we aren't manipulating simba.json or other files that need to be set/unset before and after tests. However, references to the functions remain here, in case we do want to implement setup and teardown in the future.
+You'll see references to "setup"/"with_setup" in these tests. These commands do not currently do anything, because we aren't manipulating files that need to be set/unset before and after tests. However, references to the functions remain here, in case we do want to implement setup and teardown in the future.
 
 For the actual scripts / commands to run, you can read through package.json, under "scripts". To run any given test, from the root of this project, run from the terminal:
 
