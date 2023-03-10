@@ -7,37 +7,15 @@ import * as path from 'path';
 import {cwd} from 'process';
 import * as fs from "fs";
 import {
-    orgName,
     appName,
     contractName,
     bundleHash,
     mumbaiWallet,
-    userEmail,
-    solContractName,
-    Quorum,
-    ethereum,
-    transactionHash,
-    solidity,
-    sourceCode,
-    deploymentID,
-    designID,
-    artifactID,
-    transactionID,
     mumbai,
     eventContract,
     eventName,
-    nonPendingTransactionID,
-    transactionObject,
 } from "../project_configs";
 import { FileHandler } from "../../src/filehandler";
-
-import {
-    RequestHandler,
-} from "../../src/request_handler";
-import {
-    callFakeMethod,
-} from "../tests_setup/fake_method_caller";
-import sinon from "sinon";
 
 
 // endpoint still needs to be fixed
@@ -113,7 +91,6 @@ describe.skip('testing Simba.getContracts with queryParams', () => {
 
 describe('testing Simba.getBundle', () => {
     it('file should exist after invocation', async () => {
-        // don't mock/stub this method
         const simba = new Simba();
         const downloadLocation = path.join(cwd(), "test_data", "downloadedBundle.tar.gz");
         FileHandler.removeFile(downloadLocation);
@@ -130,7 +107,6 @@ describe('testing Simba.getBundle', () => {
 
 describe('testing Simba.getBundleFile', () => {
     it('file should exist after invocation', async () => {
-        // don't mock/stub this method
 
         const simba = new Simba();
         const fileName = "testimage1.png";
