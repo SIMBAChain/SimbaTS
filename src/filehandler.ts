@@ -23,6 +23,12 @@ export const promisifiedReadFile = (filePath: fs.PathLike, options: { encoding?:
     });
 
 export class FileHandler {
+    /**
+     * transfer file from inputPath to outputPath
+     * @param inputPath 
+     * @param outputPath 
+     * @param parseAsJson 
+     */
     public static async transferFile(
         inputPath: string,
         outputPath: string,
@@ -43,6 +49,12 @@ export class FileHandler {
         fs.writeFileSync(outputPath, data);
     }
 
+    /**
+     * 
+     * @param data 
+     * @param downloadLocation 
+     * @returns {Promise<any>}
+     */
     public static async download(data: any, downloadLocation: string): Promise<any> {
         FileHandler.makeDirectory(downloadLocation);
         const writer = fs.createWriteStream(downloadLocation);
@@ -57,11 +69,20 @@ export class FileHandler {
         });
     }
 
-    public static async parsedFile(filePath: string) {
+    /**
+     * 
+     * @param filePath 
+     * @returns {Promise<any>}
+     */
+    public static async parsedFile(filePath: string): Promise<any> {
         const buf = await promisifiedReadFile(filePath, {flag: 'r'});
         return JSON.parse(buf.toString());
     }
 
+    /**
+     * creates directory recursively
+     * @param filePath 
+     */
     public static makeDirectory(filePath: string) {
         const dirName = path.dirname(filePath);
         SimbaConfig.log.info(`:: creating directory ${filePath}`);
@@ -70,6 +91,10 @@ export class FileHandler {
         }
     }
 
+    /**
+     * deletes a file
+     * @param filePath 
+     */
     public static removeFile(filePath: string) {
         SimbaConfig.log.info(`:: deleting file ${filePath}`);
         if (fs.existsSync(filePath)) {
@@ -77,6 +102,10 @@ export class FileHandler {
         }
     }
 
+    /**
+     * deletes a directory
+     * @param filePath 
+     */
     public static removeDirectory(filePath: string) {
         try {
             SimbaConfig.log.info(`:: deleting directory ${filePath}`);

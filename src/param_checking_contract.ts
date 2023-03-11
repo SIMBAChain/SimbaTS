@@ -6,10 +6,9 @@ import {
     RequestHandler,
 } from "./request_handler"
 
-
-// this logic will need to look different in langX,
-// since we can't call "this" in constructor
-// to get metadata
+/**
+ * this class is used to check param types before making HTTP call for contract methods
+ */
 class ParamCheckingContract {
     appName: string;
     contractName: string;
@@ -33,12 +32,21 @@ class ParamCheckingContract {
         }
     }
 
+    /**
+     * gives the true type of a variable, since pretty much everything in JS is just an "object"
+     * @param someObject 
+     * @returns {string}
+     */
     trueType(
         someObject: any
     ): string {
         return Object.prototype.toString.call(someObject).slice(8, -1).toLowerCase()
     }
 
+    /**
+     * retrieves metadata for this.contractName
+     * @returns {Promise<Record<any, any>>}
+     */
     public async getMetadata(): Promise<Record<any, any>> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         if (this.metadata) {
@@ -70,10 +78,20 @@ class ParamCheckingContract {
 		}
     }
 
+    /**
+     * specifies whether a param is an array
+     * @param param 
+     * @returns {boolean}
+     */
     public isArray(param: string): boolean {
         return param.endsWith("]");
     }
 
+    /**
+     * specifies what variables are permitted as elements of an array
+     * @param arrString 
+     * @returns {Record<number | string, string>}
+     */
     public arrayRestrictions(
         arrString: string
     ): Record<number | string, string> {
@@ -109,6 +127,12 @@ class ParamCheckingContract {
         return arrLengths;
     }
 
+    /**
+     * returns number of dimensions for an array
+     * @param param 
+     * @param dims 
+     * @returns {number}
+     */
     public getDimensions(
         param: string,
         dims: number = 0
@@ -121,6 +145,10 @@ class ParamCheckingContract {
         return this.getDimensions(param, dims);
     }
 
+    /**
+     * specifies all param restrictions for all contract methods
+     * @returns {Promise<Record<any, any> | void>}
+     */
     public async paramRestrictions(): Promise<Record<any, any> | void> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         const metadata = this.metadata ? this.metadata : await this.getMetadata() as Record<any, any>;
@@ -165,6 +193,14 @@ class ParamCheckingContract {
         return paramRest;
     }
 
+    /**
+     * returns true if passed array argument meets param restrictions
+     * @param arr 
+     * @param paramName 
+     * @param paramRestrictionsObj 
+     * @param level 
+     * @returns {boolean | Error}
+     */
     private checkArrayRestrictions(
         arr: Array<any>,
         paramName: string,
@@ -231,6 +267,11 @@ class ParamCheckingContract {
         return true;
     }
 
+    /**
+     * returns true if a passed uint argument meets param restrictions
+     * @param paramValue 
+     * @returns {boolean | Error}
+     */
     private checkUintRestriction(
         paramValue: number
     ): boolean | Error {
@@ -249,6 +290,12 @@ class ParamCheckingContract {
         return true;
     }
 
+    /**
+     * validates all passed arguments for a method call
+     * @param methodName 
+     * @param inputs 
+     * @returns {Promise<boolean | Error>}
+     */
     public async validateParams(
         methodName: string,
         inputs: Record<any, any> | null

@@ -19,7 +19,6 @@ import 'mocha';
 
 describe('testing SimbaContract.getBundle', () => {
     it('file should exist after invocation', async () => {
-        // this method should not be mocked/stubbed
 
         const simbaContract = new SimbaContract(
             baseApiUrl,
@@ -39,7 +38,6 @@ describe('testing SimbaContract.getBundle', () => {
 
 describe('testing SimbaContract.getBundleFile', () => {
     it('file should exist after invocation', async () => {
-        // this method should not be mocked/stubbed
 
         const simbaContract = new SimbaContract(
             baseApiUrl,

@@ -6,7 +6,6 @@ import {
 } from "tslog";
 import * as dotenv from "dotenv";
 import * as os from "os";
-import {default as chalk} from 'chalk';
 
 const SIMBA_HOME = process.env.SIMBA_HOME || os.homedir();
 const DEFAULT_AUTH_ENDPOINT = "/o/";
@@ -69,6 +68,8 @@ export class SimbaConfig {
 
     /**
      * handles project info, contained in simba.json
+     * simba.json is not currently used in SimbaTS, but
+     * there may be a use case for storing project info in the future
      */
     public static get ProjectConfigStore(): Configstore {
         if (!this._projectConfigStore) {
@@ -103,6 +104,9 @@ export class SimbaConfig {
         return process.env[SimbaEnvVarKeys.SIMBA_LOG_LEVEL] as LogLevel;
     }
 
+    /**
+     * retrieves SIMBA_API_BASE_URL from env file
+     */
     public static get baseURL(): string {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         const baseURL = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_API_BASE_URL);
@@ -193,6 +197,11 @@ export class SimbaConfig {
         throw new Error(message);
     }
 
+    /**
+     * sets auth token in authconfig.json
+     * @param authToken 
+     * @returns 
+     */
     public static setAuthToken(authToken: Record<any, any>) {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         SimbaConfig.authConfig.set(AUTHKEY, authToken);
@@ -200,6 +209,10 @@ export class SimbaConfig {
         return;
     }
 
+    /**
+     * retrieves auth token from authconfig.json
+     * @returns {Record<any, any>}
+     */
     public static getAuthTokenFromConfig(): Record<any, any> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         const authToken = SimbaConfig.authConfig.get(AUTHKEY) ?
@@ -209,6 +222,11 @@ export class SimbaConfig {
         return authToken;
     }
 
+    /**
+     * takes in an auth token and adds new fields, such as retrieved_at and expires_at
+     * @param authToken 
+     * @returns {Record<any, any>}
+     */
     public static parseExpiry(authToken: Record<any, any>): Record<any, any> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         if ('expires_in' in authToken) {
@@ -227,6 +245,11 @@ export class SimbaConfig {
         return authToken;
     }
 
+    /**
+     * parses auth token and sets it in authconfig.json
+     * @param authToken 
+     * @returns {Record<any, any>}
+     */
     public static getAndSetParsedAuthToken(authToken: Record<any, any>): Record<any, any> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         const parsedToken = SimbaConfig.parseExpiry(authToken);
@@ -238,7 +261,7 @@ export class SimbaConfig {
     /**
      * checks if auth token is expired. used as a check before we make http call
      * idea is to check for bad token before http call, if possible
-     * @returns 
+     * @returns {boolean}
      */
     public static tokenExpired(): boolean {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
@@ -265,7 +288,7 @@ export class SimbaConfig {
      * 
      * Note: likely won't use, since the SDK will use client creds, and the
      * access token for client creds does not have a refresh token
-     * @returns 
+     * @returns {boolean}
      */
     public refreshTokenExpired(): boolean {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
@@ -286,6 +309,12 @@ export class SimbaConfig {
         return false;
     }
 
+    /**
+     * set a field in auth token in authconfig.json
+     * @param fieldKey 
+     * @param fieldVal 
+     * @returns 
+     */
     public static setAuthTokenField(fieldKey: string, fieldVal: any) {
         const params = {
             fieldKey,
