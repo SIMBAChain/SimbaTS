@@ -14,6 +14,9 @@ import {
     SimbaContractSync,
 } from "./simba_contract_sync";
 
+/**
+ * extends Simba object, for making synhronous method calls
+ */
 export class SimbaSync extends Simba {
 	baseApiUrl: string;
 	requestHandler: RequestHandler;
@@ -27,6 +30,12 @@ export class SimbaSync extends Simba {
 		this.requestHandler = requestHandler;
 	}
 
+    /**
+     * returns synchronous version of SimbaContract (SimbaContractSync)
+     * @param appName 
+     * @param contractName 
+     * @returns {SimbaContractSync}
+     */
 	public getSimbaContract(
 		appName: string,
 		contractName: string,
@@ -41,6 +50,16 @@ export class SimbaSync extends Simba {
 		return simbaContract;
 	}
 
+    /**
+     * submit contract method synchronously
+     * @param appName 
+     * @param contractName 
+     * @param methodName 
+     * @param inputs 
+     * @param filePaths 
+     * @param parseDataFromResponse 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+     */
     public async submitContractMethod(
 		appName: string,
 		contractName: string,

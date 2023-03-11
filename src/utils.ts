@@ -2,6 +2,11 @@ import {
     SimbaConfig,
 } from "./config";
 
+/**
+ * parse address from a deployment object
+ * @param deployment 
+ * @returns {string | undefined}
+ */
 export function getAddress(deployment: Record<any, any>): string | undefined {
     const params = {
         deployment,
@@ -12,6 +17,11 @@ export function getAddress(deployment: Record<any, any>): string | undefined {
     return primary;
 }
 
+/**
+ * get artifact ID from deployment object
+ * @param deployment 
+ * @returns {string | undefined}
+ */
 export function getArtifactID(deployment: Record<any, any>): string | undefined {
   const params = {
       deployment,

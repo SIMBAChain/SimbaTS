@@ -18,6 +18,9 @@ export enum RequestMethods {
     GET = "GET",
 }
 
+/**
+ * class for making HTTP requests
+ */
 export class RequestHandler {
     baseURL: string;
 
@@ -25,6 +28,12 @@ export class RequestHandler {
         this.baseURL = baseURL;
     }
 
+    /**
+     * method for building a URL, accounting for redundant slashes, etc.
+     * @param baseURL 
+     * @param endpoint 
+     * @returns {string}
+     */
     public buildURL(
         baseURL: string,
         endpoint: string,
@@ -46,6 +55,15 @@ export class RequestHandler {
         return fullURL;
     }
 
+    /**
+     * general method for making HTTP requests. never gets called directly
+     * @param url 
+     * @param method 
+     * @param options 
+     * @param data 
+     * @param parseDataFromResponse 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any> | Array<any>>}
+     */
     public async doHTTPRequest(
         url: string,
         method: string,
@@ -105,6 +123,14 @@ export class RequestHandler {
         }
     }
 
+    /**
+     * do post request
+     * @param url 
+     * @param options 
+     * @param data 
+     * @param parseDataFromResponse 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any> | Array<any>>}
+     */
     public async doPostRequest(
         url: string,
         options: Record<any, any>,
@@ -123,6 +149,14 @@ export class RequestHandler {
         return res;
     }
 
+    /**
+     * do get request
+     * @param url 
+     * @param options 
+     * @param parseDataFromResponse 
+     * @param responseType 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any> | Array<any>>}
+     */
     public async doGetRequest(
         url: string,
         options: Record<any, any>,
@@ -143,6 +177,14 @@ export class RequestHandler {
         return res;
     }
 
+    /**
+     * do put request
+     * @param url 
+     * @param options 
+     * @param data 
+     * @param parseDataFromResponse 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any> | Array<any>>}
+     */
     public async doPutRequest(
         url: string,
         options: Record<any, any>,
@@ -161,6 +203,14 @@ export class RequestHandler {
         return res;
     }
 
+    /**
+     * do delete request
+     * @param url 
+     * @param options 
+     * @param data 
+     * @param parseDataFromResponse 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any> | Array<any>>}
+     */
     public async doDeleteRequest(
         url: string,
         options: Record<any, any>,
@@ -179,6 +229,12 @@ export class RequestHandler {
         return res;
     }
 
+    /**
+     * method for generating headers for form data
+     * @param options 
+     * @param formData 
+     * @returns {Record<any, any>}
+     */
     public formDataHeaders(
         options: Record<any, any>,
         formData: FormData,
@@ -200,6 +256,12 @@ export class RequestHandler {
         return headers;
     }
 
+    /**
+     * method for generating form data, by passing file paths and method inputs
+     * @param inputs 
+     * @param filePaths 
+     * @returns {FormData}
+     */
     public formDataFromFilePathsAndInputs(
         inputs: Record<any, any>,
         filePaths: Array<string>,
@@ -221,6 +283,16 @@ export class RequestHandler {
         return formData;
     }
 
+    /**
+     * do post or put request with form data
+     * never gets called directly
+     * @param url 
+     * @param method 
+     * @param formData 
+     * @param headers 
+     * @param parseDataFromResponse 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any> | Array<any>>}
+     */
     private async doPostOrPutRequestWithFormData(
         url: string,
         method: RequestMethods.POST | RequestMethods.PUT,
@@ -261,6 +333,14 @@ export class RequestHandler {
 		}
     }
 
+    /**
+     * do post request with form data
+     * @param url 
+     * @param formData 
+     * @param headers 
+     * @param parseDataFromResponse 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any> | Array<any>>}
+     */
     public async doPostRequestWithFormData(
         url: string,
         formData: FormData,
@@ -285,6 +365,14 @@ export class RequestHandler {
         return res;
     }
 
+    /**
+     * do put request with form data
+     * @param url 
+     * @param formData 
+     * @param headers 
+     * @param parseDataFromResponse 
+     * @returns {Promise<Record<any, any>>}
+     */
     public async doPutRequestWithFormData(
         url: string,
         formData: FormData,
@@ -309,6 +397,10 @@ export class RequestHandler {
         return res;
     }
 
+    /**
+     * generate auth token from client creds
+     * @returns {Promise<Record<any, any>>}
+     */
     public async getAuthTokenFromClientCreds(): Promise<Record<any, any>> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         const clientID = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_ID);
@@ -344,6 +436,10 @@ export class RequestHandler {
         }
     }
 
+    /**
+     * generate auth token, then set in authconfig.json
+     * @returns {Promise<Record<any, any>>}
+     */
     public async setAndGetAuthToken(): Promise<Record<any, any>> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         let authToken = this.getAuthTokenFromClientCreds();
@@ -354,7 +450,7 @@ export class RequestHandler {
 
     /**
      * returns headers with access token
-     * @returns
+     * @returns {Promise<Record<any, any>>}
      */
     public async accessTokenHeader(): Promise<Record<any, any>> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
@@ -379,6 +475,13 @@ export class RequestHandler {
         }
     }
 
+    /**
+     * generate headers with access token and other headers
+     * @param contentType 
+     * @param queryParams 
+     * @param addContentType 
+     * @returns {Promise<Record<any, any>>}
+     */
     public async getAuthAndOptions(
         contentType?: string,
         queryParams?: Record<any, any>,

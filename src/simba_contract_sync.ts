@@ -14,6 +14,9 @@ import {
     SimbaSync,
 } from "./simba_sync";
 
+/**
+ * extends SimbaContract, for submitting synchronous contract methods
+ */
 export class SimbaContractSync extends SimbaContract {
     baseApiUrl: string;
     appName: string;
@@ -37,6 +40,14 @@ export class SimbaContractSync extends SimbaContract {
         this.simbaSync = new SimbaSync(this.baseApiURL)
     }
 
+    /**
+     * submit method synchronously
+     * @param methodName 
+     * @param inputs 
+     * @param filePaths 
+     * @param validateParams 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+     */
     public async submitMethod(
         methodName: string,
         inputs?: Record<any, any>,
