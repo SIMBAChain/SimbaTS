@@ -14,12 +14,15 @@ import {
 import utf8 from "utf8";
 import {
 	getAddress,
-	getDeployedArtifactID,
+	getArtifactID,
 } from "./utils";
 import {
 	FileHandler,
 } from "./filehandler";
 
+/**
+ * main class for interacting with SIMBA platform
+ */
 export class Simba {
 	baseApiUrl: string;
 	requestHandler: RequestHandler;
@@ -32,6 +35,12 @@ export class Simba {
 		this.requestHandler = requestHandler;
 	}
 
+	/**
+	 * generate SimbaContract class instance
+	 * @param appName 
+	 * @param contractName 
+	 * @returns {SimbaContract}
+	 */
 	public getSimbaContract(
 		appName: string,
 		contractName: string,
@@ -46,6 +55,11 @@ export class Simba {
 		return simbaContract;
 	}
 
+	/**
+	 * return user information
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async whoAmI(parseDataFromResponse: boolean = true): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
 			parseDataFromResponse,
@@ -68,6 +82,14 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * fund wallet
+	 * @param blockchain 
+	 * @param address 
+	 * @param amount 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async fund(
 		blockchain: string,
 		address: string,
@@ -102,6 +124,13 @@ export class Simba {
 		}
 	}
 	
+	/**
+	 * get balance from wallet
+	 * @param blockchain 
+	 * @param address 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async balance(
 		blockchain: string,
 		address: string,
@@ -130,6 +159,15 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * set wallet - admin perms required
+	 * @param userID 
+	 * @param blockchain 
+	 * @param pub 
+	 * @param priv 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async adminSetWallet(
 		userID: string | number,
 		blockchain: string,
@@ -169,6 +207,14 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * set wallet - no admin perms required
+	 * @param blockchain 
+	 * @param pub 
+	 * @param priv 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async setWallet(
 		blockchain: string,
 		pub: string,
@@ -206,6 +252,11 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get wallet
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getWallet(parseDataFromResponse: boolean = true,): Promise<AxiosResponse<any> | Record<any, any>> {
 		const params = {
 			parseDataFromResponse,
@@ -228,6 +279,13 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * create organisation
+	 * @param name 
+	 * @param display 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async createOrg(
 		name: string,
 		display: string,
@@ -260,6 +318,14 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * 
+	 * @param orgName 
+	 * @param appName 
+	 * @param display 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any> | void>}
+	 */
 	public async createApp(
 		orgName: string,
 		appName: string,
@@ -277,7 +343,7 @@ export class Simba {
     	const postURL = this.requestHandler.buildURL(this.baseApiUrl, `/v2/organisations/${orgName}/applications/`);
 		const options = await this.requestHandler.getAuthAndOptions();
 		try {
-			await this.requestHandler.doGetRequest(getURL, options, parseDataFromResponse);
+			const res = await this.requestHandler.doGetRequest(getURL, options, parseDataFromResponse);
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response && error.response.status === 404) {
 				const data = {
@@ -303,32 +369,18 @@ export class Simba {
 			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
 			throw(error);
 		}
+		const message = `app ${appName} for org ${orgName} already exists`;
+		SimbaConfig.log.error(`${message}`);
+		throw new Error(message);
 	}
 	
-	public async getApplications(
-		parseDataFromResponse: boolean = true,
-	): Promise<AxiosResponse<any> | Record<any, any>> {
-		const params = {
-			parseDataFromResponse,
-		}
-		SimbaConfig.log.debug(`:: SIMBA : ENTER : params : ${JSON.stringify(params)}`);
-		const url = this.requestHandler.buildURL(this.baseApiUrl, `/v2/apps/`)
-    	const options = await this.requestHandler.getAuthAndOptions();
-    	try {
-			const res = await this.requestHandler.doGetRequest(url, options, parseDataFromResponse);
-			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
-			return res;
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				SimbaConfig.log.error(`${JSON.stringify(error.response.data)}`);
-			} else {
-				SimbaConfig.log.error(`${JSON.stringify(error)}`);
-			}
-			SimbaConfig.log.debug(`:: SIMBA : EXIT :`);
-			throw(error);
-		}
-  	}
-	
+	/**
+	 * get application
+	 * @param orgName 
+	 * @param appName 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getApplication(
 		orgName: string,
 		appName: string,
@@ -357,6 +409,13 @@ export class Simba {
 		}
   	}
 
+	/**
+	 * get transactions for application
+	 * @param appName 
+	 * @param queryParams 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getApplicationTransactions(
     	appName: string,
     	queryParams?: Record<any, any>,
@@ -385,6 +444,13 @@ export class Simba {
 		}
   	}
 
+	/**
+	 * get contract from application
+	 * @param appName 
+	 * @param contractName 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
   	public async getApplicationContract(
     	appName: string,
     	contractName: string,
@@ -413,6 +479,14 @@ export class Simba {
 		}
   	}
 
+	/**
+	 * get transactions for contract
+	 * @param appName 
+	 * @param contractName 
+	 * @param queryParams 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getContractTransactions(
     	appName: string,
     	contractName: string,
@@ -443,6 +517,13 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get contracts for application
+	 * @param appName 
+	 * @param queryParams 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getContracts(
 		appName: string,
 		queryParams?: Record<any, any>,
@@ -471,6 +552,14 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * validate bundleHash
+	 * @param appName 
+	 * @param contractName 
+	 * @param bundleHash 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
   	public async validateBundleHash(
 		appName: string,
 		contractName: string,
@@ -501,6 +590,15 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get bundle from bundleHash and contractName and appName
+	 * @param appName 
+	 * @param contractName 
+	 * @param bundleHash 
+	 * @param downloadLocation 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any> | unknown>}
+	 */
 	public async getBundle(
 		appName: string,
 		contractName: string,
@@ -539,6 +637,16 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get file from fileName, bundleHash, contractName, and appName
+	 * @param appName 
+	 * @param contractName 
+	 * @param bundleHash 
+	 * @param fileName 
+	 * @param downloadLocation 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any> | unknown>}
+	 */
 	public async getBundleFile(
 		appName: string,
 		contractName: string,
@@ -575,6 +683,14 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get manifest for bundle from bundleHash
+	 * @param appName 
+	 * @param contractName 
+	 * @param bundleHash 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getManifestForBundleFromBundleHash(
 		appName: string,
 		contractName: string,
@@ -605,6 +721,13 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get contract info from contractName and appName
+	 * @param appName 
+	 * @param contractName 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getContractInfo(
 		appName: string,
 		contractName: string,
@@ -633,6 +756,15 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get events from appName, contractName, and eventName
+	 * @param appName 
+	 * @param contractName 
+	 * @param eventName 
+	 * @param queryParams 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getEvents(
 		appName: string,
 		contractName: string,
@@ -665,6 +797,12 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get events - admin perms required
+	 * @param queryParams 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async adminGetEvents(
 		queryParams?: Record<any, any>,
 		parseDataFromResponse: boolean = true,
@@ -691,6 +829,14 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get receipt from appName, contractName, and receiptHash
+	 * @param appName 
+	 * @param contractName 
+	 * @param receiptHash 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getReceipt(
 		appName: string,
 		contractName: string,
@@ -721,6 +867,14 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get transaction from appName, contractName, and transactionHash
+	 * @param appName 
+	 * @param contractName 
+	 * @param transactionHash 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getTransaction(
 		appName: string,
 		contractName: string,
@@ -751,6 +905,15 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get transactions by method
+	 * @param appName 
+	 * @param contractName 
+	 * @param methodName 
+	 * @param queryParams 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getTransactionsByMethod(
 		appName: string,
 		contractName: string,
@@ -783,6 +946,14 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get transactions by contract
+	 * @param appName 
+	 * @param contractName 
+	 * @param queryParams 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getTransactionsByContract(
 		appName: string,
 		contractName: string,
@@ -813,6 +984,16 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * submit contract method
+	 * @param appName 
+	 * @param contractName 
+	 * @param methodName 
+	 * @param inputs 
+	 * @param filePaths 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
     public async submitContractMethod(
 		appName: string,
 		contractName: string,
@@ -866,6 +1047,16 @@ export class Simba {
 		}
     }
 
+	/**
+	 * submit contract method synchronously
+	 * @param appName 
+	 * @param contractName 
+	 * @param methodName 
+	 * @param inputs 
+	 * @param filePaths 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
     public async submitContractMethodSync(
 		appName: string,
 		contractName: string,
@@ -921,6 +1112,15 @@ export class Simba {
 		}
     }
 
+	/**
+	 * returns previous invocations of contract method
+	 * @param appName 
+	 * @param contractName 
+	 * @param methodName 
+	 * @param args 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async callContractMethod(
 		appName: string,
 		contractName: string,
@@ -951,6 +1151,14 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * submit signed transaction for contract method
+	 * @param appName 
+	 * @param txnId 
+	 * @param txn 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async submitSignedTransaction(
 		appName: string,
 		txnId: string,
@@ -983,6 +1191,20 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * save contract design to SIMBA platform
+	 * @param orgName 
+	 * @param name 
+	 * @param code 
+	 * @param designID 
+	 * @param targetContract 
+	 * @param libraries 
+	 * @param encode 
+	 * @param model 
+	 * @param binaryTargets 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async saveDesign(
 		orgName: string,
 		name: string,
@@ -1064,6 +1286,15 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * wait for deployment to be COMPLETED state
+	 * @param orgName 
+	 * @param uid 
+	 * @param totalTime 
+	 * @param maxTime 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async waitForDeployment(
 		orgName: string,
 		uid: string,
@@ -1120,6 +1351,19 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * deploy contract design
+	 * @param orgName 
+	 * @param appName 
+	 * @param apiName 
+	 * @param designID 
+	 * @param blockchain 
+	 * @param storage 
+	 * @param displayName 
+	 * @param args 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async deployDesign(
 		orgName: string,
 		appName: string,
@@ -1173,6 +1417,19 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * deploy contract artifact
+	 * @param orgName 
+	 * @param appName 
+	 * @param apiName 
+	 * @param artifactID 
+	 * @param blockchain 
+	 * @param storage 
+	 * @param displayName 
+	 * @param args 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async deployArtifact(
 		orgName: string,
 		appName: string,
@@ -1227,6 +1484,19 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * wait for contract design to be COMPLETED state
+	 * @param orgName 
+	 * @param appName 
+	 * @param designID 
+	 * @param apiName 
+	 * @param blockchain 
+	 * @param storage 
+	 * @param displayName 
+	 * @param args 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async waitForDeployDesign(
 		orgName: string,
 		appName: string,
@@ -1267,7 +1537,7 @@ export class Simba {
 		try {
 			const deployed = await this.waitForDeployment(orgName, deploymentID);
 			address = getAddress(deployed);
-			contractID = getDeployedArtifactID(deployed);
+			contractID = getArtifactID(deployed);
 			const ret = [address, contractID];
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : ret : ${JSON.stringify(ret)}`);
 			return ret;
@@ -1278,6 +1548,19 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * wait for contract artifact to be COMPLETED state
+	 * @param orgName 
+	 * @param appName 
+	 * @param artifactID 
+	 * @param apiName 
+	 * @param blockchain 
+	 * @param storage 
+	 * @param displayName 
+	 * @param args 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async waitForDeployArtifact(
 		orgName: string,
 		appName: string,
@@ -1318,7 +1601,7 @@ export class Simba {
 		try {
 			const deployed = await this.waitForDeployment(orgName, deploymentID);
 			address = getAddress(deployed);
-			contractID = getDeployedArtifactID(deployed);
+			contractID = getArtifactID(deployed);
 			const ret = [address, contractID];
 			SimbaConfig.log.debug(`:: SIMBA : EXIT : ret : ${JSON.stringify(ret)}`);
 			return ret;
@@ -1329,6 +1612,15 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * wait for transaction to be COMPLETED state
+	 * @param orgName 
+	 * @param uid 
+	 * @param totalTime 
+	 * @param maxTime 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async waitForOrgTransaction(
 		orgName: string,
 		uid: string,
@@ -1385,6 +1677,12 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get contract designs
+	 * @param orgName 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getDesigns(
 		orgName: string,
 		parseDataFromResponse: boolean = true,
@@ -1412,6 +1710,12 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get blockchains for organisation
+	 * @param orgName 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getBlockchains(
 		orgName: string,
 		parseDataFromResponse: boolean = true,
@@ -1438,6 +1742,12 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get storages for organisation
+	 * @param orgName 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getStorages(
 		orgName: string,
 		parseDataFromResponse: boolean = true,
@@ -1464,6 +1774,13 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get contract artifacts for organisation
+	 * @param orgName 
+	 * @param queryParams 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getArtifacts(
 		orgName: string,
 		queryParams?: Record<any, any>,
@@ -1492,6 +1809,13 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * get contract artifact
+	 * @param orgName 
+	 * @param artifactID 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async getArtifact(
 		orgName: string,
 		artifactID: string,
@@ -1520,6 +1844,13 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * create contract artifact for organisation
+	 * @param orgName 
+	 * @param designID 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async createArtifact(
 		orgName: string,
 		designID: string,
@@ -1551,6 +1882,17 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * create subscription organisation 
+	 * @param orgName 
+	 * @param notificationEndpoint 
+	 * @param contractAPI 
+	 * @param txn 
+	 * @param subscriptionType 
+	 * @param authType 
+	 * @param parseDataFromResponse 
+	 * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+	 */
 	public async subscribe(
 		orgName: string,
 		notificationEndpoint: string,
@@ -1606,6 +1948,15 @@ export class Simba {
 		}
 	}
 
+	/**
+	 * set notification config for organisation
+	 * @param orgName 
+	 * @param scheme 
+	 * @param authType 
+	 * @param authInfo 
+	 * @param parseDataFromResponse 
+	 * @returns 
+	 */
 	public async setNotificationConfig(
 		orgName: string,
 		scheme: string,

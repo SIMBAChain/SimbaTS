@@ -40,7 +40,7 @@ TypeScript SDK for SIMBA Chain
 
 ## Summary
 
-SimbaTS is the TypeScript SDK for SIMBA Chain. It contains functionality for interacting with the SIMBA platform in general, as well as for interacting with your deployed smart contracts in particular. We currently have a service, Polyglot, that is under construction, which will streamline the process of interacting with your deployed smart contracts If you are using SimbaTS to interact with your deployed smart contracts, then we highly recommend you integrate with our Polyglot service, which we explain in this documentation.
+SimbaTS is the TypeScript SDK for SIMBA Chain. It contains functionality for interacting with the SIMBA platform in general, as well as for interacting with your deployed smart contracts in particular. We currently have a service, Polyglot, that is under construction, which will streamline the process of interacting with your deployed smart contracts If you are using SimbaTS to interact with your deployed smart contracts, then we highly recommend you integrate with our Polyglot service, which we explain in this documentation. As of this writing (March 2023), Polyglot is still under construction.
 
 ## Installation
 
@@ -68,9 +68,9 @@ SIMBA_AUTH_CLIENT_ID="your SIMBA client ID"
 SIMBA_AUTH_CLIENT_SECRET="your SIMBA client secret"
 ```
 
-Additionall, you can also set the log level for debugging purposes. So for instance, if you want to set the SimbaTS logger to debug, you would set:
+Additionally, you can also set the log level for debugging purposes. So for instance, if you want to set the SimbaTS logger to debug, you would set:
 ```
-SIMBATS_LOG_LEVEL="info"
+SIMBA_LOG_LEVEL="info"
 ```
 
 ### Where to store your environment variables
@@ -87,7 +87,7 @@ export SIMBA_HOME=myexamplehomedirectory/dev/simbachain/mysimbahome/
 
 ### Where, and in what order, we search for SIMBA environment files
 For env vars, we search, in this order:
-     * local project directory (the top level of your project) for:
+     * local project directory (the root of your project) for:
         - .simbachain.env
         - simbachain.env
         - .env
@@ -279,10 +279,6 @@ const orgName = "simbats_org";
 const appName = "simbats_app";
 const display = "simbats_app";
 const res = await simba.createApp(orgName, appName, display) as Record<any, any>;
-
-// Simba.getApplications
-const simba = new Simba();
-const apps = await simba.getApplications() as Record<any, any>;
 
 // Simba.getApplication
 const simba = new Simba();
@@ -902,19 +898,19 @@ const res = await simbaContractSync.submitMethod(
 Polyglot is currently under construction, but will substantially streamline the process of interacting with your deployed smart contracts once fully implemented.
 
 ### Testing
-This section pertains to testing, if you have clonded SimbaTS. To run tests for SimbaTS, you'll want to have your SIMBA environment variables set in .simbachain.env at the top level of the /tests/ directory. So something like:
+This section pertains to testing, if you have cloned SimbaTS. To run tests for SimbaTS, you'll want to have your SIMBA environment variables set in .simbachain.env at the top level of the /tests/ directory. So something like:
 
 ```
 SIMBA_API_BASE_URL="https://simba-dev-api.platform.simbachain.com/"
 SIMBA_AUTH_BASE_URL="https://simba-dev-api.platform.simbachain.com/"
 SIMBA_AUTH_CLIENT_ID="Insert your client ID"
-SIMBA_AUTH_CLIENT_SECRET="Insert your clietn secret"
+SIMBA_AUTH_CLIENT_SECRET="Insert your client secret"
 ```
 
-Additionally, you can also configure SIMBATS_LOG_LEVEL, if you want tests to be run at a different log level. So if you want tests to be run at "debug" level, in .simbachain.env you would set:
+Additionally, you can also configure SIMBA_LOG_LEVEL, if you want tests to be run at a different log level. So if you want tests to be run at "debug" level, in .simbachain.env you would set:
 
 ```
-SIMBATS_LOG_LEVEL="info"
+SIMBA_LOG_LEVEL="info"
 ```
 
 ### unit and integration tests for developers

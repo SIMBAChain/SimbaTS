@@ -1,6 +1,6 @@
 import {
     ParamCheckingContract,
-} from "../../param_checking_contract";
+} from "../../src/param_checking_contract";
 import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
@@ -11,7 +11,7 @@ import {
     contractName,
     baseApiUrl,
 } from "../project_configs";
-import { FileHandler } from "../../filehandler";
+import { FileHandler } from "../../src/filehandler";
 const pathToTestMetaData = path.join(cwd(), "test_data", "test_metadata.json");
 
 describe('testing ParamCheckingContract.isArray', () => {
@@ -135,7 +135,7 @@ describe('testing ParamCheckingContract.paramRestrictions', () => {
 });
 
 describe('testing ParamCheckingContract.validateParams', () => {
-    it('should be 0, 3, 5', async () => {
+    it('some should pass, some should fail because of param checking', async () => {
         const metadata = await FileHandler.parsedFile(pathToTestMetaData);
         const pcc = new ParamCheckingContract(
             appName,

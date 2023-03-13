@@ -1,10 +1,10 @@
 import {
     SimbaConfig,
     SimbaEnvVarKeys,
-} from "../../config";
+} from "../../src/config";
 import {
     FileHandler,
-} from "../../filehandler"
+} from "../../src/filehandler"
 import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
@@ -37,7 +37,7 @@ describe('testing SimbaConfig.retrieveEnvVar', async () => {
     });
 
     it('should exist', async () => {
-        const SIMBA_API_BASE_URL = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBATS_LOG_LEVEL);
+        const SIMBA_API_BASE_URL = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_LOG_LEVEL);
         expect(SIMBA_API_BASE_URL).to.exist;
     });
 });
@@ -77,5 +77,43 @@ describe('testing SimbaConfig.tokenExpired, SimbaConfig.setAuthTokenField', asyn
         let tokenExpired = SimbaConfig.tokenExpired();
         expect(tokenExpired).to.equal(true);
         SimbaConfig.authConfig.clear();
+    });
+});
+
+describe('tests setEnvVars', () => {
+    it('SimbaConfig.envVars should be present after calling .setEnvVars', async () => {
+        // for this test, you need to have env vars set for:
+            // SIMBA_AUTH_CLIENT_ID
+            // SIMBA_AUTH_CLIENT_SECRET
+        SimbaConfig.envVars = {};
+        SimbaConfig.setEnvVars();
+        const envVars = SimbaConfig.envVars;
+        // following two tests ensure .envVars was both set and returned
+        expect(Object.values(envVars).length).to.be.greaterThan(0);
+    });
+
+    it('SimbaConfig.envVars should be present after calling .retrieveEnvVar()', async () => {
+        // for this test, you need to have env vars set for:
+            // SIMBA_AUTH_CLIENT_ID
+            // SIMBA_AUTH_CLIENT_SECRET
+        SimbaConfig.envVars = {};
+        SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_ID);
+        const envVars = SimbaConfig.envVars;
+        // following two tests ensure .envVars was both set and returned
+        expect(Object.values(envVars).length).to.be.greaterThan(0);
+    });
+});
+
+describe('tests retrieveEnvVar', () => {
+    it('vals from retrieveEnvVar should be same as from process.env', async () => {
+        // for this test, you need to have env vars set for:
+            // SIMBA_AUTH_CLIENT_ID
+            // SIMBA_AUTH_CLIENT_SECRET
+        const IDFromMethod = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_ID);
+        expect(IDFromMethod).to.equal("6lS6sae75lJx3m6KaCKKBbmxCkJM9g1aClrZtDtm");
+
+        const authEndpointFromMethod = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT);
+        const authEndpointFromEnv = process.env.SIMBA_AUTH_CLIENT_ENDPOINT;
+        expect(authEndpointFromMethod).to.equal(authEndpointFromEnv);
     });
 });

@@ -20,7 +20,7 @@ export enum SimbaEnvVarKeys {
     SIMBA_AUTH_ENDPOINT = "SIMBA_AUTH_ENDPOINT",
     SIMBA_LOGGING_HOME = "SIMBA_LOGGING_HOME",
     SIMBA_HOME = "SIMBA_HOME",
-    SIMBATS_LOG_LEVEL = "SIMBATS_LOG_LEVEL",
+    SIMBA_LOG_LEVEL = "SIMBA_LOG_LEVEL",
 }
 
 enum SimbaEnvFiles {
@@ -53,6 +53,7 @@ export class SimbaConfig {
     public static _projectConfigStore: Configstore;
     public static simbaEnvVarFileConfigured: boolean | undefined = false;
     public static simbaEnvVarFile: string | undefined;
+    public static envVars: Record<any, any> = {};
     /**
      * handles our auth / access token info
      */
@@ -67,6 +68,8 @@ export class SimbaConfig {
 
     /**
      * handles project info, contained in simba.json
+     * simba.json is not currently used in SimbaTS, but
+     * there may be a use case for storing project info in the future
      */
     public static get ProjectConfigStore(): Configstore {
         if (!this._projectConfigStore) {
@@ -90,17 +93,20 @@ export class SimbaConfig {
      * how we get loglevel
      */
     public static get logLevel(): LogLevel {
-        const level = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBATS_LOG_LEVEL)
+        const level = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_LOG_LEVEL)
         if (level && !Object.values(LogLevel).includes(level as LogLevel)) {
-            console.error(`SimbaConfig.logLevel :: SIMBA : EXIT : unrecognized SIMBATS_LOG_LEVEL - ${level} set in ${SimbaConfig.simbaEnvVarFile} : ${level} : using level "info" instead. Please note that LOG_LEVEL can be one of ${Object.values(LogLevel)}`);
+            console.error(`SimbaConfig.logLevel :: SIMBA : EXIT : unrecognized SIMBA_LOG_LEVEL - ${level} set in ${SimbaConfig.simbaEnvVarFile} : ${level} : using level "info" instead. Please note that LOG_LEVEL can be one of ${Object.values(LogLevel)}`);
             return LogLevel.INFO;
         }
         if (!level) {
             return LogLevel.INFO;
         }
-        return process.env[SimbaEnvVarKeys.SIMBATS_LOG_LEVEL] as LogLevel;
+        return process.env[SimbaEnvVarKeys.SIMBA_LOG_LEVEL] as LogLevel;
     }
 
+    /**
+     * retrieves SIMBA_API_BASE_URL from env file
+     */
     public static get baseURL(): string {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         const baseURL = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_API_BASE_URL);
@@ -109,76 +115,93 @@ export class SimbaConfig {
     }
 
     /**
-     * for env vars, we search, in this order:
-     * local project directory for:
-     *  - .simbachain.env
-     *  - simbachain.env
-     *  - .env
-     * 
-     * then we look for a SIMBA_HOME env var at the system level,
-     * and within that directory, we search for:
-     *  - .simbachain.env
-     *  - simbachain.env
-     *  - .env
-     * 
-     * @param envVarKey key of environment variable we want to retrieve value
+     * helper function for setting env vars, so we're not repeating loop code
+     * @param dir 
+     * @param foundKeys 
+     * @returns 
      */
-     public static retrieveEnvVar(envVarKey: SimbaEnvVarKeys): string {
-        if (envVarKey === SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT) {
-            return DEFAULT_AUTH_ENDPOINT;
+    private static setEnvVarsFromDirectory(dir: string, foundKeys: Array<any>) {
+        if (!foundKeys.length) {
+            foundKeys.push(SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT);
+            SimbaConfig.envVars[SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT] = DEFAULT_AUTH_ENDPOINT;
         }
-        
-        // if we've already configured process.env:
-        if (SimbaConfig.simbaEnvVarFileConfigured) {
-            const val = process.env[envVarKey];
-            if (val) {
-                return val;
-            } else {
-                // we don't want to panic if we're just looking for log level - user shouldn't have to set that
-                if (envVarKey === SimbaEnvVarKeys.SIMBATS_LOG_LEVEL) {
-                    return LogLevel.INFO;
+        for (let i = 0; i < simbaEnvFilesArray.length; i++) {
+            if (foundKeys.length === Object.values(SimbaEnvVarKeys).length) {
+                SimbaConfig.log.debug(`:: EXIT : ${JSON.stringify(SimbaConfig.envVars)}`)
+                return;
+            }
+            const fileName = simbaEnvFilesArray[i];
+            dotenv.config({
+                override: true,
+                path: path.resolve(dir, fileName),
+            });
+
+            for (let j = 0; j < Object.values(SimbaEnvVarKeys).length; j++) {
+                const envVarKey = Object.values(SimbaEnvVarKeys)[j];
+                if (foundKeys.includes(envVarKey)) {
+                    continue;
+                } else {
+                    const simbaKey = Object.values(SimbaEnvVarKeys)[j];
+                    const val = process.env[simbaKey];
+                    if (val) {
+                        SimbaConfig.envVars[simbaKey] = val;
+                        foundKeys.push(envVarKey)
+                    }
+
                 }
-                const message = `no value found for environment variable ${envVarKey}`;
-                console.error(`SimbaConfig.retrieveEnvVar :: SIMBA : EXIT : ${message}`);
-                throw(message);
             }
         }
-
-        // first check local directory
-        for (let i = 0; i < simbaEnvFilesArray.length; i++) {
-            const fileName = simbaEnvFilesArray[i];
-            dotenv.config({ path: path.resolve(cwd(), fileName) });
-            const val = process.env[envVarKey];
-            if (val) {
-                SimbaConfig.simbaEnvVarFileConfigured = true;
-                SimbaConfig.simbaEnvVarFile = path.join(cwd(), fileName);
-                return val;
-            }
-        }
-
-        // now we check SIMBA_HOME directory
-        for (let i = 0; i < simbaEnvFilesArray.length; i++) {
-            const fileName = simbaEnvFilesArray[i];
-            dotenv.config({ path: path.resolve(SIMBA_HOME, fileName) });
-            const val = process.env[envVarKey];
-            if (val) {
-                SimbaConfig.simbaEnvVarFileConfigured = true;
-                SimbaConfig.simbaEnvVarFile = path.join(SIMBA_HOME, fileName);
-                return val;
-            }
-        }
-
-        // we don't want to panic if we're just looking for log level - user shouldn't have to set that
-        if (envVarKey === SimbaEnvVarKeys.SIMBATS_LOG_LEVEL) {
-            return LogLevel.INFO;
-        }
-        
-        const message = `unable to find ${envVarKey} in local project or in your SIMBA_HOME directory. To solve, please make sure ${envVarKey} is set as an environment variable in ${SimbaEnvFiles.DOT_SIMBACHAIN_DOT_ENV}, ${SimbaEnvFiles.SIMBACHAIN_DOT_ENV}, or ${SimbaEnvFiles.DOT_ENV}. You can do this in either the top level of this project's directory, or in the directory that your system level SIMBA_HOME points to.`;
-
-        console.error(`SimbaConfig.retrieveEnvVar :: SIMBA : EXIT : ${message}`);
-        throw(message);
     }
 
+    /**
+     * this method only gets called once, when a process first tries to retrieve an env var
+     * if SimbaConfig.envVars's values is zero length, then we call this method
+     * 
+     * The code is a bit convoluted, so here's the process:
+     * 1. iterate through file names of (.simbachain.env, simbachain.env, .env) in our project root
+     * 2. we then loop through each of our SimbaEnvVarKeys until we find all of them, or
+     * we have finished going through all files (not all env vars are necessary to be set)
+     * 3. we then run through 1-4 again, but we use SIMBA_HOME instead of project root
+     * 4. set as SimbaConfig.envVars once finished
+     * @returns {Promise<Record<any, any>>}
+     */
+    public static setEnvVars(): Record<any, any> {
+        const foundKeys: Array<any> = [];
+        SimbaConfig.setEnvVarsFromDirectory(cwd(), foundKeys);
+        SimbaConfig.setEnvVarsFromDirectory(SIMBA_HOME, foundKeys);
+        return SimbaConfig.envVars;
+    }
+
+    /**
+     * retrieves value for env var key. looks for:
+     * 
+     * if SimbaConfig.envVars values has zero length, we first call SimbaConfig.setEnvVars
+     * @param SimbaEnvVarKeys
+     * @returns 
+     */
+    public static retrieveEnvVar(envVarKey: SimbaEnvVarKeys): string {
+        let envVars;
+        if (!Object.values(SimbaConfig.envVars).length) {
+            envVars = SimbaConfig.setEnvVars();
+        } else {
+            envVars = SimbaConfig.envVars;
+        }
+
+        const val = envVars[envVarKey];
+        if (val) {
+            return val;
+        }
+
+        const message = `Unable to find value for ${envVarKey}. You can set this in one of the following file names: .simbachain.env, simbachain.env, or .env; and these files can live in your local project root (best option) or in the directory that SIMBA_HOME points to in your system env vars.`
+        // SimbaConfig.log.error(`${chalk.redBright(`:: EXIT : ${message}`)}`);
+        throw new Error(message);
+    }
+
+    /**
+     * sets auth token in authconfig.json
+     * @param authToken 
+     * @returns 
+     */
     public static setAuthToken(authToken: Record<any, any>) {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         SimbaConfig.authConfig.set(AUTHKEY, authToken);
@@ -186,6 +209,10 @@ export class SimbaConfig {
         return;
     }
 
+    /**
+     * retrieves auth token from authconfig.json
+     * @returns {Record<any, any>}
+     */
     public static getAuthTokenFromConfig(): Record<any, any> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         const authToken = SimbaConfig.authConfig.get(AUTHKEY) ?
@@ -195,6 +222,11 @@ export class SimbaConfig {
         return authToken;
     }
 
+    /**
+     * takes in an auth token and adds new fields, such as retrieved_at and expires_at
+     * @param authToken 
+     * @returns {Record<any, any>}
+     */
     public static parseExpiry(authToken: Record<any, any>): Record<any, any> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         if ('expires_in' in authToken) {
@@ -213,6 +245,11 @@ export class SimbaConfig {
         return authToken;
     }
 
+    /**
+     * parses auth token and sets it in authconfig.json
+     * @param authToken 
+     * @returns {Record<any, any>}
+     */
     public static getAndSetParsedAuthToken(authToken: Record<any, any>): Record<any, any> {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
         const parsedToken = SimbaConfig.parseExpiry(authToken);
@@ -224,7 +261,7 @@ export class SimbaConfig {
     /**
      * checks if auth token is expired. used as a check before we make http call
      * idea is to check for bad token before http call, if possible
-     * @returns 
+     * @returns {boolean}
      */
     public static tokenExpired(): boolean {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
@@ -251,7 +288,7 @@ export class SimbaConfig {
      * 
      * Note: likely won't use, since the SDK will use client creds, and the
      * access token for client creds does not have a refresh token
-     * @returns 
+     * @returns {boolean}
      */
     public refreshTokenExpired(): boolean {
         SimbaConfig.log.debug(`:: SIMBA : ENTER :`);
@@ -272,6 +309,12 @@ export class SimbaConfig {
         return false;
     }
 
+    /**
+     * set a field in auth token in authconfig.json
+     * @param fieldKey 
+     * @param fieldVal 
+     * @returns 
+     */
     public static setAuthTokenField(fieldKey: string, fieldVal: any) {
         const params = {
             fieldKey,
