@@ -1,6 +1,6 @@
 {
   "name": "@simbachain/simbats",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "TypeScript SDK for SIMBA Chain",
   "main": "index.js",
   "repository": "https://github.com/SIMBAChain/SimbaTS",
