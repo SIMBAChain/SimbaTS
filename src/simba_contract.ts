@@ -14,6 +14,9 @@ import {
     Simba,
 } from "./simba";
 
+/**
+ * Main class for submitting contract methods
+ */
 export class SimbaContract extends ParamCheckingContract {
     baseApiURL: string;
     appName: string;
@@ -38,6 +41,11 @@ export class SimbaContract extends ParamCheckingContract {
         this.simba = new Simba(this.baseApiURL)
     }
 
+    /**
+     * returns past invocations of contract method calls for methodName
+     * @param methodName 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+     */
     public async callMethod(
         methodName: string,
     ): Promise<AxiosResponse<any> | Record<any, any>> {
@@ -54,6 +62,14 @@ export class SimbaContract extends ParamCheckingContract {
         return res;
     }
 
+    /**
+     * invokes methodName
+     * @param methodName 
+     * @param inputs 
+     * @param filePaths 
+     * @param validateParams 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+     */
     public async submitMethod(
         methodName: string,
         inputs?: Record<any, any>,
@@ -80,6 +96,12 @@ export class SimbaContract extends ParamCheckingContract {
         return res;
     }
 
+    /**
+     * returns transactions for methodName
+     * @param methodName 
+     * @param queryParams 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+     */
     public async getTransactionsByMethod(
         methodName: string,
         queryParams?: Record<any, any>
@@ -98,6 +120,12 @@ export class SimbaContract extends ParamCheckingContract {
         return res;
     }
 
+    /**
+     * returns events for eventName
+     * @param eventName 
+     * @param queryParams 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any>>}
+     */
     public async getEvents(
         eventName: string,
         queryParams?: Record<any, any>,
@@ -117,6 +145,11 @@ export class SimbaContract extends ParamCheckingContract {
         return res;
     }
 
+    /**
+     * validate bundleHash
+     * @param bundleHash 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any> | void>}
+     */
     public async validateBundleHash(
         bundleHash: string,
     ): Promise<AxiosResponse<any> | Record<any, any> | void> {
@@ -133,6 +166,12 @@ export class SimbaContract extends ParamCheckingContract {
         return res;
     }
 
+    /**
+     * get bundle from bundleHash
+     * @param bundleHash 
+     * @param downloadLocation 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any> | void | unknown>}
+     */
     public async getBundle(
         bundleHash: string,
         downloadLocation: string,
@@ -152,6 +191,13 @@ export class SimbaContract extends ParamCheckingContract {
         return res;
     }
 
+    /**
+     * get file from bundleHash
+     * @param bundleHash 
+     * @param fileName 
+     * @param downloadLocation 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any> | void | unknown>}
+     */
     public async getBundleFile(
         bundleHash: string,
         fileName: string,
@@ -174,6 +220,11 @@ export class SimbaContract extends ParamCheckingContract {
         return res;
     }
 
+    /**
+     * get manifest from bundleHash
+     * @param bundleHash 
+     * @returns {Promise<AxiosResponse<any> | Record<any, any> | void>}
+     */
     public async getManifestFromBundleHash(
         bundleHash: string,
     ): Promise<AxiosResponse<any> | Record<any, any> | void> {
