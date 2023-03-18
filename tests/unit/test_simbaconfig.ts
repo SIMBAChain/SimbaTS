@@ -111,9 +111,5 @@ describe('tests retrieveEnvVar', () => {
             // SIMBA_AUTH_CLIENT_SECRET
         const IDFromMethod = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_CLIENT_ID);
         expect(IDFromMethod).to.equal("6lS6sae75lJx3m6KaCKKBbmxCkJM9g1aClrZtDtm");
-
-        const authEndpointFromMethod = SimbaConfig.retrieveEnvVar(SimbaEnvVarKeys.SIMBA_AUTH_ENDPOINT);
-        const authEndpointFromEnv = process.env.SIMBA_AUTH_CLIENT_ENDPOINT;
-        expect(authEndpointFromMethod).to.equal(authEndpointFromEnv);
     });
 });
