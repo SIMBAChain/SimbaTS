@@ -86,7 +86,7 @@ describe.skip('testing Simba.getContracts with queryParams', () => {
         expect(res.next).to.equal(null);
         expect(res.previous).to.equal(null);
         expect(res.results[0].id).to.equal(id);
-    }).timeout(10000);
+    }).timeout(15000);
 });
 
 describe('testing Simba.getBundle', () => {
@@ -102,7 +102,7 @@ describe('testing Simba.getBundle', () => {
         ) as Record<any, any>;
         expect(fs.existsSync(downloadLocation)).to.equal(true);
         FileHandler.removeFile(downloadLocation);
-    }).timeout(10000);
+    }).timeout(15000);
 });
 
 describe('testing Simba.getBundleFile', () => {
@@ -121,7 +121,7 @@ describe('testing Simba.getBundleFile', () => {
         ) as Record<any, any>;
         expect(fs.existsSync(downloadLocation)).to.equal(true);
         FileHandler.removeFile(downloadLocation);
-    }).timeout(10000);
+    }).timeout(15000);
 });
 
 // filtering not supported yet - backend needs to implement
@@ -141,7 +141,7 @@ describe.skip('testing Simba.getEvents with queryParams', () => {
         expect(Object.keys(res).includes("next")).to.equal(true);
         expect(Object.keys(res).includes("previous")).to.equal(true);
         expect(res.results.length).to.exist;
-    }).timeout(10000);
+    }).timeout(15000);
 });
 
 // filtering not supported yet - backend needs to implement
@@ -166,5 +166,5 @@ describe.skip('testing Simba.adminGetEvents with queryParams', () => {
             expect(event.inputs).to.exist;
             expect(event.transaction).to.exist;
         }
-    }).timeout(10000);
+    }).timeout(15000);
 });
