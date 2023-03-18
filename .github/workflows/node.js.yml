@@ -35,8 +35,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: touch ./tests/.simbachain.env 
-    - run: echo SIMBA_API_BASE_URL=https://simba-demo-api.platform.simbachain.com/ >> ./tests/.simbachain.env
-    - run: echo SIMBA_AUTH_CLIENT_SECRET=${{ secrets.DEMO_CLIENT_SECRET }} >> ./tests/.simbachain.env
-    - run: echo SIMBA_AUTH_CLIENT_ID=${{ secrets.DEMO_CLIENT_ID }} >> ./tests/.simbachain.env
+    - run: echo SIMBA_API_BASE_URL=https://simba-dev-api.platform.simbachain.com/ >> ./tests/.simbachain.env
+    - run: echo SIMBA_AUTH_BASE_URL=https://simba-dev-api.platform.simbachain.com/ >> ./tests/.simbachain.env
+    - run: echo SIMBA_AUTH_CLIENT_SECRET=${{ secrets.DEV_CLIENT_SECRET }} >> ./tests/.simbachain.env
+    - run: echo SIMBA_AUTH_CLIENT_ID=${{ secrets.DEV_CLIENT_ID }} >> ./tests/.simbachain.env
+    - run: echo SIMBA_AUTH_ENDPOINT="/o/" >> ./tests/.simbachain.env
+    - run: echo SIMBA_LOG_LEVEL="info" >> ./tests/.simbachain.env
     - run: npm install
-    - run: npm run all_clean_test
+    - run: npm run all_test_with_setup
